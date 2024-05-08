@@ -96,6 +96,9 @@ build-linux-static:
 install:
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/bcd
 
+lint:
+	golangci-lint run --tests=false ./...
+
 ########################################
 ### Testing
 
@@ -120,6 +123,6 @@ test-sim-multi-seed-short: runsim
 	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(SIMAPP) -ExitOnFail 50 10 TestFullAppSimulation
 
 .PHONY: all \
-	go-mod-cache draw-deps clean build build-linux-static build-vendored \
+	go-mod-cache draw-deps clean build build-linux-static build-vendored lint \
 	test test-all test-build test-cover test-unit test-race \
 	proto-all proto-format proto-swagger-gen proto-lint proto-check-breaking

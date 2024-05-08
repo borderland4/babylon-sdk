@@ -40,7 +40,8 @@ format-tools:
 	go install github.com/daixiang0/gci@v0.11.2
 
 lint: format-tools
-	golangci-lint run --tests=false ./demo/... ./x/...
+	$(MAKE) -C demo lint
+	$(MAKE) -C tests/e2e lint
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "./x/vendor*" -not -path "*.git*" -not -path "*_test.go" | xargs gofumpt -d -s
 
 format: format-tools

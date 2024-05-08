@@ -15,11 +15,12 @@ import (
 
 	"cosmossdk.io/math"
 
-	"github.com/babylonchain/babylon-sdk/demo/app"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+
+	"github.com/babylonchain/babylon-sdk/demo/app"
 )
 
 var (

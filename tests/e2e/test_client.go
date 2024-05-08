@@ -7,11 +7,13 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm/ibctesting"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/stretchr/testify/require"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/babylonchain/babylon-sdk/demo/app"
 	babylon "github.com/babylonchain/babylon-sdk/x/babylon"
 	"github.com/babylonchain/babylon-sdk/x/babylon/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/require"
 )
 
 // Query is a query type used in tests only
