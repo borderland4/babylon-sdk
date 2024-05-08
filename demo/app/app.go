@@ -126,9 +126,9 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/babylonchain/babylon-sdk/x/meshsecurity"
-	meshseckeeper "github.com/babylonchain/babylon-sdk/x/meshsecurity/keeper"
-	meshsectypes "github.com/babylonchain/babylon-sdk/x/meshsecurity/types"
+	babylon "github.com/babylonchain/babylon-sdk/x/babylon"
+	bbnkeeper "github.com/babylonchain/babylon-sdk/x/babylon/keeper"
+	bbntypes "github.com/babylonchain/babylon-sdk/x/babylon/types"
 )
 
 const appName = "MeshApp"
@@ -199,7 +199,7 @@ var (
 		transfer.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		ibcfee.AppModuleBasic{},
-		meshsecurity.AppModuleBasic{},
+		babylon.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -215,7 +215,7 @@ var (
 		ibcfeetypes.ModuleName:         nil,
 		icatypes.ModuleName:            nil,
 		wasmtypes.ModuleName:           {authtypes.Burner},
-		meshsectypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
+		bbntypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
 	}
 )
 
@@ -262,7 +262,7 @@ type MeshApp struct {
 	ICAHostKeeper       icahostkeeper.Keeper
 	TransferKeeper      ibctransferkeeper.Keeper
 	WasmKeeper          wasmkeeper.Keeper
-	MeshSecKeeper       *meshseckeeper.Keeper
+	BabylonKeeper       *bbnkeeper.Keeper
 
 	ScopedIBCKeeper           capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
@@ -313,11 +313,11 @@ func NewMeshApp(
 		ibcexported.StoreKey, ibctransfertypes.StoreKey, ibcfeetypes.StoreKey,
 		wasmtypes.StoreKey, icahosttypes.StoreKey,
 		icacontrollertypes.StoreKey,
-		meshsectypes.StoreKey,
+		bbntypes.StoreKey,
 	)
 
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
-	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey, meshsectypes.MemStoreKey)
+	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey, bbntypes.MemStoreKey)
 
 	// load state streaming if enabled
 	if _, _, err := streaming.LoadStreamingServices(bApp, appOpts, appCodec, logger, keys); err != nil {
@@ -407,10 +407,10 @@ func NewMeshApp(
 	// setup mesh-security keeper with vanilla Cosmos-SDK
 	// see also NewKeeperX constructor for integration with Osmosis SDK fork
 	// should be initialized before wasm keeper for custom query/msg handlers
-	app.MeshSecKeeper = meshseckeeper.NewKeeper(
+	app.BabylonKeeper = bbnkeeper.NewKeeper(
 		app.appCodec,
-		keys[meshsectypes.StoreKey],
-		memKeys[meshsectypes.MemStoreKey],
+		keys[bbntypes.StoreKey],
+		memKeys[bbntypes.MemStoreKey],
 		app.BankKeeper,
 		app.StakingKeeper,
 		&app.WasmKeeper, // ensure this is a pointer as we instantiate the keeper a bit later
@@ -422,7 +422,7 @@ func NewMeshApp(
 		legacyAmino,
 		keys[slashingtypes.StoreKey],
 		// decorate the sdk keeper to capture all jail/ unjail events for MS
-		meshseckeeper.NewStakingDecorator(app.StakingKeeper, app.MeshSecKeeper),
+		bbnkeeper.NewStakingDecorator(app.StakingKeeper, app.BabylonKeeper),
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
@@ -445,7 +445,7 @@ func NewMeshApp(
 			app.DistrKeeper.Hooks(),
 			app.SlashingKeeper.Hooks(),
 			// register hook to capture valset updates
-			app.MeshSecKeeper.Hooks(),
+			app.BabylonKeeper.Hooks(),
 		),
 	)
 
@@ -528,7 +528,7 @@ func NewMeshApp(
 		keys[evidencetypes.StoreKey],
 		app.StakingKeeper,
 		// decorate the SlashingKeeper to capture the tombstone event
-		meshseckeeper.CaptureTombstoneDecorator(app.MeshSecKeeper, app.SlashingKeeper, app.StakingKeeper),
+		bbnkeeper.CaptureTombstoneDecorator(app.BabylonKeeper, app.SlashingKeeper, app.StakingKeeper),
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
@@ -585,15 +585,15 @@ func NewMeshApp(
 	meshMessageHandler := wasmkeeper.WithMessageHandlerDecorator(func(nested wasmkeeper.Messenger) wasmkeeper.Messenger {
 		return wasmkeeper.NewMessageHandlerChain(
 			// security layer for system integrity, should always be first in chain
-			meshseckeeper.NewIntegrityHandler(app.MeshSecKeeper),
+			bbnkeeper.NewIntegrityHandler(app.BabylonKeeper),
 			nested,
 			// append our custom message handler for mesh-security
-			meshseckeeper.NewDefaultCustomMsgHandler(app.MeshSecKeeper),
+			bbnkeeper.NewDefaultCustomMsgHandler(app.BabylonKeeper),
 		)
 	})
 	wasmOpts = append(wasmOpts, meshMessageHandler,
 		// add support for the mesh-security queries
-		wasmkeeper.WithQueryHandlerDecorator(meshseckeeper.NewQueryDecorator(app.MeshSecKeeper, app.SlashingKeeper)),
+		wasmkeeper.WithQueryHandlerDecorator(bbnkeeper.NewQueryDecorator(app.BabylonKeeper, app.SlashingKeeper)),
 	)
 	// The last arguments can contain custom message handlers, and custom query handlers,
 	// if we want to allow any custom callbacks
@@ -693,7 +693,7 @@ func NewMeshApp(
 		transfer.NewAppModule(app.TransferKeeper),
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
-		meshsecurity.NewAppModule(appCodec, app.MeshSecKeeper),
+		babylon.NewAppModule(appCodec, app.BabylonKeeper),
 		crisis.NewAppModule(app.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)), // always be last to make sure that it checks for all invariants and not only part of them
 	)
 
@@ -714,7 +714,7 @@ func NewMeshApp(
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		wasmtypes.ModuleName,
-		meshsectypes.ModuleName,
+		bbntypes.ModuleName,
 	)
 
 	app.ModuleManager.SetOrderEndBlockers(
@@ -730,7 +730,7 @@ func NewMeshApp(
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		wasmtypes.ModuleName,
-		meshsectypes.ModuleName, // last to capture all chain events
+		bbntypes.ModuleName, // last to capture all chain events
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -754,7 +754,7 @@ func NewMeshApp(
 		ibcfeetypes.ModuleName,
 		// wasm after ibc transfer
 		wasmtypes.ModuleName,
-		meshsectypes.ModuleName,
+		bbntypes.ModuleName,
 	}
 	app.ModuleManager.SetOrderInitGenesis(genesisModuleOrder...)
 	app.ModuleManager.SetOrderExportGenesis(genesisModuleOrder...)
@@ -1069,7 +1069,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(icacontrollertypes.SubModuleName)
 	paramsKeeper.Subspace(wasmtypes.ModuleName)
-	paramsKeeper.Subspace(meshsectypes.ModuleName)
+	paramsKeeper.Subspace(bbntypes.ModuleName)
 
 	return paramsKeeper
 }

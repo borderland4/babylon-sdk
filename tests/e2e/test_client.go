@@ -18,8 +18,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/babylonchain/babylon-sdk/demo/app"
-	"github.com/babylonchain/babylon-sdk/x/meshsecurity"
-	"github.com/babylonchain/babylon-sdk/x/meshsecurity/types"
+	meshsecurity "github.com/babylonchain/babylon-sdk/x/babylon"
+	"github.com/babylonchain/babylon-sdk/x/babylon/types"
 )
 
 // Query is a query type used in tests only
@@ -273,7 +273,7 @@ func (p *TestConsumerClient) BootstrapContracts() ConsumerContract {
 }
 
 func (p *TestConsumerClient) ExecNewEpoch() {
-	execHeight, ok := p.app.MeshSecKeeper.GetNextScheduledTaskHeight(p.chain.GetContext(), types.SchedulerTaskHandleEpoch, p.contracts.staking)
+	execHeight, ok := p.app.BabylonKeeper.GetNextScheduledTaskHeight(p.chain.GetContext(), types.SchedulerTaskHandleEpoch, p.contracts.staking)
 	require.True(p.t, ok)
 	if ch := uint64(p.chain.GetContext().BlockHeight()); ch < execHeight {
 		p.chain.Coordinator.CommitNBlocks(p.chain, execHeight-ch)
@@ -295,7 +295,7 @@ func (p *TestConsumerClient) ExecNewEpoch() {
 // MustEnableVirtualStaking add authority to mint/burn virtual tokens gov proposal
 func (p *TestConsumerClient) MustEnableVirtualStaking(maxCap sdk.Coin) {
 	govProposal := &types.MsgSetVirtualStakingMaxCap{
-		Authority: p.app.MeshSecKeeper.GetAuthority(),
+		Authority: p.app.BabylonKeeper.GetAuthority(),
 		Contract:  p.contracts.staking.String(),
 		MaxCap:    maxCap,
 	}
@@ -317,7 +317,7 @@ func (p *TestConsumerClient) QueryMaxCap() types.QueryVirtualStakingMaxCapLimitR
 }
 
 func (p *TestConsumerClient) assertTotalDelegated(expTotalDelegated math.Int) {
-	usedAmount := p.app.MeshSecKeeper.GetTotalDelegated(p.chain.GetContext(), p.contracts.staking)
+	usedAmount := p.app.BabylonKeeper.GetTotalDelegated(p.chain.GetContext(), p.contracts.staking)
 	assert.Equal(p.t, sdk.NewCoin(sdk.DefaultBondDenom, expTotalDelegated), usedAmount)
 }
 
