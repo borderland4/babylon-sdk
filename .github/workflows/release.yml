@@ -1,4 +1,4 @@
-name: Release mesh-security
+name: Release babylon-sdk
 
 on:
   push:

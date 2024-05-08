@@ -27,9 +27,9 @@ type (
 )
 
 // NewQueryDecorator constructor to build a chained custom querier.
-// The mesh-security custom query handler is placed at the first position
+// The babylon custom query handler is placed at the first position
 // and delegates to the next in chain for any queries that do not match
-// the mesh-security custom query namespace.
+// the babylon custom query namespace.
 //
 // To be used with `wasmkeeper.WithQueryHandlerDecorator(BabylonKeeper.NewQueryDecorator(app.BabylonKeeper)))`
 func NewQueryDecorator(k viewKeeper, sk slashingKeeper) func(wasmkeeper.WasmVMQueryHandler) wasmkeeper.WasmVMQueryHandler {
@@ -38,7 +38,7 @@ func NewQueryDecorator(k viewKeeper, sk slashingKeeper) func(wasmkeeper.WasmVMQu
 	}
 }
 
-// ChainedCustomQuerier implements the mesh-security custom query handler.
+// ChainedCustomQuerier implements the babylon custom query handler.
 // The given WasmVMQueryHandler is receiving all unhandled queries and must therefore
 // not be nil.
 //
@@ -60,7 +60,7 @@ func ChainedCustomQuerier(k viewKeeper, sk slashingKeeper, next wasmkeeper.WasmV
 		}
 		var contractQuery contract.CustomQuery
 		if err := json.Unmarshal(request.Custom, &contractQuery); err != nil {
-			return nil, errorsmod.Wrap(err, "mesh-security query")
+			return nil, errorsmod.Wrap(err, "babylon query")
 		}
 		query := contractQuery.VirtualStake
 		if query == nil {

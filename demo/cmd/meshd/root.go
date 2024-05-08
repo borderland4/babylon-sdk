@@ -248,7 +248,7 @@ func newApp(
 		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
 	}
 
-	return app.NewMeshApp(logger, db, traceStore, true, appOpts, wasmOpts, baseappOptions...)
+	return app.NewConsumerApp(logger, db, traceStore, true, appOpts, wasmOpts, baseappOptions...)
 }
 
 // appExport creates a new wasm app (optionally at a given height) and exports state.
@@ -262,7 +262,7 @@ func appExport(
 	appOpts servertypes.AppOptions,
 	modulesToExport []string,
 ) (servertypes.ExportedApp, error) {
-	var wasmApp *app.MeshApp
+	var wasmApp *app.ConsumerApp
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
 	if !ok || homePath == "" {
 		return servertypes.ExportedApp{}, errors.New("application home is not set")
@@ -278,7 +278,7 @@ func appExport(
 	appOpts = viperAppOpts
 
 	var emptyWasmOpts []wasmkeeper.Option
-	wasmApp = app.NewMeshApp(
+	wasmApp = app.NewConsumerApp(
 		logger,
 		db,
 		traceStore,

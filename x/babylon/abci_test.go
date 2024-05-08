@@ -1,4 +1,4 @@
-package meshsecurity
+package babylon
 
 import (
 	"bytes"
@@ -29,7 +29,7 @@ func TestEndBlocker(t *testing.T) {
 	}))
 	val1 := keeper.MinValidatorFixture(t)
 	keepers.StakingKeeper.SetValidator(pCtx, val1)
-	k := keepers.MeshKeeper
+	k := keepers.BabylonKeeper
 	var (
 		myError             = errors.New("my test error")
 		myContractAddr      = sdk.AccAddress(bytes.Repeat([]byte{1}, 32))

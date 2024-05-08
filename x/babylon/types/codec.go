@@ -10,7 +10,7 @@ import (
 
 // RegisterLegacyAminoCodec register types with legacy amino
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgSetVirtualStakingMaxCap{}, "meshsecurity/MsgSetVirtualStakingMaxCap", nil)
+	cdc.RegisterConcrete(&MsgSetVirtualStakingMaxCap{}, "babylon/MsgSetVirtualStakingMaxCap", nil)
 }
 
 // RegisterInterfaces register types with interface registry

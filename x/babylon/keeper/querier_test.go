@@ -15,7 +15,7 @@ import (
 
 func TestQueryVirtualStakingMaxCapLimit(t *testing.T) {
 	ctx, keepers := CreateDefaultTestInput(t)
-	k := keepers.MeshKeeper
+	k := keepers.BabylonKeeper
 	myContract := sdk.AccAddress(rand.Bytes(32))
 	myAmount := sdk.NewInt64Coin(keepers.StakingKeeper.BondDenom(ctx), 123)
 
@@ -57,7 +57,7 @@ func TestQueryVirtualStakingMaxCapLimit(t *testing.T) {
 func TestQueryVirtualStakingMaxCapLimits(t *testing.T) {
 	// setup
 	ctx, keepers := CreateDefaultTestInput(t)
-	k := keepers.MeshKeeper
+	k := keepers.BabylonKeeper
 
 	querier := NewQuerier(keepers.EncodingConfig.Marshaler, k)
 	// when

@@ -35,7 +35,7 @@ func buildPathToWasm(fileName string) string {
 	return filepath.Join(wasmContractPath, fileName)
 }
 
-// NewIBCCoordinator initializes Coordinator with N meshd TestChain instances
+// NewIBCCoordinator initializes Coordinator with N bcd TestChain instances
 func NewIBCCoordinator(t *testing.T, n int, opts ...[]wasmkeeper.Option) *ibctesting.Coordinator {
 	return ibctesting.NewCoordinatorX(t, n,
 		func(t *testing.T, valSet *types.ValidatorSet, genAccs []authtypes.GenesisAccount, chainID string, opts []wasm.Option, balances ...banktypes.Balance) ibctesting.ChainApp {
@@ -46,7 +46,7 @@ func NewIBCCoordinator(t *testing.T, n int, opts ...[]wasmkeeper.Option) *ibctes
 }
 
 func submitGovProposal(t *testing.T, chain *ibctesting.TestChain, msgs ...sdk.Msg) uint64 {
-	chainApp := chain.App.(*app.MeshApp)
+	chainApp := chain.App.(*app.ConsumerApp)
 	govParams := chainApp.GovKeeper.GetParams(chain.GetContext())
 	govMsg, err := govv1.NewMsgSubmitProposal(msgs, govParams.MinDeposit, chain.SenderAccount.GetAddress().String(), "", "my title", "my summary")
 	require.NoError(t, err)
@@ -62,7 +62,7 @@ func voteAndPassGovProposal(t *testing.T, chain *ibctesting.TestChain, proposalI
 	_, err := chain.SendMsgs(vote)
 	require.NoError(t, err)
 
-	chainApp := chain.App.(*app.MeshApp)
+	chainApp := chain.App.(*app.ConsumerApp)
 	govParams := chainApp.GovKeeper.GetParams(chain.GetContext())
 
 	coord := chain.Coordinator
@@ -98,7 +98,7 @@ type example struct {
 	Coordinator      *ibctesting.Coordinator
 	ConsumerChain    *ibctesting.TestChain
 	ProviderChain    *ibctesting.TestChain
-	ConsumerApp      *app.MeshApp
+	ConsumerApp      *app.ConsumerApp
 	IbcPath          *ibctesting.Path
 	ProviderDenom    string
 	ConsumerDenom    string
@@ -113,7 +113,7 @@ func setupExampleChains(t *testing.T) example {
 		Coordinator:      coord,
 		ConsumerChain:    consChain,
 		ProviderChain:    provChain,
-		ConsumerApp:      consChain.App.(*app.MeshApp),
+		ConsumerApp:      consChain.App.(*app.ConsumerApp),
 		IbcPath:          ibctesting.NewPath(consChain, provChain),
 		ProviderDenom:    sdk.DefaultBondDenom,
 		ConsumerDenom:    sdk.DefaultBondDenom,
@@ -121,26 +121,25 @@ func setupExampleChains(t *testing.T) example {
 	}
 }
 
-func setupMeshSecurity(t *testing.T, x example) (*TestConsumerClient, ConsumerContract, *TestProviderClient) {
+func setupBabylonIntegration(t *testing.T, x example) (*TestConsumerClient, ConsumerContract, *TestProviderClient) {
 	x.Coordinator.SetupConnections(x.IbcPath)
 
 	// setup contracts on both chains
 	consumerCli := NewConsumerClient(t, x.ConsumerChain)
 	consumerContracts := consumerCli.BootstrapContracts()
-	converterPortID := wasmkeeper.PortIDForContract(consumerContracts.converter)
+	consumerPortID := wasmkeeper.PortIDForContract(consumerContracts.converter)
 	// add some fees so that we can distribute something
 	x.ConsumerChain.DefaultMsgFees = sdk.NewCoins(sdk.NewCoin(x.ConsumerDenom, math.NewInt(1_000_000)))
 
 	providerCli := NewProviderClient(t, x.ProviderChain)
-	providerContracts := providerCli.BootstrapContracts(x.IbcPath.EndpointA.ConnectionID, converterPortID)
 
 	// setup ibc control path: consumer -> provider (direction matters)
 	x.IbcPath.EndpointB.ChannelConfig = &ibctesting2.ChannelConfig{
-		PortID: wasmkeeper.PortIDForContract(providerContracts.externalStaking),
+		PortID: "zoneconcierge", // TODO: use a variable
 		Order:  types2.UNORDERED,
 	}
 	x.IbcPath.EndpointA.ChannelConfig = &ibctesting2.ChannelConfig{
-		PortID: converterPortID,
+		PortID: consumerPortID,
 		Order:  types2.UNORDERED,
 	}
 	x.Coordinator.CreateChannels(x.IbcPath)
@@ -149,6 +148,5 @@ func setupMeshSecurity(t *testing.T, x example) (*TestConsumerClient, ConsumerCo
 	require.NotEmpty(t, x.ConsumerChain.PendingSendPackets)
 	require.NoError(t, x.Coordinator.RelayAndAckPendingPackets(x.IbcPath))
 
-	consumerCli.MustEnableVirtualStaking(sdk.NewInt64Coin(x.ConsumerDenom, 1_000_000_000))
 	return consumerCli, consumerContracts, providerCli
 }

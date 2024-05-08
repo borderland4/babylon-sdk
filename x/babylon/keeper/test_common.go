@@ -90,7 +90,7 @@ func makeEncodingConfig(_ testing.TB) encodingConfig {
 
 	moduleBasics.RegisterLegacyAminoCodec(amino)
 	moduleBasics.RegisterInterfaces(interfaceRegistry)
-	// add mesh-security types
+	// add babylon types
 	types.RegisterInterfaces(interfaceRegistry)
 	types.RegisterLegacyAminoCodec(amino)
 
@@ -108,7 +108,7 @@ type TestKeepers struct {
 	BankKeeper     bankkeeper.Keeper
 	StoreKey       *storetypes.KVStoreKey
 	EncodingConfig encodingConfig
-	MeshKeeper     *Keeper
+	BabylonKeeper  *Keeper
 	AccountKeeper  authkeeper.AccountKeeper
 	WasmKeeper     *wasmkeeper.Keeper
 	Faucet         *wasmkeeper.TestFaucet
@@ -289,7 +289,7 @@ func CreateDefaultTestInput(t testing.TB, opts ...Option) (sdk.Context, TestKeep
 		BankKeeper:     bankKeeper,
 		StoreKey:       keys[types.StoreKey],
 		EncodingConfig: encConfig,
-		MeshKeeper:     msKeeper,
+		BabylonKeeper:  msKeeper,
 		WasmKeeper:     &wasmKeeper,
 		Faucet:         faucet,
 	}

@@ -1,4 +1,4 @@
-package meshsecurity
+package babylon
 
 import (
 	"context"
@@ -28,7 +28,7 @@ var (
 	_ module.AppModule      = AppModule{}
 )
 
-// AppModuleBasic defines the basic application module used by the mesh-security module.
+// AppModuleBasic defines the basic application module used by the babylon module.
 type AppModuleBasic struct{}
 
 func (b AppModuleBasic) RegisterLegacyAminoCodec(amino *codec.LegacyAmino) {
@@ -42,18 +42,18 @@ func (b AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, serv
 	}
 }
 
-// Name returns the meshsecurity module's name.
+// Name returns the babylon module's name.
 func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
-// DefaultGenesis returns default genesis state as raw bytes for the mesh-security
+// DefaultGenesis returns default genesis state as raw bytes for the babylon
 // module.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 	return cdc.MustMarshalJSON(types.DefaultGenesisState(sdk.DefaultBondDenom))
 }
 
-// ValidateGenesis performs genesis state validation for the mesh-security module.
+// ValidateGenesis performs genesis state validation for the babylon module.
 func (b AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, _ client.TxEncodingConfig, bz json.RawMessage) error {
 	var data types.GenesisState
 	if err := cdc.UnmarshalJSON(bz, &data); err != nil {
@@ -63,12 +63,12 @@ func (b AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, _ client.TxEncoding
 	return types.ValidateGenesis(&data)
 }
 
-// GetTxCmd returns the root tx command for the mesh-security module.
+// GetTxCmd returns the root tx command for the babylon module.
 func (b AppModuleBasic) GetTxCmd() *cobra.Command {
 	return cli.GetTxCmd()
 }
 
-// GetQueryCmd returns no root query command for the mesh-security module.
+// GetQueryCmd returns no root query command for the babylon module.
 func (b AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return cli.GetQueryCmd()
 }
@@ -117,7 +117,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
 }
 
-// InitGenesis performs genesis initialization for the mesh-security module. It returns
+// InitGenesis performs genesis initialization for the babylon module. It returns
 // no validator updates.
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, bz json.RawMessage) []abci.ValidatorUpdate {
 	var data types.GenesisState
@@ -126,7 +126,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, bz json.Ra
 	return []abci.ValidatorUpdate{}
 }
 
-// ExportGenesis returns the exported genesis state as raw bytes for the mesh-security
+// ExportGenesis returns the exported genesis state as raw bytes for the babylon
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	return cdc.MustMarshalJSON(am.k.ExportGenesis(ctx))
 }

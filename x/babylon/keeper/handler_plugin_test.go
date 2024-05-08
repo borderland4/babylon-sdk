@@ -17,7 +17,7 @@ import (
 	"github.com/babylonchain/babylon-sdk/x/babylon/types"
 )
 
-func TestCustomMeshSecDispatchMsg(t *testing.T) {
+func TestCustomSecDispatchMsg(t *testing.T) {
 	var (
 		noAuthZ    = AuthSourceFn(func(_ sdk.Context, _ sdk.AccAddress) bool { return false })
 		allAuthZ   = AuthSourceFn(func(_ sdk.Context, _ sdk.AccAddress) bool { return true })
@@ -52,7 +52,7 @@ func TestCustomMeshSecDispatchMsg(t *testing.T) {
 				return &msKeeperMock{DelegateFn: fn}, asserts
 			},
 			expEvents: []sdk.Event{sdk.NewEvent("instant_delegate",
-				sdk.NewAttribute("module", "meshsecurity"),
+				sdk.NewAttribute("module", "babylon"),
 				sdk.NewAttribute("validator", myValidatorAddr.String()),
 				sdk.NewAttribute("amount", myAmount.String()),
 				sdk.NewAttribute("delegator", myContractAddr.String()),
@@ -77,7 +77,7 @@ func TestCustomMeshSecDispatchMsg(t *testing.T) {
 				return &msKeeperMock{UndelegateFn: fn}, asserts
 			},
 			expEvents: []sdk.Event{sdk.NewEvent("instant_unbond",
-				sdk.NewAttribute("module", "meshsecurity"),
+				sdk.NewAttribute("module", "babylon"),
 				sdk.NewAttribute("validator", myValidatorAddr.String()),
 				sdk.NewAttribute("amount", myAmount.String()),
 				sdk.NewAttribute("sender", myContractAddr.String()),
@@ -110,7 +110,7 @@ func TestCustomMeshSecDispatchMsg(t *testing.T) {
 			},
 			expErr: sdkerrors.ErrJSONUnmarshal,
 		},
-		"non mesh-sec msg - skip": {
+		"non babylon msg - skip": {
 			src:  wasmvmtypes.CosmosMsg{Custom: []byte("{}")},
 			auth: panicAuthZ,
 			setup: func(t *testing.T) (msKeeper, func()) {
@@ -126,7 +126,7 @@ func TestCustomMeshSecDispatchMsg(t *testing.T) {
 			},
 			expErr: sdkerrors.ErrUnauthorized,
 		},
-		"unknown mesh-sec custom msg": {
+		"unknown babylon custom msg": {
 			src:  wasmvmtypes.CosmosMsg{Custom: []byte(`{"virtual_stake":{"unknown_msg":{}}}`)},
 			auth: allAuthZ,
 			setup: func(t *testing.T) (msKeeper, func()) {

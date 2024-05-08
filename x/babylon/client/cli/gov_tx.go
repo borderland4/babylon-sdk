@@ -28,7 +28,7 @@ var DefaultGovAuthority = sdk.AccAddress(address.Module("gov"))
 func SubmitProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:          "submit-proposal",
-		Short:        "Submit a mesh security proposal.",
+		Short:        "Submit a govenance proposal.",
 		SilenceUsage: true,
 	}
 	cmd.AddCommand(
@@ -47,7 +47,7 @@ func ProposalSetVirtualStakingMaxCapCmd() *cobra.Command {
 			fmt.Sprintf(`Submit a proposal to set virtual staking maximum cap limit to the given contract.
 
 Example:
-$ %s tx meshsecurity submit-proposal set-virtual-staking-max-cap %s1l94ptufswr6v7qntax4m7nvn3jgf6k4gn2rknq 100stake --title "a title" --summary "a summary" --authority %s
+$ %s tx babylon submit-proposal set-virtual-staking-max-cap %s1l94ptufswr6v7qntax4m7nvn3jgf6k4gn2rknq 100stake --title "a title" --summary "a summary" --authority %s
 `, version.AppName, bech32Prefix, DefaultGovAuthority.String())),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, proposalTitle, summary, metadata, deposit, err := getProposalInfo(cmd)

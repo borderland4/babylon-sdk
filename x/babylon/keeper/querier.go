@@ -51,7 +51,7 @@ func (g querier) VirtualStakingMaxCapLimits(goCtx context.Context, req *types.Qu
 	return &rsp, nil
 }
 
-// Params implements the gRPC service handler for querying the mesh-security parameters.
+// Params implements the gRPC service handler for querying the babylon parameters.
 func (q querier) Params(ctx context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	params := q.k.GetParams(sdk.UnwrapSDKContext(ctx))
 	return &types.QueryParamsResponse{Params: params}, nil

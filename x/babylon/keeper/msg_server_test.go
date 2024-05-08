@@ -14,7 +14,7 @@ import (
 
 func TestSetVirtualStakingMaxCap(t *testing.T) {
 	pCtx, keepers := CreateDefaultTestInput(t)
-	k := keepers.MeshKeeper
+	k := keepers.BabylonKeeper
 	myContract := sdk.AccAddress(rand.Bytes(32))
 	denom := keepers.StakingKeeper.BondDenom(pCtx)
 	myAmount := sdk.NewInt64Coin(denom, 123)

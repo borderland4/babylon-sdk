@@ -47,14 +47,14 @@ comma := ,
 build_tags_comma_sep := $(subst $(empty),$(comma),$(build_tags))
 
 # process linker flags
-NAME := mesh
-APPNAME := meshd
-PREFIX := mesh
+NAME := bbn
+APPNAME := bcd
+PREFIX := bbnc
 ldflags := -X github.com/cosmos/cosmos-sdk/version.Name=$(NAME) \
 		  -X github.com/cosmos/cosmos-sdk/version.AppName=$(APPNAME) \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
-		  -X github.com/osmosis-labs/mesh-security-sdk/demo/app.Bech32Prefix=$(PREFIX) \
+		  -X github.com/babylonchain/babylon-sdk/demo/app.Bech32Prefix=$(PREFIX) \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
 
 ifeq ($(WITH_CLEVELDB),yes)
@@ -75,26 +75,26 @@ all: install lint test
 
 build:
 ifeq ($(OS),Windows_NT)
-	$(error mesh demo server not supported)
+	$(error babylon demo server not supported)
 	exit 1
 else
-	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILD_DIR)/$(APPNAME) ./cmd/meshd
+	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILD_DIR)/$(APPNAME) ./cmd/bcd
 endif
 
 build-vendored:
-	go build -mod=vendor $(BUILD_FLAGS) -o $(BUILD_DIR)/$(APPNAME) ./cmd/meshd
+	go build -mod=vendor $(BUILD_FLAGS) -o $(BUILD_DIR)/$(APPNAME) ./cmd/bcd
 
 build-linux-static:
 	go mod vendor  # quick hack to make local dependencies work in Docker
 	mkdir -p $(BUILD_DIR)
-	docker build --tag osmosis/meshd:local ./
-	docker create --name meshd_temp osmosis/meshd:local
-	docker cp meshd_temp:/usr/bin/meshd $(BUILD_DIR)/
-	docker rm -f meshd_temp
+	docker build --tag babylonchain/bcd:local ./
+	docker create --name bcd_temp babylonchain/bcd:local
+	docker cp bcd_temp:/usr/bin/bcd $(BUILD_DIR)/
+	docker rm -f bcd_temp
 	rm -rf vendor/
 
 install:
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/meshd
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/bcd
 
 ########################################
 ### Testing

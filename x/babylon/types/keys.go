@@ -9,13 +9,13 @@ import (
 
 const (
 	// ModuleName defines the module name.
-	ModuleName = "meshsecurity"
+	ModuleName = "babylon"
 
 	// StoreKey defines the primary module store key.
 	StoreKey = ModuleName
 
 	// MemStoreKey defines the in-memory store key
-	MemStoreKey = "memory:meshsecurity"
+	MemStoreKey = "memory:babylon"
 
 	// RouterKey is the message route
 	RouterKey = ModuleName

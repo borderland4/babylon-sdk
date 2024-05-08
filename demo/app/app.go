@@ -131,12 +131,12 @@ import (
 	bbntypes "github.com/babylonchain/babylon-sdk/x/babylon/types"
 )
 
-const appName = "MeshApp"
+const appName = "ConsumerApp"
 
 // We pull these out so we can set them with LDFLAGS in the Makefile
 var (
-	NodeDir      = ".meshd"
-	Bech32Prefix = "mesh"
+	NodeDir      = ".bcd"
+	Bech32Prefix = "bbnc"
 )
 
 // These constants are derived from the above variables.
@@ -220,12 +220,12 @@ var (
 )
 
 var (
-	_ runtime.AppI            = (*MeshApp)(nil)
-	_ servertypes.Application = (*MeshApp)(nil)
+	_ runtime.AppI            = (*ConsumerApp)(nil)
+	_ servertypes.Application = (*ConsumerApp)(nil)
 )
 
-// MeshApp extended ABCI application
-type MeshApp struct {
+// ConsumerApp extended ABCI application
+type ConsumerApp struct {
 	*baseapp.BaseApp
 	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
@@ -281,8 +281,8 @@ type MeshApp struct {
 	configurator module.Configurator
 }
 
-// NewMeshApp returns a reference to an initialized MeshApp.
-func NewMeshApp(
+// NewConsumerApp returns a reference to an initialized ConsumerApp.
+func NewConsumerApp(
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
@@ -290,7 +290,7 @@ func NewMeshApp(
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) *MeshApp {
+) *ConsumerApp {
 	encodingConfig := MakeEncodingConfig()
 
 	appCodec, legacyAmino := encodingConfig.Marshaler, encodingConfig.Amino
@@ -325,7 +325,7 @@ func NewMeshApp(
 		os.Exit(1)
 	}
 
-	app := &MeshApp{
+	app := &ConsumerApp{
 		BaseApp:           bApp,
 		legacyAmino:       legacyAmino,
 		appCodec:          appCodec,
@@ -404,9 +404,6 @@ func NewMeshApp(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
-	// setup mesh-security keeper with vanilla Cosmos-SDK
-	// see also NewKeeperX constructor for integration with Osmosis SDK fork
-	// should be initialized before wasm keeper for custom query/msg handlers
 	app.BabylonKeeper = bbnkeeper.NewKeeper(
 		app.appCodec,
 		keys[bbntypes.StoreKey],
@@ -582,17 +579,17 @@ func NewMeshApp(
 		panic(fmt.Sprintf("error while reading wasm config: %s", err))
 	}
 
-	meshMessageHandler := wasmkeeper.WithMessageHandlerDecorator(func(nested wasmkeeper.Messenger) wasmkeeper.Messenger {
+	messageHandler := wasmkeeper.WithMessageHandlerDecorator(func(nested wasmkeeper.Messenger) wasmkeeper.Messenger {
 		return wasmkeeper.NewMessageHandlerChain(
 			// security layer for system integrity, should always be first in chain
 			bbnkeeper.NewIntegrityHandler(app.BabylonKeeper),
 			nested,
-			// append our custom message handler for mesh-security
+			// append our custom message handler
 			bbnkeeper.NewDefaultCustomMsgHandler(app.BabylonKeeper),
 		)
 	})
-	wasmOpts = append(wasmOpts, meshMessageHandler,
-		// add support for the mesh-security queries
+	wasmOpts = append(wasmOpts, messageHandler,
+		// add support for the custom queries
 		wasmkeeper.WithQueryHandlerDecorator(bbnkeeper.NewQueryDecorator(app.BabylonKeeper, app.SlashingKeeper)),
 	)
 	// The last arguments can contain custom message handlers, and custom query handlers,
@@ -857,7 +854,7 @@ func NewMeshApp(
 	return app
 }
 
-func (app *MeshApp) setAnteHandler(txConfig client.TxConfig, wasmConfig wasmtypes.WasmConfig, txCounterStoreKey storetypes.StoreKey) {
+func (app *ConsumerApp) setAnteHandler(txConfig client.TxConfig, wasmConfig wasmtypes.WasmConfig, txCounterStoreKey storetypes.StoreKey) {
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
@@ -878,7 +875,7 @@ func (app *MeshApp) setAnteHandler(txConfig client.TxConfig, wasmConfig wasmtype
 	app.SetAnteHandler(anteHandler)
 }
 
-func (app *MeshApp) setPostHandler() {
+func (app *ConsumerApp) setPostHandler() {
 	postHandler, err := posthandler.NewPostHandler(
 		posthandler.HandlerOptions{},
 	)
@@ -890,24 +887,24 @@ func (app *MeshApp) setPostHandler() {
 }
 
 // Name returns the name of the App
-func (app *MeshApp) Name() string { return app.BaseApp.Name() }
+func (app *ConsumerApp) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker application updates every begin block
-func (app *MeshApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+func (app *ConsumerApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.ModuleManager.BeginBlock(ctx, req)
 }
 
 // EndBlocker application updates every end block
-func (app *MeshApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+func (app *ConsumerApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.ModuleManager.EndBlock(ctx, req)
 }
 
-func (app *MeshApp) Configurator() module.Configurator {
+func (app *ConsumerApp) Configurator() module.Configurator {
 	return app.configurator
 }
 
 // InitChainer application update at chain initialization
-func (app *MeshApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+func (app *ConsumerApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState GenesisState
 	if err := json.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
@@ -917,7 +914,7 @@ func (app *MeshApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci
 }
 
 // LoadHeight loads a particular height
-func (app *MeshApp) LoadHeight(height int64) error {
+func (app *ConsumerApp) LoadHeight(height int64) error {
 	return app.LoadVersion(height)
 }
 
@@ -925,7 +922,7 @@ func (app *MeshApp) LoadHeight(height int64) error {
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *MeshApp) LegacyAmino() *codec.LegacyAmino {
+func (app *ConsumerApp) LegacyAmino() *codec.LegacyAmino {
 	return app.legacyAmino
 }
 
@@ -933,62 +930,62 @@ func (app *MeshApp) LegacyAmino() *codec.LegacyAmino {
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *MeshApp) AppCodec() codec.Codec {
+func (app *ConsumerApp) AppCodec() codec.Codec {
 	return app.appCodec
 }
 
-// InterfaceRegistry returns MeshApp's InterfaceRegistry
-func (app *MeshApp) InterfaceRegistry() types.InterfaceRegistry {
+// InterfaceRegistry returns ConsumerApp's InterfaceRegistry
+func (app *ConsumerApp) InterfaceRegistry() types.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
-// TxConfig returns MeshApp's TxConfig
-func (app *MeshApp) TxConfig() client.TxConfig {
+// TxConfig returns ConsumerApp's TxConfig
+func (app *ConsumerApp) TxConfig() client.TxConfig {
 	return app.txConfig
 }
 
 // DefaultGenesis returns a default genesis from the registered AppModuleBasic's.
-func (app *MeshApp) DefaultGenesis() map[string]json.RawMessage {
+func (app *ConsumerApp) DefaultGenesis() map[string]json.RawMessage {
 	return ModuleBasics.DefaultGenesis(app.appCodec)
 }
 
 // GetKey returns the KVStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *MeshApp) GetKey(storeKey string) *storetypes.KVStoreKey {
+func (app *ConsumerApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	return app.keys[storeKey]
 }
 
 // GetTKey returns the TransientStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *MeshApp) GetTKey(storeKey string) *storetypes.TransientStoreKey {
+func (app *ConsumerApp) GetTKey(storeKey string) *storetypes.TransientStoreKey {
 	return app.tkeys[storeKey]
 }
 
 // GetMemKey returns the MemStoreKey for the provided mem key.
 //
 // NOTE: This is solely used for testing purposes.
-func (app *MeshApp) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
+func (app *ConsumerApp) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
 	return app.memKeys[storeKey]
 }
 
 // GetSubspace returns a param subspace for a given module name.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *MeshApp) GetSubspace(moduleName string) paramstypes.Subspace {
+func (app *ConsumerApp) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
 }
 
 // SimulationManager implements the SimulationApp interface
-func (app *MeshApp) SimulationManager() *module.SimulationManager {
+func (app *ConsumerApp) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
-func (app *MeshApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+func (app *ConsumerApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
 	// Register new tx routes from grpc-gateway.
 	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
@@ -1009,12 +1006,12 @@ func (app *MeshApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICo
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.
-func (app *MeshApp) RegisterTxService(clientCtx client.Context) {
+func (app *ConsumerApp) RegisterTxService(clientCtx client.Context) {
 	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
 }
 
 // RegisterTendermintService implements the Application.RegisterTendermintService method.
-func (app *MeshApp) RegisterTendermintService(clientCtx client.Context) {
+func (app *ConsumerApp) RegisterTendermintService(clientCtx client.Context) {
 	tmservice.RegisterTendermintService(
 		clientCtx,
 		app.BaseApp.GRPCQueryRouter(),
@@ -1023,7 +1020,7 @@ func (app *MeshApp) RegisterTendermintService(clientCtx client.Context) {
 	)
 }
 
-func (app *MeshApp) RegisterNodeService(clientCtx client.Context) {
+func (app *ConsumerApp) RegisterNodeService(clientCtx client.Context) {
 	nodeservice.RegisterNodeService(clientCtx, app.GRPCQueryRouter())
 }
 

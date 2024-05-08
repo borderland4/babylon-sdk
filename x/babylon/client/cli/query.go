@@ -17,7 +17,7 @@ import (
 func GetQueryCmd() *cobra.Command {
 	queryCmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "Querying commands for the mesh security module",
+		Short:                      "Querying commands for the Babylon module",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
@@ -100,12 +100,12 @@ func GetCmdQueryParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "params",
 		Args:  cobra.NoArgs,
-		Short: "Query the current mesh-security parameters information",
+		Short: "Query the current babylon parameters information",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query values set as mesh-security parameters.
+			fmt.Sprintf(`Query values set as babylon parameters.
 
 Example:
-$ %s query meshsecurity params
+$ %s query babylon params
 `,
 				version.AppName,
 			),

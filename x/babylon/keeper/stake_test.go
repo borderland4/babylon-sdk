@@ -21,7 +21,7 @@ import (
 
 func TestDelegateVirtualStake(t *testing.T) {
 	pCtx, keepers := CreateDefaultTestInput(t)
-	k := keepers.MeshKeeper
+	k := keepers.BabylonKeeper
 
 	myContractAddr := sdk.AccAddress(rand.Bytes(32))
 	vAddrs := add3Validators(t, pCtx, keepers.StakingKeeper)
@@ -133,7 +133,7 @@ func TestDelegateVirtualStake(t *testing.T) {
 
 func TestInstantUndelegateVirtualStake(t *testing.T) {
 	pCtx, keepers := CreateDefaultTestInput(t)
-	k := keepers.MeshKeeper
+	k := keepers.BabylonKeeper
 
 	myContractAddr := sdk.AccAddress(rand.Bytes(32))
 	vAddrs := add3Validators(t, pCtx, keepers.StakingKeeper)

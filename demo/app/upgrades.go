@@ -32,7 +32,7 @@ import (
 // v0.46.x to v0.47.x.
 const UpgradeName = "v046-to-v047"
 
-func (app MeshApp) RegisterUpgradeHandlers() {
+func (app ConsumerApp) RegisterUpgradeHandlers() {
 	// Set param key table for params module migration
 	for _, subspace := range app.ParamsKeeper.GetSubspaces() {
 		subspace := subspace

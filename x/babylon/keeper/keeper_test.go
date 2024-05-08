@@ -14,7 +14,7 @@ import (
 
 func TestHasMaxCapLimit(t *testing.T) {
 	pCtx, keepers := CreateDefaultTestInput(t)
-	k := keepers.MeshKeeper
+	k := keepers.BabylonKeeper
 	myContractAddr := sdk.AccAddress(rand.Bytes(32))
 
 	specs := map[string]struct {
@@ -52,7 +52,7 @@ func TestHasMaxCapLimit(t *testing.T) {
 
 func TestSetMaxCapLimit(t *testing.T) {
 	pCtx, keepers := CreateDefaultTestInput(t)
-	k := keepers.MeshKeeper
+	k := keepers.BabylonKeeper
 	var (
 		myContractAddr = sdk.AccAddress(rand.Bytes(32))
 		oneStakeCoin   = sdk.NewInt64Coin(sdk.DefaultBondDenom, 1)

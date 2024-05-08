@@ -43,21 +43,21 @@ func TestChainedCustomQuerier(t *testing.T) {
 			src: wasmvmtypes.QueryRequest{
 				Custom: []byte(`{"virtual_stake":{"slash_ratio":{}}}`),
 			},
-			viewKeeper: keepers.MeshKeeper,
+			viewKeeper: keepers.BabylonKeeper,
 			expData:    []byte(`{"slash_fraction_downtime":"0.010000000000000000","slash_fraction_double_sign":"0.050000000000000000"}`),
 		},
 		"non custom query": {
 			src: wasmvmtypes.QueryRequest{
 				Bank: &wasmvmtypes.BankQuery{},
 			},
-			viewKeeper:    keepers.MeshKeeper,
+			viewKeeper:    keepers.BabylonKeeper,
 			expNextCalled: true,
 		},
-		"custom non mesh query": {
+		"custom non babylon query": {
 			src: wasmvmtypes.QueryRequest{
 				Custom: []byte(`{"foo":{}}`),
 			},
-			viewKeeper:    keepers.MeshKeeper,
+			viewKeeper:    keepers.BabylonKeeper,
 			expNextCalled: true,
 		},
 	}

@@ -52,7 +52,7 @@ func defaultMaxCapAuthorizator(k *Keeper) AuthSourceFn {
 	}
 }
 
-// DispatchMsg handle contract message of type Custom in the mesh-security namespace
+// DispatchMsg handle contract message of type Custom in the babylon namespace
 func (h CustomMsgHandler) DispatchMsg(ctx sdk.Context, contractAddr sdk.AccAddress, _ string, msg wasmvmtypes.CosmosMsg) ([]sdk.Event, [][]byte, error) {
 	if msg.Custom == nil {
 		return nil, nil, wasmtypes.ErrUnknownMsg
@@ -67,7 +67,7 @@ func (h CustomMsgHandler) DispatchMsg(ctx sdk.Context, contractAddr sdk.AccAddre
 	}
 
 	if !h.auth.IsAuthorized(ctx, contractAddr) {
-		return nil, nil, sdkerrors.ErrUnauthorized.Wrapf("contract has no permission for mesh security operations")
+		return nil, nil, sdkerrors.ErrUnauthorized.Wrapf("contract has no permission for Babylon operations")
 	}
 
 	switch {
@@ -140,7 +140,7 @@ type maxCapSource interface {
 
 // NewIntegrityHandler prevents any contract with max cap set to use staking
 // or stargate messages. This ensures that staked "virtual" tokens are not bypassing
-// the instant undelegate and burn mechanism provided by mesh-security.
+// the instant undelegate and burn mechanism provided by babylon.
 //
 // This handler should be chained before any other.
 func NewIntegrityHandler(k maxCapSource) wasmkeeper.MessageHandlerFunc {

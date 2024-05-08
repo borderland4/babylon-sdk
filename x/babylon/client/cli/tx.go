@@ -14,7 +14,7 @@ const flagAuthority = "authority"
 func GetTxCmd() *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "Mesh security transaction subcommands",
+		Short:                      "Babylon transaction subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,

@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// DefaultParams returns default mesh-security parameters
+// DefaultParams returns default babylon parameters
 func DefaultParams(denom string) Params {
 	return Params{ // todo: revisit and set proper defaults
 		TotalContractsMaxCap: sdk.NewCoin(denom, math.NewInt(10_000_000_000)),
@@ -16,7 +16,7 @@ func DefaultParams(denom string) Params {
 	}
 }
 
-// ValidateBasic performs basic validation on mesh-security parameters.
+// ValidateBasic performs basic validation on babylon parameters.
 func (p Params) ValidateBasic() error {
 	if err := p.TotalContractsMaxCap.Validate(); err != nil {
 		return errorsmod.Wrap(err, "total contracts max cap")

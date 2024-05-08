@@ -21,7 +21,7 @@ import (
 
 func TestSendAsync(t *testing.T) {
 	pCtx, keepers := CreateDefaultTestInput(t)
-	k := keepers.MeshKeeper
+	k := keepers.BabylonKeeper
 	var (
 		myValAddr                   = sdk.ValAddress(rand.Bytes(address.Len))
 		myOtherValAddr              = sdk.ValAddress(rand.Bytes(address.Len))
@@ -112,7 +112,7 @@ func TestBuildValsetUpdateReport(t *testing.T) {
 		val4 = sdk.ValAddress(bytes.Repeat([]byte{4}, address.Len))
 	)
 	ctx, keepers := CreateDefaultTestInput(t)
-	k := keepers.MeshKeeper
+	k := keepers.BabylonKeeper
 	vals := make(map[string]stakingtypes.Validator)
 	for i, v := range []sdk.ValAddress{val1, val2, val3, val4} {
 		val := MinValidatorFixture(t)
@@ -189,7 +189,7 @@ func TestBuildValsetUpdateReport(t *testing.T) {
 func TestValsetUpdateReportErrors(t *testing.T) {
 	nonValAddr := sdk.ValAddress(bytes.Repeat([]byte{1}, address.Len))
 	pCtx, keepers := CreateDefaultTestInput(t)
-	k := keepers.MeshKeeper
+	k := keepers.BabylonKeeper
 
 	specs := map[string]struct {
 		setup  func(t *testing.T, ctx sdk.Context)
@@ -222,7 +222,7 @@ func TestValsetUpdateReportErrors(t *testing.T) {
 
 func TestClearPipedValsetOperations(t *testing.T) {
 	ctx, keepers := CreateDefaultTestInput(t)
-	k := keepers.MeshKeeper
+	k := keepers.BabylonKeeper
 	err := k.sendAsync(ctx, types.ValidatorModified, rand.Bytes(address.Len), nil)
 	require.NoError(t, err)
 	err = k.sendAsync(ctx, types.ValidatorUnjailed, rand.Bytes(address.Len), nil)

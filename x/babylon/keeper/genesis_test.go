@@ -43,7 +43,7 @@ func TestInitGenesis(t *testing.T) {
 	for name, spec := range specs {
 		t.Run(name, func(t *testing.T) {
 			pCtx, keepers := CreateDefaultTestInput(t)
-			k := keepers.MeshKeeper
+			k := keepers.BabylonKeeper
 
 			k.InitGenesis(pCtx, spec.state)
 
@@ -57,7 +57,7 @@ func TestInitGenesis(t *testing.T) {
 
 func TestExportGenesis(t *testing.T) {
 	pCtx, keepers := CreateDefaultTestInput(t)
-	k := keepers.MeshKeeper
+	k := keepers.BabylonKeeper
 	params := types.DefaultParams(sdk.DefaultBondDenom)
 
 	err := k.SetParams(pCtx, params)

@@ -23,7 +23,7 @@ func TestCaptureTombstone(t *testing.T) {
 	keepers.StakingKeeper.SetValidatorByConsAddr(pCtx, val)
 	keepers.StakingKeeper.SetValidator(pCtx, val)
 	skMock, capturedTombstones := NewMockEvidenceSlashingKeeper()
-	decorator := CaptureTombstoneDecorator(keepers.MeshKeeper, skMock, keepers.StakingKeeper)
+	decorator := CaptureTombstoneDecorator(keepers.BabylonKeeper, skMock, keepers.StakingKeeper)
 	otherConsAddress := rand.Bytes(address.Len)
 	specs := map[string]struct {
 		addr      sdk.ConsAddress
@@ -50,7 +50,7 @@ func TestCaptureTombstone(t *testing.T) {
 			// then
 			assert.Equal(t, spec.expPassed, *capturedTombstones)
 			// and stored for async propagation
-			appStoredOps := FetchAllStoredOperations(t, ctx, keepers.MeshKeeper)
+			appStoredOps := FetchAllStoredOperations(t, ctx, keepers.BabylonKeeper)
 			assert.Equal(t, spec.expStored, appStoredOps[val.OperatorAddress])
 		})
 	}
@@ -72,7 +72,7 @@ func TestCaptureStakingEvents(t *testing.T) {
 	keepers.StakingKeeper.SetValidatorByConsAddr(pCtx, valJailed)
 	keepers.StakingKeeper.SetValidator(pCtx, valJailed)
 
-	decorator := NewStakingDecorator(keepers.StakingKeeper, keepers.MeshKeeper)
+	decorator := NewStakingDecorator(keepers.StakingKeeper, keepers.BabylonKeeper)
 	specs := map[string]struct {
 		consAddr  sdk.ConsAddress
 		op        func(sdk.Context, sdk.ConsAddress)
@@ -102,7 +102,7 @@ func TestCaptureStakingEvents(t *testing.T) {
 			loadedVal := keepers.StakingKeeper.ValidatorByConsAddr(ctx, spec.consAddr)
 			assert.Equal(t, spec.expJailed, loadedVal.IsJailed())
 			// and stored for async propagation
-			allStoredOps := FetchAllStoredOperations(t, ctx, keepers.MeshKeeper)
+			allStoredOps := FetchAllStoredOperations(t, ctx, keepers.BabylonKeeper)
 			assert.Equal(t, spec.expStored, allStoredOps[loadedVal.GetOperator().String()])
 		})
 	}

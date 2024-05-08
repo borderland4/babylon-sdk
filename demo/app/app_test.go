@@ -15,9 +15,9 @@ import (
 
 var emptyWasmOpts []wasm.Option
 
-func TestMeshdExport(t *testing.T) {
+func TestbcdExport(t *testing.T) {
 	db := dbm.NewMemDB()
-	gapp := NewMeshAppWithCustomOptions(t, false, SetupOptions{
+	gapp := NewAppWithCustomOptions(t, false, SetupOptions{
 		Logger:  log.NewTMLogger(log.NewSyncWriter(os.Stdout)),
 		DB:      db,
 		AppOpts: simtestutil.NewAppOptionsWithFlagHome(t.TempDir()),
@@ -25,7 +25,7 @@ func TestMeshdExport(t *testing.T) {
 	gapp.Commit()
 
 	// Making a new app object with the db, so that initchain hasn't been called
-	newGapp := NewMeshApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, simtestutil.NewAppOptionsWithFlagHome(t.TempDir()), emptyWasmOpts)
+	newGapp := NewConsumerApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, simtestutil.NewAppOptionsWithFlagHome(t.TempDir()), emptyWasmOpts)
 	_, err := newGapp.ExportAppStateAndValidators(false, []string{}, nil)
 	require.NoError(t, err, "ExportAppStateAndValidators should not have an error")
 }

@@ -18,17 +18,17 @@ RUN set -eux; \
 COPY . /code
 
 # force it to use static lib (from above) not standard libgo_cosmwasm.so file
-# then log output of file /code/bin/meshd
+# then log output of file /code/bin/bcd
 # then ensure static linking
 RUN cd demo/ && LEDGER_ENABLED=false BUILD_TAGS=muslc LINK_STATICALLY=true make build \
-  && file /code/demo/build/meshd \
+  && file /code/demo/build/bcd \
   && echo "Ensuring binary is statically linked ..." \
-  && (file /code/demo/build/meshd | grep "statically linked")
+  && (file /code/demo/build/bcd | grep "statically linked")
 
 # --------------------------------------------------------
 FROM alpine:3.17
 
-COPY --from=go-builder /code/demo/build/meshd /usr/bin/meshd
+COPY --from=go-builder /code/demo/build/bcd /usr/bin/bcd
 
 # Install dependencies used for Starship
 RUN apk add --no-cache curl make bash jq sed
@@ -38,4 +38,4 @@ WORKDIR /opt
 # rest server, tendermint p2p, tendermint rpc
 EXPOSE 1317 26656 26657
 
-CMD ["/usr/bin/meshd", "version"]
+CMD ["/usr/bin/bcd", "version"]

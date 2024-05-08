@@ -14,7 +14,7 @@ type Hooks struct {
 	k Keeper
 }
 
-// Hooks return the mesh-security hooks
+// Hooks return the babylon hooks
 func (k Keeper) Hooks() Hooks {
 	return Hooks{k}
 }

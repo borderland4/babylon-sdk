@@ -15,7 +15,7 @@ import (
 
 func TestExecuteScheduledTask(t *testing.T) {
 	pCtx, keepers := CreateDefaultTestInput(t)
-	k := keepers.MeshKeeper
+	k := keepers.BabylonKeeper
 	myContract := sdk.AccAddress(rand.Bytes(32))
 
 	k.wasm = MockWasmKeeper{HasContractInfoFn: func(ctx sdk.Context, contractAddress sdk.AccAddress) bool {
@@ -131,7 +131,7 @@ func TestExecuteScheduledTask(t *testing.T) {
 
 func TestScheduleTask(t *testing.T) {
 	pCtx, keepers := CreateDefaultTestInput(t)
-	k := keepers.MeshKeeper
+	k := keepers.BabylonKeeper
 	myContract := sdk.AccAddress(rand.Bytes(32))
 	myOtherContractWithScheduledTask := sdk.AccAddress(rand.Bytes(32))
 	currentHeight := uint64(pCtx.BlockHeight())
@@ -207,7 +207,7 @@ func TestScheduleTask(t *testing.T) {
 
 func TestDeleteAllScheduledTasks(t *testing.T) {
 	pCtx, keepers := CreateDefaultTestInput(t)
-	k := keepers.MeshKeeper
+	k := keepers.BabylonKeeper
 	myContract := sdk.AccAddress(rand.Bytes(32))
 	myOtherContractWithScheduledTask := sdk.AccAddress(rand.Bytes(32))
 	currentHeight := uint64(pCtx.BlockHeight())
