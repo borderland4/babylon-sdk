@@ -1,13 +1,16 @@
 package e2e
 
 import (
-	"cosmossdk.io/math"
 	"encoding/base64"
 	"fmt"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
+
+	"cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func TestSlashingScenario1(t *testing.T) {

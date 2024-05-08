@@ -4,47 +4,48 @@
 
 ## Table of Contents
 
-- [osmosis/meshsecurity/v1beta1/meshsecurity.proto](#osmosis/meshsecurity/v1beta1/meshsecurity.proto)
-    - [Params](#osmosis.meshsecurity.v1beta1.Params)
-    - [VirtualStakingMaxCapInfo](#osmosis.meshsecurity.v1beta1.VirtualStakingMaxCapInfo)
+- [babylonchain/babylon/v1beta1/babylon.proto](#babylonchain/babylon/v1beta1/babylon.proto)
+    - [Params](#babylonchain.babylon.v1beta1.Params)
+    - [VirtualStakingMaxCapInfo](#babylonchain.babylon.v1beta1.VirtualStakingMaxCapInfo)
   
-- [osmosis/meshsecurity/v1beta1/genesis.proto](#osmosis/meshsecurity/v1beta1/genesis.proto)
-    - [GenesisState](#osmosis.meshsecurity.v1beta1.GenesisState)
+- [babylonchain/babylon/v1beta1/genesis.proto](#babylonchain/babylon/v1beta1/genesis.proto)
+    - [GenesisState](#babylonchain.babylon.v1beta1.GenesisState)
   
-- [osmosis/meshsecurity/v1beta1/query.proto](#osmosis/meshsecurity/v1beta1/query.proto)
-    - [QueryParamsRequest](#osmosis.meshsecurity.v1beta1.QueryParamsRequest)
-    - [QueryParamsResponse](#osmosis.meshsecurity.v1beta1.QueryParamsResponse)
-    - [QueryVirtualStakingMaxCapLimitRequest](#osmosis.meshsecurity.v1beta1.QueryVirtualStakingMaxCapLimitRequest)
-    - [QueryVirtualStakingMaxCapLimitResponse](#osmosis.meshsecurity.v1beta1.QueryVirtualStakingMaxCapLimitResponse)
-    - [QueryVirtualStakingMaxCapLimitsRequest](#osmosis.meshsecurity.v1beta1.QueryVirtualStakingMaxCapLimitsRequest)
-    - [QueryVirtualStakingMaxCapLimitsResponse](#osmosis.meshsecurity.v1beta1.QueryVirtualStakingMaxCapLimitsResponse)
+- [babylonchain/babylon/v1beta1/query.proto](#babylonchain/babylon/v1beta1/query.proto)
+    - [QueryParamsRequest](#babylonchain.babylon.v1beta1.QueryParamsRequest)
+    - [QueryParamsResponse](#babylonchain.babylon.v1beta1.QueryParamsResponse)
+    - [QueryVirtualStakingMaxCapLimitRequest](#babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitRequest)
+    - [QueryVirtualStakingMaxCapLimitResponse](#babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitResponse)
+    - [QueryVirtualStakingMaxCapLimitsRequest](#babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitsRequest)
+    - [QueryVirtualStakingMaxCapLimitsResponse](#babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitsResponse)
   
-    - [Query](#osmosis.meshsecurity.v1beta1.Query)
+    - [Query](#babylonchain.babylon.v1beta1.Query)
   
-- [osmosis/meshsecurity/v1beta1/scheduler.proto](#osmosis/meshsecurity/v1beta1/scheduler.proto)
-    - [ValidatorAddress](#osmosis.meshsecurity.v1beta1.ValidatorAddress)
+- [babylonchain/babylon/v1beta1/scheduler.proto](#babylonchain/babylon/v1beta1/scheduler.proto)
+    - [ScheduledWork](#babylonchain.babylon.v1beta1.ScheduledWork)
+    - [ValidatorAddress](#babylonchain.babylon.v1beta1.ValidatorAddress)
   
-- [osmosis/meshsecurity/v1beta1/tx.proto](#osmosis/meshsecurity/v1beta1/tx.proto)
-    - [MsgSetVirtualStakingMaxCap](#osmosis.meshsecurity.v1beta1.MsgSetVirtualStakingMaxCap)
-    - [MsgSetVirtualStakingMaxCapResponse](#osmosis.meshsecurity.v1beta1.MsgSetVirtualStakingMaxCapResponse)
+- [babylonchain/babylon/v1beta1/tx.proto](#babylonchain/babylon/v1beta1/tx.proto)
+    - [MsgSetVirtualStakingMaxCap](#babylonchain.babylon.v1beta1.MsgSetVirtualStakingMaxCap)
+    - [MsgSetVirtualStakingMaxCapResponse](#babylonchain.babylon.v1beta1.MsgSetVirtualStakingMaxCapResponse)
   
-    - [Msg](#osmosis.meshsecurity.v1beta1.Msg)
+    - [Msg](#babylonchain.babylon.v1beta1.Msg)
   
 - [Scalar Value Types](#scalar-value-types)
 
 
 
-<a name="osmosis/meshsecurity/v1beta1/meshsecurity.proto"></a>
+<a name="babylonchain/babylon/v1beta1/babylon.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## osmosis/meshsecurity/v1beta1/meshsecurity.proto
+## babylonchain/babylon/v1beta1/babylon.proto
 
 
 
-<a name="osmosis.meshsecurity.v1beta1.Params"></a>
+<a name="babylonchain.babylon.v1beta1.Params"></a>
 
 ### Params
-Params defines the parameters for the x/meshsecurity module.
+Params defines the parameters for the x/babylon module.
 
 
 | Field | Type | Label | Description |
@@ -58,7 +59,7 @@ Params defines the parameters for the x/meshsecurity module.
 
 
 
-<a name="osmosis.meshsecurity.v1beta1.VirtualStakingMaxCapInfo"></a>
+<a name="babylonchain.babylon.v1beta1.VirtualStakingMaxCapInfo"></a>
 
 ### VirtualStakingMaxCapInfo
 VirtualStakingMaxCapInfo stores info about
@@ -85,22 +86,22 @@ virtual staking max cap
 
 
 
-<a name="osmosis/meshsecurity/v1beta1/genesis.proto"></a>
+<a name="babylonchain/babylon/v1beta1/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## osmosis/meshsecurity/v1beta1/genesis.proto
+## babylonchain/babylon/v1beta1/genesis.proto
 
 
 
-<a name="osmosis.meshsecurity.v1beta1.GenesisState"></a>
+<a name="babylonchain.babylon.v1beta1.GenesisState"></a>
 
 ### GenesisState
-GenesisState defines meshsecurity module's genesis state.
+GenesisState defines babylon module's genesis state.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `params` | [Params](#osmosis.meshsecurity.v1beta1.Params) |  |  |
+| `params` | [Params](#babylonchain.babylon.v1beta1.Params) |  |  |
 
 
 
@@ -116,14 +117,14 @@ GenesisState defines meshsecurity module's genesis state.
 
 
 
-<a name="osmosis/meshsecurity/v1beta1/query.proto"></a>
+<a name="babylonchain/babylon/v1beta1/query.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## osmosis/meshsecurity/v1beta1/query.proto
+## babylonchain/babylon/v1beta1/query.proto
 
 
 
-<a name="osmosis.meshsecurity.v1beta1.QueryParamsRequest"></a>
+<a name="babylonchain.babylon.v1beta1.QueryParamsRequest"></a>
 
 ### QueryParamsRequest
 QueryParamsRequest is the request type for the
@@ -134,7 +135,7 @@ Query/Params RPC method
 
 
 
-<a name="osmosis.meshsecurity.v1beta1.QueryParamsResponse"></a>
+<a name="babylonchain.babylon.v1beta1.QueryParamsResponse"></a>
 
 ### QueryParamsResponse
 QueryParamsResponse is the response type for the
@@ -143,14 +144,14 @@ Query/Params RPC method
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `params` | [Params](#osmosis.meshsecurity.v1beta1.Params) |  |  |
+| `params` | [Params](#babylonchain.babylon.v1beta1.Params) |  |  |
 
 
 
 
 
 
-<a name="osmosis.meshsecurity.v1beta1.QueryVirtualStakingMaxCapLimitRequest"></a>
+<a name="babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitRequest"></a>
 
 ### QueryVirtualStakingMaxCapLimitRequest
 QueryVirtualStakingMaxCapLimitRequest is the request type for the
@@ -166,7 +167,7 @@ Query/VirtualStakingMaxCapLimit RPC method
 
 
 
-<a name="osmosis.meshsecurity.v1beta1.QueryVirtualStakingMaxCapLimitResponse"></a>
+<a name="babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitResponse"></a>
 
 ### QueryVirtualStakingMaxCapLimitResponse
 QueryVirtualStakingMaxCapLimitResponse is the response type for the
@@ -183,7 +184,7 @@ Query/VirtualStakingMaxCapLimit RPC method
 
 
 
-<a name="osmosis.meshsecurity.v1beta1.QueryVirtualStakingMaxCapLimitsRequest"></a>
+<a name="babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitsRequest"></a>
 
 ### QueryVirtualStakingMaxCapLimitsRequest
 QueryVirtualStakingMaxCapLimitsRequest is the request type for the
@@ -194,7 +195,7 @@ Query/VirtualStakingMaxCapLimits RPC method
 
 
 
-<a name="osmosis.meshsecurity.v1beta1.QueryVirtualStakingMaxCapLimitsResponse"></a>
+<a name="babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitsResponse"></a>
 
 ### QueryVirtualStakingMaxCapLimitsResponse
 QueryVirtualStakingMaxCapLimitsResponse is the response type for the
@@ -203,7 +204,7 @@ Query/VirtualStakingMaxCapLimits RPC method
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `max_cap_infos` | [VirtualStakingMaxCapInfo](#osmosis.meshsecurity.v1beta1.VirtualStakingMaxCapInfo) | repeated |  |
+| `max_cap_infos` | [VirtualStakingMaxCapInfo](#babylonchain.babylon.v1beta1.VirtualStakingMaxCapInfo) | repeated |  |
 
 
 
@@ -216,29 +217,44 @@ Query/VirtualStakingMaxCapLimits RPC method
  <!-- end HasExtensions -->
 
 
-<a name="osmosis.meshsecurity.v1beta1.Query"></a>
+<a name="babylonchain.babylon.v1beta1.Query"></a>
 
 ### Query
 Query provides defines the gRPC querier service
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `VirtualStakingMaxCapLimit` | [QueryVirtualStakingMaxCapLimitRequest](#osmosis.meshsecurity.v1beta1.QueryVirtualStakingMaxCapLimitRequest) | [QueryVirtualStakingMaxCapLimitResponse](#osmosis.meshsecurity.v1beta1.QueryVirtualStakingMaxCapLimitResponse) | VirtualStakingMaxCapLimit gets max cap limit for the given contract | GET|/osmosis/meshsecurity/v1beta1/max_cap_limit/{address}|
-| `VirtualStakingMaxCapLimits` | [QueryVirtualStakingMaxCapLimitsRequest](#osmosis.meshsecurity.v1beta1.QueryVirtualStakingMaxCapLimitsRequest) | [QueryVirtualStakingMaxCapLimitsResponse](#osmosis.meshsecurity.v1beta1.QueryVirtualStakingMaxCapLimitsResponse) | VirtualStakingMaxCapLimits gets max cap limits | GET|/osmosis/meshsecurity/v1beta1/max_cap_limits|
-| `Params` | [QueryParamsRequest](#osmosis.meshsecurity.v1beta1.QueryParamsRequest) | [QueryParamsResponse](#osmosis.meshsecurity.v1beta1.QueryParamsResponse) | Params queries the parameters of x/meshsecurity module. | GET|/osmosis/meshsecurity/v1beta1/params|
+| `VirtualStakingMaxCapLimit` | [QueryVirtualStakingMaxCapLimitRequest](#babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitRequest) | [QueryVirtualStakingMaxCapLimitResponse](#babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitResponse) | VirtualStakingMaxCapLimit gets max cap limit for the given contract | GET|/babylonchain/babylon/v1beta1/max_cap_limit/{address}|
+| `VirtualStakingMaxCapLimits` | [QueryVirtualStakingMaxCapLimitsRequest](#babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitsRequest) | [QueryVirtualStakingMaxCapLimitsResponse](#babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitsResponse) | VirtualStakingMaxCapLimits gets max cap limits | GET|/babylonchain/babylon/v1beta1/max_cap_limits|
+| `Params` | [QueryParamsRequest](#babylonchain.babylon.v1beta1.QueryParamsRequest) | [QueryParamsResponse](#babylonchain.babylon.v1beta1.QueryParamsResponse) | Params queries the parameters of x/babylon module. | GET|/babylonchain/babylon/v1beta1/params|
 
  <!-- end services -->
 
 
 
-<a name="osmosis/meshsecurity/v1beta1/scheduler.proto"></a>
+<a name="babylonchain/babylon/v1beta1/scheduler.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## osmosis/meshsecurity/v1beta1/scheduler.proto
+## babylonchain/babylon/v1beta1/scheduler.proto
 
 
 
-<a name="osmosis.meshsecurity.v1beta1.ValidatorAddress"></a>
+<a name="babylonchain.babylon.v1beta1.ScheduledWork"></a>
+
+### ScheduledWork
+ScheduledWork is XX
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `repeat` | [bool](#bool) |  |  |
+
+
+
+
+
+
+<a name="babylonchain.babylon.v1beta1.ValidatorAddress"></a>
 
 ### ValidatorAddress
 ValidatorAddress payload data to be used with the scheduler
@@ -262,14 +278,14 @@ ValidatorAddress payload data to be used with the scheduler
 
 
 
-<a name="osmosis/meshsecurity/v1beta1/tx.proto"></a>
+<a name="babylonchain/babylon/v1beta1/tx.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## osmosis/meshsecurity/v1beta1/tx.proto
+## babylonchain/babylon/v1beta1/tx.proto
 
 
 
-<a name="osmosis.meshsecurity.v1beta1.MsgSetVirtualStakingMaxCap"></a>
+<a name="babylonchain.babylon.v1beta1.MsgSetVirtualStakingMaxCap"></a>
 
 ### MsgSetVirtualStakingMaxCap
 MsgSetVirtualStakingMaxCap creates or updates a maximum cap limit for virtual
@@ -287,7 +303,7 @@ staking coins to the given contract.
 
 
 
-<a name="osmosis.meshsecurity.v1beta1.MsgSetVirtualStakingMaxCapResponse"></a>
+<a name="babylonchain.babylon.v1beta1.MsgSetVirtualStakingMaxCapResponse"></a>
 
 ### MsgSetVirtualStakingMaxCapResponse
 MsgSetVirtualStakingMaxCap returns result data.
@@ -303,14 +319,14 @@ MsgSetVirtualStakingMaxCap returns result data.
  <!-- end HasExtensions -->
 
 
-<a name="osmosis.meshsecurity.v1beta1.Msg"></a>
+<a name="babylonchain.babylon.v1beta1.Msg"></a>
 
 ### Msg
 Msg defines the wasm Msg service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `SetVirtualStakingMaxCap` | [MsgSetVirtualStakingMaxCap](#osmosis.meshsecurity.v1beta1.MsgSetVirtualStakingMaxCap) | [MsgSetVirtualStakingMaxCapResponse](#osmosis.meshsecurity.v1beta1.MsgSetVirtualStakingMaxCapResponse) | SetVirtualStakingMaxCap creates or updates a maximum cap limit for virtual staking coins | |
+| `SetVirtualStakingMaxCap` | [MsgSetVirtualStakingMaxCap](#babylonchain.babylon.v1beta1.MsgSetVirtualStakingMaxCap) | [MsgSetVirtualStakingMaxCapResponse](#babylonchain.babylon.v1beta1.MsgSetVirtualStakingMaxCapResponse) | SetVirtualStakingMaxCap creates or updates a maximum cap limit for virtual staking coins | |
 
  <!-- end services -->
 

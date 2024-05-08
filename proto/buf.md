@@ -1,6 +1,6 @@
 # Protobufs
 
-This is the public protocol buffers API for [Mesh Security SDK](https://github.com/osmosis-labs/mesh-security-sdk).
+This is the public protocol buffers API for [Babylon SDK](https://github.com/babylonchain/babylon-sdk).
 
 ## Download
 
@@ -8,10 +8,10 @@ The `buf` CLI comes with an export command. Use `buf export -h` for details
 
 #### Examples:
 
-Download mesh-security protos for a commit:
+Download Babylon SDK protos for a commit:
 ```bash
 ## todo: not published, yet
-buf export buf.build/osmosis-labs/mesh-security-sdk:${commit} --output ./tmp
+buf export buf.build/babylonchain/babylon-sdk:${commit} --output ./tmp
 ```
 
 Download all project protos:

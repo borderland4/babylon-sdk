@@ -1,17 +1,17 @@
 package keeper
 
 import (
-	"cosmossdk.io/math"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
+
+	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/babylonchain/babylon-sdk/x/babylon/contract"
-	"github.com/babylonchain/babylon-sdk/x/babylon/types"
-
 	outmessage "github.com/babylonchain/babylon-sdk/x/babylon/contract"
+	"github.com/babylonchain/babylon-sdk/x/babylon/types"
 )
 
 // ScheduleBonded store a validator update to bonded status for the valset update report
@@ -26,7 +26,7 @@ func (k Keeper) ScheduleUnbonded(ctx sdk.Context, addr sdk.ValAddress) error {
 
 // ScheduleSlashed store a validator slash event / data for the valset update report
 func (k Keeper) ScheduleSlashed(ctx sdk.Context, addr sdk.ValAddress, power int64, height int64, totalSlashAmount math.Int, slashRatio sdk.Dec) error {
-	var slashInfo = &types.SlashInfo{
+	slashInfo := &types.SlashInfo{
 		Power:            power,
 		InfractionHeight: height,
 		TotalSlashAmount: totalSlashAmount.String(),
@@ -89,7 +89,8 @@ func (k Keeper) ValsetUpdateReport(ctx sdk.Context) (contract.ValsetUpdate, erro
 		return false
 	}
 	slashValidator := func(set *[]outmessage.ValidatorSlash, valAddr sdk.ValAddress, power int64, infractionHeight int64,
-		infractionTime int64, slashAmount string, slashRatio string) bool {
+		infractionTime int64, slashAmount string, slashRatio string,
+	) bool {
 		valSlash := outmessage.ValidatorSlash{
 			ValidatorAddr:    valAddr.String(),
 			Power:            power,

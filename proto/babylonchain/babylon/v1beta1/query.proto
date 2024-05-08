@@ -1,13 +1,13 @@
 syntax = "proto3";
-package osmosis.meshsecurity.v1beta1;
+package babylonchain.babylon.v1beta1;
 
 import "cosmos/base/v1beta1/coin.proto";
-import "osmosis/meshsecurity/v1beta1/meshsecurity.proto";
+import "babylonchain/babylon/v1beta1/babylon.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "amino/amino.proto";
 
-option go_package = "github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/types";
+option go_package = "github.com/babylonchain/babylon-sdk/x/babylon/types";
 option (gogoproto.goproto_getters_all) = false;
 option (gogoproto.equal_all) = false;
 
@@ -17,19 +17,19 @@ service Query {
   rpc VirtualStakingMaxCapLimit(QueryVirtualStakingMaxCapLimitRequest)
       returns (QueryVirtualStakingMaxCapLimitResponse) {
     option (google.api.http).get =
-        "/osmosis/meshsecurity/v1beta1/max_cap_limit/{address}";
+        "/babylonchain/babylon/v1beta1/max_cap_limit/{address}";
   }
 
   // VirtualStakingMaxCapLimits gets max cap limits
   rpc VirtualStakingMaxCapLimits(QueryVirtualStakingMaxCapLimitsRequest)
       returns (QueryVirtualStakingMaxCapLimitsResponse) {
     option (google.api.http).get =
-        "/osmosis/meshsecurity/v1beta1/max_cap_limits";
+        "/babylonchain/babylon/v1beta1/max_cap_limits";
   }
 
-  // Params queries the parameters of x/meshsecurity module.
+  // Params queries the parameters of x/babylon module.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/osmosis/meshsecurity/v1beta1/params";
+    option (google.api.http).get = "/babylonchain/babylon/v1beta1/params";
   }
 }
 

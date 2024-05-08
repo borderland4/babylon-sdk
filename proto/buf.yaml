@@ -1,9 +1,10 @@
 version: v1
-name: buf.build/osmosis-labs/mesh-security-sdk
+name: buf.build/babylonchain/babylon-sdk
 deps:
   - buf.build/cosmos/cosmos-proto
   - buf.build/cosmos/cosmos-sdk:v0.47.0
   - buf.build/cosmos/gogo-proto
+  - buf.build/googleapis/googleapis
 breaking:
   use:
     - FILE

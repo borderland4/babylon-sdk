@@ -1,17 +1,7 @@
 #!/usr/bin/make -f
 
-PACKAGES_SIMTEST=$(shell go list ./... | grep '/simulation')
-VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
-COMMIT := $(shell git log -1 --format='%H')
-LEDGER_ENABLED ?= true
-BINDIR ?= $(GOPATH)/bin
-SIMAPP = ./demo/app
-
 # for dockerized protobuf tools
 DOCKER := $(shell which docker)
-BUF_IMAGE=bufbuild/buf@sha256:3cb1f8a4b48bd5ad8f09168f10f607ddc318af202f5c057d52a45216793d85e5 #v1.4.0
-DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(BUF_IMAGE)
-HTTPS_GIT := https://github.com/babylonchain/babylon.git
 
 export GO111MODULE = on
 
@@ -62,11 +52,11 @@ format: format-tools
 ###############################################################################
 ###                                Protobuf                                 ###
 ###############################################################################
-protoVer=0.11.6
+protoVer=0.14.0
 protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
 protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
 
-proto-all: proto-format proto-lint proto-gen format
+proto-all: proto-format proto-lint proto-gen
 
 proto-gen:
 	@echo "Generating Protobuf files"
@@ -80,12 +70,8 @@ proto-swagger-gen:
 	@./scripts/protoc-swagger-gen.sh
 
 proto-lint:
-	@$(DOCKER_BUF) lint --error-format=json
-
-proto-check-breaking:
-	@$(DOCKER_BUF) breaking --against $(HTTPS_GIT)#branch=main
-
+	@$(protoImage) buf lint --error-format=json
 
 .PHONY: all install \
 	build build-linux-static test test-all test-e2e \
-	proto-all proto-format proto-swagger-gen proto-lint proto-check-breaking
+	proto-all proto-format proto-swagger-gen proto-lint
