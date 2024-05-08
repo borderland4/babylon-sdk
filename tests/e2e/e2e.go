@@ -15,12 +15,11 @@ import (
 
 	"cosmossdk.io/math"
 
+	"github.com/babylonchain/babylon-sdk/demo/app"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-
-	"github.com/babylonchain/babylon-sdk/demo/app"
 )
 
 var (
@@ -36,8 +35,8 @@ func buildPathToWasm(fileName string) string {
 }
 
 // NewIBCCoordinator initializes Coordinator with N bcd TestChain instances
-func NewIBCCoordinator(t *testing.T, n int, opts ...[]wasmkeeper.Option) *ibctesting.Coordinator {
-	return ibctesting.NewCoordinatorX(t, n,
+func NewIBCCoordinator(t *testing.T, opts ...[]wasmkeeper.Option) *ibctesting.Coordinator {
+	return ibctesting.NewCoordinatorX(t, 2,
 		func(t *testing.T, valSet *types.ValidatorSet, genAccs []authtypes.GenesisAccount, chainID string, opts []wasm.Option, balances ...banktypes.Balance) ibctesting.ChainApp {
 			return app.SetupWithGenesisValSet(t, valSet, genAccs, chainID, opts, balances...)
 		},
@@ -106,7 +105,7 @@ type example struct {
 }
 
 func setupExampleChains(t *testing.T) example {
-	coord := NewIBCCoordinator(t, 2)
+	coord := NewIBCCoordinator(t)
 	provChain := coord.GetChain(ibctesting2.GetChainID(1))
 	consChain := coord.GetChain(ibctesting2.GetChainID(2))
 	return example{
@@ -127,20 +126,24 @@ func setupBabylonIntegration(t *testing.T, x example) (*TestConsumerClient, Cons
 	// setup contracts on both chains
 	consumerCli := NewConsumerClient(t, x.ConsumerChain)
 	consumerContracts := consumerCli.BootstrapContracts()
-	consumerPortID := wasmkeeper.PortIDForContract(consumerContracts.converter)
+	consumerPortID := wasmkeeper.PortIDForContract(consumerContracts.Babylon)
 	// add some fees so that we can distribute something
 	x.ConsumerChain.DefaultMsgFees = sdk.NewCoins(sdk.NewCoin(x.ConsumerDenom, math.NewInt(1_000_000)))
 
 	providerCli := NewProviderClient(t, x.ProviderChain)
 
-	// setup ibc control path: consumer -> provider (direction matters)
+	return consumerCli, consumerContracts, providerCli
+
+	// TODO: fix IBC channel below
+
+	// setup ibc path
 	x.IbcPath.EndpointB.ChannelConfig = &ibctesting2.ChannelConfig{
-		PortID: "zoneconcierge", // TODO: use a variable
-		Order:  types2.UNORDERED,
+		PortID: "zoneconcierge", // TODO: replace this chain/port with Babylon
+		Order:  types2.ORDERED,
 	}
 	x.IbcPath.EndpointA.ChannelConfig = &ibctesting2.ChannelConfig{
 		PortID: consumerPortID,
-		Order:  types2.UNORDERED,
+		Order:  types2.ORDERED,
 	}
 	x.Coordinator.CreateChannels(x.IbcPath)
 

@@ -7,13 +7,11 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm/ibctesting"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/stretchr/testify/require"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/babylonchain/babylon-sdk/demo/app"
 	babylon "github.com/babylonchain/babylon-sdk/x/babylon"
 	"github.com/babylonchain/babylon-sdk/x/babylon/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
 )
 
 // Query is a query type used in tests only
@@ -111,9 +109,8 @@ func NewConsumerClient(t *testing.T, chain *ibctesting.TestChain) *TestConsumerC
 }
 
 type ConsumerContract struct {
-	staking   sdk.AccAddress
-	priceFeed sdk.AccAddress
-	converter sdk.AccAddress
+	Babylon    sdk.AccAddress
+	BTCStaking sdk.AccAddress
 }
 
 // TODO(babylon): deploy Babylon contracts
@@ -122,27 +119,27 @@ func (p *TestConsumerClient) BootstrapContracts() ConsumerContract {
 	msModule := p.app.ModuleManager.Modules[types.ModuleName].(*babylon.AppModule)
 	msModule.SetAsyncTaskRspHandler(babylon.PanicOnErrorExecutionResponseHandler())
 
-	var ( // todo: configure
-		tokenRatio  = "0.5"
-		discount    = "0.1"
-		remoteDenom = sdk.DefaultBondDenom
-	)
-	codeID := p.chain.StoreCodeFile(buildPathToWasm("mesh_simple_price_feed.wasm")).CodeID
-	initMsg := []byte(fmt.Sprintf(`{"native_per_foreign": "%s"}`, tokenRatio))
-	priceFeedContract := InstantiateContract(p.t, p.chain, codeID, initMsg)
-	// virtual staking is setup by the consumer
-	virtStakeCodeID := p.chain.StoreCodeFile(buildPathToWasm("mesh_virtual_staking.wasm")).CodeID
-	// instantiate converter
-	codeID = p.chain.StoreCodeFile(buildPathToWasm("mesh_converter.wasm")).CodeID
-	initMsg = []byte(fmt.Sprintf(`{"price_feed": %q, "discount": %q, "remote_denom": %q,"virtual_staking_code_id": %d}`,
-		priceFeedContract.String(), discount, remoteDenom, virtStakeCodeID))
-	converterContract := InstantiateContract(p.t, p.chain, codeID, initMsg)
+	babylonContractWasmId := p.chain.StoreCodeFile(buildPathToWasm("babylon_contract.wasm")).CodeID
+	btcStakingContractWasmId := p.chain.StoreCodeFile(buildPathToWasm("btc_staking.wasm")).CodeID
 
-	staking := Querier(p.t, p.chain)(converterContract.String(), Query{"config": {}})["virtual_staking"]
+	// Instantiate the contract
+	// TODO: parameterise
+	initMsg := fmt.Sprintf(`{ "network": %q, "babylon_tag": %q, "btc_confirmation_depth": %d, "checkpoint_finalization_timeout": %d, "notify_cosmos_zone": %s, "btc_staking_code_id": %d }`,
+		"regtest",
+		"01020304",
+		1,
+		2,
+		"false",
+		btcStakingContractWasmId,
+	)
+	initMsgBytes := []byte(initMsg)
+
+	babylonContractAddr := InstantiateContract(p.t, p.chain, babylonContractWasmId, initMsgBytes)
+	btcStakingContractAddr := Querier(p.t, p.chain)(babylonContractAddr.String(), Query{"config": {}})["btc_staking"]
+
 	r := ConsumerContract{
-		staking:   sdk.MustAccAddressFromBech32(staking.(string)),
-		priceFeed: priceFeedContract,
-		converter: converterContract,
+		Babylon:    babylonContractAddr,
+		BTCStaking: sdk.MustAccAddressFromBech32(btcStakingContractAddr.(string)),
 	}
 	p.contracts = r
 	return r
