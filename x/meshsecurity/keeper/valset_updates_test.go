@@ -15,8 +15,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/address"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/contract"
-	"github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/types"
+	"github.com/babylonchain/babylon-sdk/x/meshsecurity/contract"
+	"github.com/babylonchain/babylon-sdk/x/meshsecurity/types"
 )
 
 func TestSendAsync(t *testing.T) {

@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
-	"github.com/osmosis-labs/mesh-security-sdk/demo/app"
+	"github.com/babylonchain/babylon-sdk/demo/app"
 )
 
 func main() {

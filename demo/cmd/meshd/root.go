@@ -35,8 +35,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
-	"github.com/osmosis-labs/mesh-security-sdk/demo/app"
-	"github.com/osmosis-labs/mesh-security-sdk/demo/app/params"
+	"github.com/babylonchain/babylon-sdk/demo/app"
+	"github.com/babylonchain/babylon-sdk/demo/app/params"
 )
 
 // NewRootCmd creates a new root command for wasmd. It is called once in the

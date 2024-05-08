@@ -17,9 +17,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/osmosis-labs/mesh-security-sdk/demo/app"
-	"github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity"
-	"github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/types"
+	"github.com/babylonchain/babylon-sdk/demo/app"
+	"github.com/babylonchain/babylon-sdk/x/meshsecurity"
+	"github.com/babylonchain/babylon-sdk/x/meshsecurity/types"
 )
 
 // Query is a query type used in tests only

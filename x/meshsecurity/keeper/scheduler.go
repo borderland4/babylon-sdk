@@ -10,7 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/types"
+	"github.com/babylonchain/babylon-sdk/x/meshsecurity/types"
 )
 
 // ScheduleRegularRebalanceTask schedule a rebalance task for the given virtual staking contract using params defined epoch length

@@ -5,10 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/osmosis-labs/mesh-security-sdk/demo/app"
 	"net/http"
 	"os"
+
+	"github.com/babylonchain/babylon-sdk/demo/app"
+	"github.com/cosmos/cosmos-sdk/types/module"
 
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/client/tx"

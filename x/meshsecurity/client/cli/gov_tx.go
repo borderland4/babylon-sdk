@@ -18,7 +18,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/gov/client/cli"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
-	"github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/types"
+	"github.com/babylonchain/babylon-sdk/x/meshsecurity/types"
 )
 
 // DefaultGovAuthority is set to the gov module address.

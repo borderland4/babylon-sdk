@@ -8,10 +8,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/contract"
-	"github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/types"
+	"github.com/babylonchain/babylon-sdk/x/meshsecurity/contract"
+	"github.com/babylonchain/babylon-sdk/x/meshsecurity/types"
 
-	outmessage "github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/contract"
+	outmessage "github.com/babylonchain/babylon-sdk/x/meshsecurity/contract"
 )
 
 // ScheduleBonded store a validator update to bonded status for the valset update report

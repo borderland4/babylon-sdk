@@ -1,4 +1,4 @@
-module github.com/osmosis-labs/mesh-security-sdk/tests/e2e
+module github.com/babylonchain/babylon-sdk/tests/e2e
 
 go 1.20
 
@@ -34,8 +34,8 @@ require (
 require (
 	cosmossdk.io/math v1.1.2
 	github.com/cometbft/cometbft v0.37.2
-	github.com/osmosis-labs/mesh-security-sdk/demo v0.0.0-00010101000000-000000000000
-	github.com/osmosis-labs/mesh-security-sdk/x v0.0.0-00010101000000-000000000000
+	github.com/babylonchain/babylon-sdk/demo v0.0.0-00010101000000-000000000000
+	github.com/babylonchain/babylon-sdk/x v0.0.0-00010101000000-000000000000
 	github.com/tidwall/gjson v1.17.0
 )
 
@@ -196,8 +196,8 @@ replace (
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1
 
 	// local work dirs
-	github.com/osmosis-labs/mesh-security-sdk/demo => ../../demo
-	github.com/osmosis-labs/mesh-security-sdk/x => ../../x
+	github.com/babylonchain/babylon-sdk/demo => ../../demo
+	github.com/babylonchain/babylon-sdk/x => ../../x
 
 	// pin version! 126854af5e6d has issues with the store so that queries fail
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7

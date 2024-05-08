@@ -1,6 +1,6 @@
 package keeper
 
-import "github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/types"
+import "github.com/babylonchain/babylon-sdk/x/meshsecurity/types"
 
 // option that is applied after keeper is setup with the VM. Used for decorators mainly.
 type postOptsFn func(*Keeper)

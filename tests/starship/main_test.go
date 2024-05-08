@@ -15,7 +15,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/osmosis-labs/mesh-security-sdk/tests/starship/setup"
+	"github.com/babylonchain/babylon-sdk/tests/starship/setup"
 )
 
 var (

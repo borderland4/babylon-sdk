@@ -17,8 +17,8 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/osmosis-labs/mesh-security-sdk/demo/app"
-	"github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/types"
+	"github.com/babylonchain/babylon-sdk/demo/app"
+	"github.com/babylonchain/babylon-sdk/x/meshsecurity/types"
 )
 
 func JustContracts(provider, consumer, configFile, wasmContractPath string, wasmContractGZipped bool) error {

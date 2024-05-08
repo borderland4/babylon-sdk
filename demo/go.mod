@@ -1,4 +1,4 @@
-module github.com/osmosis-labs/mesh-security-sdk/demo
+module github.com/babylonchain/babylon-sdk/demo
 
 go 1.20
 
@@ -38,7 +38,7 @@ require (
 	cosmossdk.io/tools/rosetta v0.2.1
 	github.com/cometbft/cometbft v0.37.2
 	github.com/cometbft/cometbft-db v0.8.0
-	github.com/osmosis-labs/mesh-security-sdk/x v0.0.0-00010101000000-000000000000
+	github.com/babylonchain/babylon-sdk/x v0.0.0-00010101000000-000000000000
 	github.com/spf13/viper v1.16.0
 )
 
@@ -194,7 +194,7 @@ replace (
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1
 
 	// local work dir
-	github.com/osmosis-labs/mesh-security-sdk/x => ../x
+	github.com/babylonchain/babylon-sdk/x => ../x
 
 	// pin version! 126854af5e6d has issues with the store so that queries fail
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7

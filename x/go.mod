@@ -1,4 +1,4 @@
-module github.com/osmosis-labs/mesh-security-sdk/x
+module github.com/babylonchain/babylon-sdk/x
 
 go 1.20
 

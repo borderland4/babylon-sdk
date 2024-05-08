@@ -11,7 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/address"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 
-	"github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/types"
+	"github.com/babylonchain/babylon-sdk/x/meshsecurity/types"
 )
 
 func TestCaptureTombstone(t *testing.T) {

@@ -15,9 +15,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/client/cli"
-	"github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/keeper"
-	"github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/types"
+	"github.com/babylonchain/babylon-sdk/x/meshsecurity/client/cli"
+	"github.com/babylonchain/babylon-sdk/x/meshsecurity/keeper"
+	"github.com/babylonchain/babylon-sdk/x/meshsecurity/types"
 )
 
 // ConsensusVersion defines the module's consensus version.

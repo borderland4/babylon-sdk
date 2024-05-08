@@ -7,7 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/contract"
+	"github.com/babylonchain/babylon-sdk/x/meshsecurity/contract"
 )
 
 // SendHandleEpoch send epoch handling message to virtual staking contract via sudo

@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 
-	"github.com/osmosis-labs/mesh-security-sdk/tests/starship/setup"
+	"github.com/babylonchain/babylon-sdk/tests/starship/setup"
 )
 
 var (

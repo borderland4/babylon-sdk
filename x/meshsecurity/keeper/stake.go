@@ -7,7 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	types "github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/types"
+	types "github.com/babylonchain/babylon-sdk/x/meshsecurity/types"
 )
 
 // Delegate mints new "virtual" bonding tokens and delegates them to the given validator.

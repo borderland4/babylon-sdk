@@ -1,4 +1,4 @@
-module github.com/osmosis-labs/mesh-security-sdk/tests/starship
+module github.com/babylonchain/babylon-sdk/tests/starship
 
 go 1.21
 
@@ -36,8 +36,8 @@ require (
 	github.com/cometbft/cometbft v0.37.2
 	github.com/cosmology-tech/starship/registry v0.0.0-20231216113645-d0facbadb180
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/osmosis-labs/mesh-security-sdk/demo v0.0.0-00010101000000-000000000000
-	github.com/osmosis-labs/mesh-security-sdk/x v0.0.0-00010101000000-000000000000
+	github.com/babylonchain/babylon-sdk/demo v0.0.0-00010101000000-000000000000
+	github.com/babylonchain/babylon-sdk/x v0.0.0-00010101000000-000000000000
 	github.com/strangelove-ventures/lens v0.0.0-00010101000000-000000000000
 	go.uber.org/zap v1.26.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -200,8 +200,8 @@ replace (
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1
 
 	// local work dirs
-	github.com/osmosis-labs/mesh-security-sdk/demo => ../../demo
-	github.com/osmosis-labs/mesh-security-sdk/x => ../../x
+	github.com/babylonchain/babylon-sdk/demo => ../../demo
+	github.com/babylonchain/babylon-sdk/x => ../../x
 
 	github.com/strangelove-ventures/lens => github.com/Anmol1696/lens v0.1.1-0.20230705212610-c00628a886a0
 

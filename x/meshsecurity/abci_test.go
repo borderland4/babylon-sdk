@@ -14,8 +14,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/keeper"
-	"github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/types"
+	"github.com/babylonchain/babylon-sdk/x/meshsecurity/keeper"
+	"github.com/babylonchain/babylon-sdk/x/meshsecurity/types"
 )
 
 func TestEndBlocker(t *testing.T) {

@@ -7,8 +7,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/keeper"
-	"github.com/osmosis-labs/mesh-security-sdk/x/meshsecurity/types"
+	"github.com/babylonchain/babylon-sdk/x/meshsecurity/keeper"
+	"github.com/babylonchain/babylon-sdk/x/meshsecurity/types"
 )
 
 // TaskExecutionResponseHandler is an extension point for custom implementations

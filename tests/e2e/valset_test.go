@@ -19,7 +19,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/osmosis-labs/mesh-security-sdk/demo/app"
+	"github.com/babylonchain/babylon-sdk/demo/app"
 )
 
 func TestValsetTransitions(t *testing.T) {

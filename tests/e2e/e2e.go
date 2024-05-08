@@ -20,7 +20,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
-	"github.com/osmosis-labs/mesh-security-sdk/demo/app"
+	"github.com/babylonchain/babylon-sdk/demo/app"
 )
 
 var (

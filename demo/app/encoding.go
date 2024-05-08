@@ -3,7 +3,7 @@ package app
 import (
 	"github.com/cosmos/cosmos-sdk/std"
 
-	"github.com/osmosis-labs/mesh-security-sdk/demo/app/params"
+	"github.com/babylonchain/babylon-sdk/demo/app/params"
 )
 
 // MakeEncodingConfig creates a new EncodingConfig with all modules registered
