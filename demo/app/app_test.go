@@ -15,7 +15,7 @@ import (
 
 var emptyWasmOpts []wasm.Option
 
-func TestbcdExport(t *testing.T) {
+func TestBcdExport(t *testing.T) {
 	db := dbm.NewMemDB()
 	gapp := NewAppWithCustomOptions(t, false, SetupOptions{
 		Logger:  log.NewTMLogger(log.NewSyncWriter(os.Stdout)),

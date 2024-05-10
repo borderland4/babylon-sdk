@@ -1,8 +1,8 @@
 # Babylon SDK
 
-Cosmos module for Babylon consumer chains. Please see the official project [repo](https://github.com/babylonchain/babylon)
-for specs and wasm contracts.
+Cosmos module for Babylon consumer chains. Please see the official project [repo](https://github.com/babylonchain/babylon) for specs and wasm contracts.
 
+The code is forked from https://github.com/osmosis-labs/mesh-security-sdk.
 ## Project Structure
 
 * x - module code that is supposed to be imported by consumer chains

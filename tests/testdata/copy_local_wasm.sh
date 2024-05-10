@@ -2,11 +2,20 @@
 set -o errexit -o nounset -o pipefail
 command -v shellcheck >/dev/null && shellcheck "$0"
 
+CONTRACTS="babylon_contract btc_staking"
 OUTPUT_FOLDER="$(dirname "$0")"
 
 echo "DEV-only: copy from local built instead of downloading"
 
-cp -f  ../babylon-contract/artifacts/*.wasm "$OUTPUT_FOLDER/"
+M=$(uname -m)
+S=${M#x86_64}
+S=${S/arm64/aarch64}
+S=${S:+-$S}
+
+for CONTRACT in $CONTRACTS
+do
+  cp -f  ../babylon-contract/artifacts/"${CONTRACT}${S}".wasm "$OUTPUT_FOLDER/${CONTRACT}.wasm"
+done
 
 cd ../babylon-contract
 TAG=$(git rev-parse HEAD)
