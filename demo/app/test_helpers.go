@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
 	pruningtypes "cosmossdk.io/store/pruning/types"
+	"cosmossdk.io/store/snapshots"
+	snapshottypes "cosmossdk.io/store/snapshots/types"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/ed25519"
@@ -55,13 +58,20 @@ type SetupOptions struct {
 func setup(t testing.TB, chainID string, withGenesis bool, invCheckPeriod uint, opts ...wasmkeeper.Option) (*ConsumerApp, GenesisState) {
 	db := dbm.NewMemDB()
 	nodeHome := t.TempDir()
+	snapshotDir := filepath.Join(nodeHome, "data", "snapshots")
+
+	snapshotDB, err := dbm.NewDB("metadata", dbm.GoLevelDBBackend, snapshotDir)
+	require.NoError(t, err)
+	t.Cleanup(func() { snapshotDB.Close() })
+	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
+	require.NoError(t, err)
 
 	appOptions := make(simtestutil.AppOptionsMap, 0)
 	appOptions[flags.FlagHome] = nodeHome // ensure unique folder
 	appOptions[server.FlagInvCheckPeriod] = invCheckPeriod
-	app := NewConsumerApp(log.NewNopLogger(), db, nil, true, appOptions, opts)
+	app := NewConsumerApp(log.NewNopLogger(), db, nil, true, appOptions, opts, bam.SetChainID(chainID), bam.SetSnapshot(snapshotStore, snapshottypes.SnapshotOptions{KeepRecent: 2}))
 	if withGenesis {
-		return app, NewDefaultGenesisState(app.AppCodec())
+		return app, app.DefaultGenesis()
 	}
 	return app, GenesisState{}
 }
@@ -169,8 +179,9 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	require.NoError(t, err)
 
 	_, err = app.FinalizeBlock(&abci.RequestFinalizeBlock{
-		Height: initialHeight,
-		Hash:   app.LastCommitID().Hash,
+		Height:             initialHeight,
+		Hash:               app.LastCommitID().Hash,
+		NextValidatorsHash: valSet.Hash(),
 	})
 	require.NoError(t, err)
 

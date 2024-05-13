@@ -1,7 +1,6 @@
 package e2e
 
 import (
-	"encoding/json"
 	"path/filepath"
 	"testing"
 
@@ -60,10 +59,10 @@ func InstantiateContract(t *testing.T, chain *ibctesting.TestChain, codeID uint6
 	require.Zero(t, r.Code)
 	require.NotEmpty(t, r.Data)
 	var pExecResp wasmtypes.MsgInstantiateContractResponse
-	err = json.Unmarshal(r.Data, pExecResp)
+	err = chain.Codec.Unmarshal(r.Data, &pExecResp)
 	require.NoError(t, err)
 	a, err := sdk.AccAddressFromBech32(pExecResp.Address)
-	require.NoError(t, err)
+	require.NoError(t, err, pExecResp)
 	return a
 }
 
@@ -97,7 +96,7 @@ func setupExampleChains(t *testing.T) example {
 func setupBabylonIntegration(t *testing.T, x example) (*TestConsumerClient, ConsumerContract, *TestProviderClient) {
 	x.Coordinator.SetupConnections(x.IbcPath)
 
-	// setup contracts on both chains
+	// setup contracts on consumer
 	consumerCli := NewConsumerClient(t, x.ConsumerChain)
 	consumerContracts := consumerCli.BootstrapContracts()
 	consumerPortID := wasmkeeper.PortIDForContract(consumerContracts.Babylon)
