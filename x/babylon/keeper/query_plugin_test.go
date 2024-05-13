@@ -1,15 +1,12 @@
 package keeper
 
 import (
-	"fmt"
 	"testing"
 
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	"github.com/cometbft/cometbft/libs/rand"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -25,27 +22,6 @@ func TestChainedCustomQuerier(t *testing.T) {
 		expErr        bool
 		expNextCalled bool
 	}{
-		"bond status query": {
-			src: wasmvmtypes.QueryRequest{
-				Custom: []byte(fmt.Sprintf(`{"virtual_stake":{"bond_status":{"contract":%q}}}`, myContractAddr.String())),
-			},
-			viewKeeper: &MockViewKeeper{
-				GetMaxCapLimitFn: func(ctx sdk.Context, actor sdk.AccAddress) sdk.Coin {
-					return sdk.NewCoin("ALX", math.NewInt(123))
-				},
-				GetTotalDelegatedFn: func(ctx sdk.Context, actor sdk.AccAddress) sdk.Coin {
-					return sdk.NewCoin("ALX", math.NewInt(456))
-				},
-			},
-			expData: []byte(`{"cap":{"denom":"ALX","amount":"123"},"delegated":{"denom":"ALX","amount":"456"}}`),
-		},
-		"slash ratio query": {
-			src: wasmvmtypes.QueryRequest{
-				Custom: []byte(`{"virtual_stake":{"slash_ratio":{}}}`),
-			},
-			viewKeeper: keepers.BabylonKeeper,
-			expData:    []byte(`{"slash_fraction_downtime":"0.010000000000000000","slash_fraction_double_sign":"0.050000000000000000"}`),
-		},
 		"non custom query": {
 			src: wasmvmtypes.QueryRequest{
 				Bank: &wasmvmtypes.BankQuery{},
@@ -70,7 +46,7 @@ func TestChainedCustomQuerier(t *testing.T) {
 			})
 
 			ctx, _ := pCtx.CacheContext()
-			gotData, gotErr := ChainedCustomQuerier(spec.viewKeeper, keepers.SlashingKeeper, next).HandleQuery(ctx, myContractAddr, spec.src)
+			gotData, gotErr := ChainedCustomQuerier(spec.viewKeeper, next).HandleQuery(ctx, myContractAddr, spec.src)
 			if spec.expErr {
 				require.Error(t, gotErr)
 				return
@@ -85,20 +61,12 @@ func TestChainedCustomQuerier(t *testing.T) {
 var _ viewKeeper = &MockViewKeeper{}
 
 type MockViewKeeper struct {
-	GetMaxCapLimitFn    func(ctx sdk.Context, actor sdk.AccAddress) sdk.Coin
-	GetTotalDelegatedFn func(ctx sdk.Context, actor sdk.AccAddress) sdk.Coin
+	GetTestFn func(ctx sdk.Context, actor sdk.AccAddress) string
 }
 
-func (m MockViewKeeper) GetMaxCapLimit(ctx sdk.Context, actor sdk.AccAddress) sdk.Coin {
-	if m.GetMaxCapLimitFn == nil {
+func (m MockViewKeeper) GetTest(ctx sdk.Context, actor sdk.AccAddress) string {
+	if m.GetTestFn == nil {
 		panic("not expected to be called")
 	}
-	return m.GetMaxCapLimitFn(ctx, actor)
-}
-
-func (m MockViewKeeper) GetTotalDelegated(ctx sdk.Context, actor sdk.AccAddress) sdk.Coin {
-	if m.GetTotalDelegatedFn == nil {
-		panic("not expected to be called")
-	}
-	return m.GetTotalDelegatedFn(ctx, actor)
+	return m.GetTestFn(ctx, actor)
 }

@@ -6,7 +6,6 @@
 
 - [babylonchain/babylon/v1beta1/babylon.proto](#babylonchain/babylon/v1beta1/babylon.proto)
     - [Params](#babylonchain.babylon.v1beta1.Params)
-    - [VirtualStakingMaxCapInfo](#babylonchain.babylon.v1beta1.VirtualStakingMaxCapInfo)
   
 - [babylonchain/babylon/v1beta1/genesis.proto](#babylonchain/babylon/v1beta1/genesis.proto)
     - [GenesisState](#babylonchain.babylon.v1beta1.GenesisState)
@@ -14,21 +13,10 @@
 - [babylonchain/babylon/v1beta1/query.proto](#babylonchain/babylon/v1beta1/query.proto)
     - [QueryParamsRequest](#babylonchain.babylon.v1beta1.QueryParamsRequest)
     - [QueryParamsResponse](#babylonchain.babylon.v1beta1.QueryParamsResponse)
-    - [QueryVirtualStakingMaxCapLimitRequest](#babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitRequest)
-    - [QueryVirtualStakingMaxCapLimitResponse](#babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitResponse)
-    - [QueryVirtualStakingMaxCapLimitsRequest](#babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitsRequest)
-    - [QueryVirtualStakingMaxCapLimitsResponse](#babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitsResponse)
   
     - [Query](#babylonchain.babylon.v1beta1.Query)
   
-- [babylonchain/babylon/v1beta1/scheduler.proto](#babylonchain/babylon/v1beta1/scheduler.proto)
-    - [ScheduledWork](#babylonchain.babylon.v1beta1.ScheduledWork)
-    - [ValidatorAddress](#babylonchain.babylon.v1beta1.ValidatorAddress)
-  
 - [babylonchain/babylon/v1beta1/tx.proto](#babylonchain/babylon/v1beta1/tx.proto)
-    - [MsgSetVirtualStakingMaxCap](#babylonchain.babylon.v1beta1.MsgSetVirtualStakingMaxCap)
-    - [MsgSetVirtualStakingMaxCapResponse](#babylonchain.babylon.v1beta1.MsgSetVirtualStakingMaxCapResponse)
-  
     - [Msg](#babylonchain.babylon.v1beta1.Msg)
   
 - [Scalar Value Types](#scalar-value-types)
@@ -50,27 +38,7 @@ Params defines the parameters for the x/babylon module.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `total_contracts_max_cap` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | TotalContractsMaxCap is the maximum that the sum of all contract max caps must not exceed |
-| `epoch_length` | [uint32](#uint32) |  | Epoch length is the number of blocks that defines an epoch |
 | `max_gas_end_blocker` | [uint32](#uint32) |  | MaxGasEndBlocker defines the maximum gas that can be spent in a contract sudo callback |
-
-
-
-
-
-
-<a name="babylonchain.babylon.v1beta1.VirtualStakingMaxCapInfo"></a>
-
-### VirtualStakingMaxCapInfo
-VirtualStakingMaxCapInfo stores info about
-virtual staking max cap
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `contract` | [string](#string) |  | Contract is the address of the contract |
-| `delegated` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Delegated is the total amount currently delegated |
-| `cap` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | Cap is the current max cap limit |
 
 
 
@@ -150,66 +118,6 @@ Query/Params RPC method
 
 
 
-
-<a name="babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitRequest"></a>
-
-### QueryVirtualStakingMaxCapLimitRequest
-QueryVirtualStakingMaxCapLimitRequest is the request type for the
-Query/VirtualStakingMaxCapLimit RPC method
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  | Address is the address of the contract to query |
-
-
-
-
-
-
-<a name="babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitResponse"></a>
-
-### QueryVirtualStakingMaxCapLimitResponse
-QueryVirtualStakingMaxCapLimitResponse is the response type for the
-Query/VirtualStakingMaxCapLimit RPC method
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `delegated` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
-| `cap` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
-
-
-
-
-
-
-<a name="babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitsRequest"></a>
-
-### QueryVirtualStakingMaxCapLimitsRequest
-QueryVirtualStakingMaxCapLimitsRequest is the request type for the
-Query/VirtualStakingMaxCapLimits RPC method
-
-
-
-
-
-
-<a name="babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitsResponse"></a>
-
-### QueryVirtualStakingMaxCapLimitsResponse
-QueryVirtualStakingMaxCapLimitsResponse is the response type for the
-Query/VirtualStakingMaxCapLimits RPC method
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `max_cap_infos` | [VirtualStakingMaxCapInfo](#babylonchain.babylon.v1beta1.VirtualStakingMaxCapInfo) | repeated |  |
-
-
-
-
-
  <!-- end messages -->
 
  <!-- end enums -->
@@ -224,55 +132,7 @@ Query provides defines the gRPC querier service
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `VirtualStakingMaxCapLimit` | [QueryVirtualStakingMaxCapLimitRequest](#babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitRequest) | [QueryVirtualStakingMaxCapLimitResponse](#babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitResponse) | VirtualStakingMaxCapLimit gets max cap limit for the given contract | GET|/babylonchain/babylon/v1beta1/max_cap_limit/{address}|
-| `VirtualStakingMaxCapLimits` | [QueryVirtualStakingMaxCapLimitsRequest](#babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitsRequest) | [QueryVirtualStakingMaxCapLimitsResponse](#babylonchain.babylon.v1beta1.QueryVirtualStakingMaxCapLimitsResponse) | VirtualStakingMaxCapLimits gets max cap limits | GET|/babylonchain/babylon/v1beta1/max_cap_limits|
 | `Params` | [QueryParamsRequest](#babylonchain.babylon.v1beta1.QueryParamsRequest) | [QueryParamsResponse](#babylonchain.babylon.v1beta1.QueryParamsResponse) | Params queries the parameters of x/babylon module. | GET|/babylonchain/babylon/v1beta1/params|
-
- <!-- end services -->
-
-
-
-<a name="babylonchain/babylon/v1beta1/scheduler.proto"></a>
-<p align="right"><a href="#top">Top</a></p>
-
-## babylonchain/babylon/v1beta1/scheduler.proto
-
-
-
-<a name="babylonchain.babylon.v1beta1.ScheduledWork"></a>
-
-### ScheduledWork
-ScheduledWork is XX
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `repeat` | [bool](#bool) |  |  |
-
-
-
-
-
-
-<a name="babylonchain.babylon.v1beta1.ValidatorAddress"></a>
-
-### ValidatorAddress
-ValidatorAddress payload data to be used with the scheduler
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  | Address is the ValAddress bech32 string |
-
-
-
-
-
- <!-- end messages -->
-
- <!-- end enums -->
-
- <!-- end HasExtensions -->
 
  <!-- end services -->
 
@@ -282,34 +142,6 @@ ValidatorAddress payload data to be used with the scheduler
 <p align="right"><a href="#top">Top</a></p>
 
 ## babylonchain/babylon/v1beta1/tx.proto
-
-
-
-<a name="babylonchain.babylon.v1beta1.MsgSetVirtualStakingMaxCap"></a>
-
-### MsgSetVirtualStakingMaxCap
-MsgSetVirtualStakingMaxCap creates or updates a maximum cap limit for virtual
-staking coins to the given contract.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `authority` | [string](#string) |  | Authority is the address that controls the module (defaults to x/gov unless overwritten). |
-| `contract` | [string](#string) |  | Contract is the address of the smart contract that is given permission do virtual staking which includes minting and burning staking tokens. |
-| `max_cap` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | MaxCap is the limit up this the virtual tokens can be minted. |
-
-
-
-
-
-
-<a name="babylonchain.babylon.v1beta1.MsgSetVirtualStakingMaxCapResponse"></a>
-
-### MsgSetVirtualStakingMaxCapResponse
-MsgSetVirtualStakingMaxCap returns result data.
-
-
-
 
 
  <!-- end messages -->
@@ -326,7 +158,6 @@ Msg defines the wasm Msg service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `SetVirtualStakingMaxCap` | [MsgSetVirtualStakingMaxCap](#babylonchain.babylon.v1beta1.MsgSetVirtualStakingMaxCap) | [MsgSetVirtualStakingMaxCapResponse](#babylonchain.babylon.v1beta1.MsgSetVirtualStakingMaxCapResponse) | SetVirtualStakingMaxCap creates or updates a maximum cap limit for virtual staking coins | |
 
  <!-- end services -->
 

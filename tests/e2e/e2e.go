@@ -9,8 +9,8 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/cometbft/cometbft/types"
-	types2 "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	ibctesting2 "github.com/cosmos/ibc-go/v7/testing"
+	types2 "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	ibctesting2 "github.com/cosmos/ibc-go/v8/testing"
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/math"

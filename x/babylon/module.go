@@ -81,24 +81,18 @@ func (b AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry
 // AppModule implements an application module interface
 type AppModule struct {
 	AppModuleBasic
-	cdc                 codec.Codec
-	k                   *keeper.Keeper
-	asyncTaskRspHandler TaskExecutionResponseHandler
+	cdc codec.Codec
+	k   *keeper.Keeper
 }
 
 // NewAppModule constructor with defaults
 func NewAppModule(cdc codec.Codec, k *keeper.Keeper) *AppModule {
-	return NewAppModuleX(cdc, k, DefaultExecutionResponseHandler())
+	return NewAppModuleX(cdc, k)
 }
 
 // NewAppModuleX extended constructor
-func NewAppModuleX(cdc codec.Codec, k *keeper.Keeper, h TaskExecutionResponseHandler) *AppModule {
-	return &AppModule{cdc: cdc, k: k, asyncTaskRspHandler: h}
-}
-
-// SetAsyncTaskRspHandler set custom handler
-func (am *AppModule) SetAsyncTaskRspHandler(asyncTaskRspHandler TaskExecutionResponseHandler) {
-	am.asyncTaskRspHandler = asyncTaskRspHandler
+func NewAppModuleX(cdc codec.Codec, k *keeper.Keeper) *AppModule {
+	return &AppModule{cdc: cdc, k: k}
 }
 
 // IsAppModule implements the appmodule.AppModule interface.
@@ -142,11 +136,16 @@ func (AppModule) ConsensusVersion() uint64 {
 }
 
 // BeginBlock executed before every block
-func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
+func (am AppModule) BeginBlock(ctx sdk.Context) error {
+	return nil
 }
 
 // EndBlock executed after every block. It returns no validator updates.
-func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	EndBlocker(ctx, am.k, am.asyncTaskRspHandler)
-	return nil
+func (am AppModule) EndBlock(ctx sdk.Context) ([]abci.ValidatorUpdate, error) {
+	EndBlocker(ctx, am.k)
+	return []abci.ValidatorUpdate{}, nil
+}
+
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (am AppModule) IsOnePerModuleType() { // marker
 }

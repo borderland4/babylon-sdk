@@ -5,8 +5,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"cosmossdk.io/math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -22,9 +20,7 @@ func TestValidateGenesis(t *testing.T) {
 		"custom param, should pass": {
 			state: GenesisState{
 				Params: Params{
-					TotalContractsMaxCap: sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(15_000_000_000)),
-					EpochLength:          2_000,
-					MaxGasEndBlocker:     600_000,
+					MaxGasEndBlocker: 600_000,
 				},
 			},
 			expErr: false,
@@ -32,9 +28,7 @@ func TestValidateGenesis(t *testing.T) {
 		"custom small value param, should pass": {
 			state: GenesisState{
 				Params: Params{
-					TotalContractsMaxCap: sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(1_000_000)),
-					EpochLength:          20,
-					MaxGasEndBlocker:     10_000,
+					MaxGasEndBlocker: 10_000,
 				},
 			},
 			expErr: false,
@@ -42,9 +36,7 @@ func TestValidateGenesis(t *testing.T) {
 		"invalid epoch length, should fail": {
 			state: GenesisState{
 				Params: Params{
-					TotalContractsMaxCap: sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(15_000_000_000)),
-					EpochLength:          0,
-					MaxGasEndBlocker:     600_000,
+					MaxGasEndBlocker: 600_000,
 				},
 			},
 			expErr: true,
@@ -52,9 +44,7 @@ func TestValidateGenesis(t *testing.T) {
 		"invalid max gas length, should fail": {
 			state: GenesisState{
 				Params: Params{
-					TotalContractsMaxCap: sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(15_000_000_000)),
-					EpochLength:          10,
-					MaxGasEndBlocker:     0,
+					MaxGasEndBlocker: 0,
 				},
 			},
 			expErr: true,
@@ -62,9 +52,7 @@ func TestValidateGenesis(t *testing.T) {
 		"invalid max cap coin denom, should fail": {
 			state: GenesisState{
 				Params: Params{
-					TotalContractsMaxCap: sdk.Coin{Denom: "invalid denom test", Amount: math.Int{}},
-					EpochLength:          10,
-					MaxGasEndBlocker:     0,
+					MaxGasEndBlocker: 0,
 				},
 			},
 			expErr: true,
@@ -72,9 +60,7 @@ func TestValidateGenesis(t *testing.T) {
 		"invalid max cap coin amount, should fail": {
 			state: GenesisState{
 				Params: Params{
-					TotalContractsMaxCap: sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: math.NewInt(-100)},
-					EpochLength:          10,
-					MaxGasEndBlocker:     0,
+					MaxGasEndBlocker: 0,
 				},
 			},
 			expErr: true,

@@ -6,8 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"cosmossdk.io/math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/babylonchain/babylon-sdk/x/babylon/types"
@@ -21,9 +19,7 @@ func TestInitGenesis(t *testing.T) {
 		"custom param, should pass": {
 			state: types.GenesisState{
 				Params: types.Params{
-					TotalContractsMaxCap: sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(15_000_000_000)),
-					EpochLength:          2_000,
-					MaxGasEndBlocker:     600_000,
+					MaxGasEndBlocker: 600_000,
 				},
 			},
 			expErr: false,
@@ -31,9 +27,7 @@ func TestInitGenesis(t *testing.T) {
 		"custom small value param, should pass": {
 			state: types.GenesisState{
 				Params: types.Params{
-					TotalContractsMaxCap: sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(1_000_000)),
-					EpochLength:          20,
-					MaxGasEndBlocker:     10_000,
+					MaxGasEndBlocker: 10_000,
 				},
 			},
 			expErr: false,
@@ -49,8 +43,6 @@ func TestInitGenesis(t *testing.T) {
 
 			p := k.GetParams(pCtx)
 			assert.Equal(t, spec.state.Params.MaxGasEndBlocker, p.MaxGasEndBlocker)
-			assert.Equal(t, spec.state.Params.EpochLength, p.EpochLength)
-			assert.Equal(t, spec.state.Params.TotalContractsMaxCap, p.TotalContractsMaxCap)
 		})
 	}
 }
@@ -65,6 +57,4 @@ func TestExportGenesis(t *testing.T) {
 
 	exported := k.ExportGenesis(pCtx)
 	assert.Equal(t, params.MaxGasEndBlocker, exported.Params.MaxGasEndBlocker)
-	assert.Equal(t, params.EpochLength, exported.Params.EpochLength)
-	assert.Equal(t, params.TotalContractsMaxCap, exported.Params.TotalContractsMaxCap)
 }

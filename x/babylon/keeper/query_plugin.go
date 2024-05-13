@@ -7,9 +7,7 @@ import (
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 
 	errorsmod "cosmossdk.io/errors"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/babylonchain/babylon-sdk/x/babylon/contract"
 )
@@ -17,12 +15,7 @@ import (
 type (
 	// abstract query keeper
 	viewKeeper interface {
-		GetMaxCapLimit(ctx sdk.Context, actor sdk.AccAddress) sdk.Coin
-		GetTotalDelegated(ctx sdk.Context, actor sdk.AccAddress) sdk.Coin
-	}
-	slashingKeeper interface {
-		SlashFractionDoubleSign(ctx sdk.Context) (res sdk.Dec)
-		SlashFractionDowntime(ctx sdk.Context) (res sdk.Dec)
+		GetTest(ctx sdk.Context, actor sdk.AccAddress) string
 	}
 )
 
@@ -32,9 +25,9 @@ type (
 // the babylon custom query namespace.
 //
 // To be used with `wasmkeeper.WithQueryHandlerDecorator(BabylonKeeper.NewQueryDecorator(app.BabylonKeeper)))`
-func NewQueryDecorator(k viewKeeper, sk slashingKeeper) func(wasmkeeper.WasmVMQueryHandler) wasmkeeper.WasmVMQueryHandler {
+func NewQueryDecorator(k viewKeeper) func(wasmkeeper.WasmVMQueryHandler) wasmkeeper.WasmVMQueryHandler {
 	return func(next wasmkeeper.WasmVMQueryHandler) wasmkeeper.WasmVMQueryHandler {
-		return ChainedCustomQuerier(k, sk, next)
+		return ChainedCustomQuerier(k, next)
 	}
 }
 
@@ -44,12 +37,9 @@ func NewQueryDecorator(k viewKeeper, sk slashingKeeper) func(wasmkeeper.WasmVMQu
 //
 // This CustomQuerier is designed as an extension point. See the NewQueryDecorator impl how to
 // set this up for wasmd.
-func ChainedCustomQuerier(k viewKeeper, sk slashingKeeper, next wasmkeeper.WasmVMQueryHandler) wasmkeeper.WasmVMQueryHandler {
+func ChainedCustomQuerier(k viewKeeper, next wasmkeeper.WasmVMQueryHandler) wasmkeeper.WasmVMQueryHandler {
 	if k == nil {
 		panic("ms keeper must not be nil")
-	}
-	if sk == nil {
-		panic("slashing Keeper must not be nil")
 	}
 	if next == nil {
 		panic("next handler must not be nil")
@@ -62,29 +52,13 @@ func ChainedCustomQuerier(k viewKeeper, sk slashingKeeper, next wasmkeeper.WasmV
 		if err := json.Unmarshal(request.Custom, &contractQuery); err != nil {
 			return nil, errorsmod.Wrap(err, "babylon query")
 		}
-		query := contractQuery.VirtualStake
+		query := contractQuery.Test
 		if query == nil {
 			return next.HandleQuery(ctx, caller, request)
 		}
 
-		var res any
-		switch {
-		case query.BondStatus != nil:
-			contractAddr, err := sdk.AccAddressFromBech32(query.BondStatus.Contract)
-			if err != nil {
-				return nil, sdkerrors.ErrInvalidAddress.Wrap(query.BondStatus.Contract)
-			}
-			res = contract.BondStatusResponse{
-				MaxCap:    wasmkeeper.ConvertSdkCoinToWasmCoin(k.GetMaxCapLimit(ctx, contractAddr)),
-				Delegated: wasmkeeper.ConvertSdkCoinToWasmCoin(k.GetTotalDelegated(ctx, contractAddr)),
-			}
-		case query.SlashRatio != nil:
-			res = contract.SlashRatioResponse{
-				SlashFractionDowntime:   sk.SlashFractionDowntime(ctx).String(),
-				SlashFractionDoubleSign: sk.SlashFractionDoubleSign(ctx).String(),
-			}
-		default:
-			return nil, wasmvmtypes.UnsupportedRequest{Kind: "unknown virtual_stake query variant"}
+		res := contract.TestResponse{
+			Placeholder2: "hello world",
 		}
 		return json.Marshal(res)
 	})

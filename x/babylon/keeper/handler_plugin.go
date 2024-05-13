@@ -22,10 +22,7 @@ type AuthSource interface {
 }
 
 // abstract keeper
-type msKeeper interface {
-	Delegate(ctx sdk.Context, actor sdk.AccAddress, addr sdk.ValAddress, coin sdk.Coin) (sdk.Dec, error)
-	Undelegate(ctx sdk.Context, actor sdk.AccAddress, addr sdk.ValAddress, coin sdk.Coin) error
-}
+type msKeeper interface{}
 
 type CustomMsgHandler struct {
 	k    msKeeper
@@ -43,12 +40,9 @@ func NewCustomMsgHandler(k msKeeper, auth AuthSource) *CustomMsgHandler {
 	return &CustomMsgHandler{k: k, auth: auth}
 }
 
-// default authorization logic that ensures any max cap limit was set. It does not take the amount into account
-// as contracts with a limit 0 tokens may need to instant undelegate or run other operations.
-// Safety mechanisms for these operations need to be placed on the implementation side.
 func defaultMaxCapAuthorizator(k *Keeper) AuthSourceFn {
 	return func(ctx sdk.Context, contractAddr sdk.AccAddress) bool {
-		return k.HasMaxCapLimit(ctx, contractAddr)
+		return true
 	}
 }
 
@@ -61,7 +55,7 @@ func (h CustomMsgHandler) DispatchMsg(ctx sdk.Context, contractAddr sdk.AccAddre
 	if err := json.Unmarshal(msg.Custom, &customMsg); err != nil {
 		return nil, nil, sdkerrors.ErrJSONUnmarshal.Wrap("custom message")
 	}
-	if customMsg.VirtualStake == nil {
+	if customMsg.Test == nil {
 		// not our message type
 		return nil, nil, wasmtypes.ErrUnknownMsg
 	}
@@ -70,59 +64,11 @@ func (h CustomMsgHandler) DispatchMsg(ctx sdk.Context, contractAddr sdk.AccAddre
 		return nil, nil, sdkerrors.ErrUnauthorized.Wrapf("contract has no permission for Babylon operations")
 	}
 
-	switch {
-	case customMsg.VirtualStake.Bond != nil:
-		return h.handleBondMsg(ctx, contractAddr, customMsg.VirtualStake.Bond)
-	case customMsg.VirtualStake.Unbond != nil:
-		return h.handleUnbondMsg(ctx, contractAddr, customMsg.VirtualStake.Unbond)
-	}
-	return nil, nil, wasmtypes.ErrUnknownMsg
+	return h.handleTestMsg(ctx, contractAddr, customMsg.Test)
 }
 
-func (h CustomMsgHandler) handleBondMsg(ctx sdk.Context, actor sdk.AccAddress, bondMsg *contract.BondMsg) ([]sdk.Event, [][]byte, error) {
-	coin, err := wasmkeeper.ConvertWasmCoinToSdkCoin(bondMsg.Amount)
-	if err != nil {
-		return nil, nil, err
-	}
-	valAddr, err := sdk.ValAddressFromBech32(bondMsg.Validator)
-	if err != nil {
-		return nil, nil, err
-	}
-	_, err = h.k.Delegate(ctx, actor, valAddr, coin)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return []sdk.Event{sdk.NewEvent(
-		types.EventTypeDelegate,
-		sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-		sdk.NewAttribute(types.AttributeKeyValidator, valAddr.String()),
-		sdk.NewAttribute(sdk.AttributeKeyAmount, coin.String()),
-		sdk.NewAttribute(types.AttributeKeyDelegator, actor.String()),
-	)}, nil, nil
-}
-
-func (h CustomMsgHandler) handleUnbondMsg(ctx sdk.Context, actor sdk.AccAddress, bondMsg *contract.UnbondMsg) ([]sdk.Event, [][]byte, error) {
-	coin, err := wasmkeeper.ConvertWasmCoinToSdkCoin(bondMsg.Amount)
-	if err != nil {
-		return nil, nil, err
-	}
-	valAddr, err := sdk.ValAddressFromBech32(bondMsg.Validator)
-	if err != nil {
-		return nil, nil, err
-	}
-	err = h.k.Undelegate(ctx, actor, valAddr, coin)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return []sdk.Event{sdk.NewEvent(
-		types.EventTypeUnbond,
-		sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-		sdk.NewAttribute(types.AttributeKeyValidator, valAddr.String()),
-		sdk.NewAttribute(sdk.AttributeKeyAmount, coin.String()),
-		sdk.NewAttribute(sdk.AttributeKeySender, actor.String()),
-	)}, nil, nil
+func (h CustomMsgHandler) handleTestMsg(ctx sdk.Context, actor sdk.AccAddress, testMsg *contract.TestMsg) ([]sdk.Event, [][]byte, error) {
+	return []sdk.Event{}, nil, nil
 }
 
 // AuthSourceFn is helper for simple AuthSource types

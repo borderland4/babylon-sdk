@@ -1,9 +1,9 @@
 package keeper
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	storetypes "cosmossdk.io/store/types"
 	"github.com/babylonchain/babylon-sdk/x/babylon/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // SetParams sets the module's parameters.
@@ -30,14 +30,6 @@ func (k Keeper) GetParams(clientCtx sdk.Context) (params types.Params) {
 	return params
 }
 
-func (k Keeper) GetMaxSudoGas(ctx sdk.Context) sdk.Gas {
-	return sdk.Gas(k.GetParams(ctx).MaxGasEndBlocker)
-}
-
-func (k Keeper) GetRebalanceEpochLength(ctx sdk.Context) uint64 {
-	return uint64(k.GetParams(ctx).EpochLength)
-}
-
-func (k Keeper) GetTotalContractsMaxCap(ctx sdk.Context) sdk.Coin {
-	return k.GetParams(ctx).TotalContractsMaxCap
+func (k Keeper) GetMaxSudoGas(ctx sdk.Context) storetypes.Gas {
+	return storetypes.Gas(k.GetParams(ctx).MaxGasEndBlocker)
 }

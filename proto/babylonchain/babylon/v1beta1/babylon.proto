@@ -1,7 +1,6 @@
 syntax = "proto3";
 package babylonchain.babylon.v1beta1;
 
-import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "amino/amino.proto";
 
@@ -9,30 +8,11 @@ option go_package = "github.com/babylonchain/babylon-sdk/x/babylon/types";
 option (gogoproto.goproto_getters_all) = false;
 option (gogoproto.equal_all) = false;
 
-// VirtualStakingMaxCapInfo stores info about
-// virtual staking max cap
-message VirtualStakingMaxCapInfo {
-  option (gogoproto.equal) = true;
-
-  // Contract is the address of the contract
-  string contract = 1;
-  // Delegated is the total amount currently delegated
-  cosmos.base.v1beta1.Coin delegated = 2 [ (gogoproto.nullable) = false ];
-  // Cap is the current max cap limit
-  cosmos.base.v1beta1.Coin cap = 3 [ (gogoproto.nullable) = false ];
-}
-
 // Params defines the parameters for the x/babylon module.
 message Params {
   option (amino.name) = "babylon/Params";
   option (gogoproto.equal) = true;
 
-  // TotalContractsMaxCap is the maximum that the sum of all contract max caps
-  // must not exceed
-  cosmos.base.v1beta1.Coin total_contracts_max_cap = 1
-      [ (gogoproto.nullable) = false ];
-  // Epoch length is the number of blocks that defines an epoch
-  uint32 epoch_length = 2;
   // MaxGasEndBlocker defines the maximum gas that can be spent in a contract
   // sudo callback
   uint32 max_gas_end_blocker = 3;

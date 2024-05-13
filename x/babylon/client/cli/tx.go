@@ -20,8 +20,6 @@ func GetTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 		SilenceUsage:               true,
 	}
-	txCmd.AddCommand(
-		SubmitProposalCmd(),
-	)
+	txCmd.AddCommand()
 	return txCmd
 }
