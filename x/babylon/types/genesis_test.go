@@ -33,14 +33,6 @@ func TestValidateGenesis(t *testing.T) {
 			},
 			expErr: false,
 		},
-		"invalid epoch length, should fail": {
-			state: GenesisState{
-				Params: Params{
-					MaxGasEndBlocker: 600_000,
-				},
-			},
-			expErr: true,
-		},
 		"invalid max gas length, should fail": {
 			state: GenesisState{
 				Params: Params{

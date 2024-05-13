@@ -1,12 +1,11 @@
 package app
 
 import (
-	"os"
 	"testing"
 
+	"cosmossdk.io/log"
 	"github.com/CosmWasm/wasmd/x/wasm"
-	dbm "github.com/cometbft/cometbft-db"
-	"github.com/cometbft/cometbft/libs/log"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/stretchr/testify/require"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -17,15 +16,17 @@ var emptyWasmOpts []wasm.Option
 
 func TestBcdExport(t *testing.T) {
 	db := dbm.NewMemDB()
+	logger := log.NewTestLogger(t)
+
 	gapp := NewAppWithCustomOptions(t, false, SetupOptions{
-		Logger:  log.NewTMLogger(log.NewSyncWriter(os.Stdout)),
+		Logger:  logger,
 		DB:      db,
 		AppOpts: simtestutil.NewAppOptionsWithFlagHome(t.TempDir()),
 	})
 	gapp.Commit()
 
 	// Making a new app object with the db, so that initchain hasn't been called
-	newGapp := NewConsumerApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, simtestutil.NewAppOptionsWithFlagHome(t.TempDir()), emptyWasmOpts)
+	newGapp := NewConsumerApp(logger, db, nil, true, simtestutil.NewAppOptionsWithFlagHome(t.TempDir()), emptyWasmOpts)
 	_, err := newGapp.ExportAppStateAndValidators(false, []string{}, nil)
 	require.NoError(t, err, "ExportAppStateAndValidators should not have an error")
 }

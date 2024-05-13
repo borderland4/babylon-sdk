@@ -7,13 +7,12 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm/ibctesting"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/babylonchain/babylon-sdk/demo/app"
-	babylon "github.com/babylonchain/babylon-sdk/x/babylon"
-	"github.com/babylonchain/babylon-sdk/x/babylon/types"
 )
 
 // Query is a query type used in tests only
@@ -66,13 +65,13 @@ func NewProviderClient(t *testing.T, chain *ibctesting.TestChain) *TestProviderC
 	return &TestProviderClient{t: t, chain: chain}
 }
 
-func (p TestProviderClient) mustExec(contract sdk.AccAddress, payload string, funds []sdk.Coin) *sdk.Result {
+func (p TestProviderClient) mustExec(contract sdk.AccAddress, payload string, funds []sdk.Coin) *abci.ExecTxResult {
 	rsp, err := p.Exec(contract, payload, funds...)
 	require.NoError(p.t, err)
 	return rsp
 }
 
-func (p TestProviderClient) Exec(contract sdk.AccAddress, payload string, funds ...sdk.Coin) (*sdk.Result, error) {
+func (p TestProviderClient) Exec(contract sdk.AccAddress, payload string, funds ...sdk.Coin) (*abci.ExecTxResult, error) {
 	rsp, err := p.chain.SendMsgs(&wasmtypes.MsgExecuteContract{
 		Sender:   p.chain.SenderAccount.GetAddress().String(),
 		Contract: contract.String(),
@@ -117,10 +116,6 @@ type ConsumerContract struct {
 
 // TODO(babylon): deploy Babylon contracts
 func (p *TestConsumerClient) BootstrapContracts() ConsumerContract {
-	// modify end-blocker to fail fast in tests
-	msModule := p.app.ModuleManager.Modules[types.ModuleName].(*babylon.AppModule)
-	msModule.SetAsyncTaskRspHandler(babylon.PanicOnErrorExecutionResponseHandler())
-
 	babylonContractWasmId := p.chain.StoreCodeFile(buildPathToWasm("babylon_contract.wasm")).CodeID
 	btcStakingContractWasmId := p.chain.StoreCodeFile(buildPathToWasm("btc_staking.wasm")).CodeID
 

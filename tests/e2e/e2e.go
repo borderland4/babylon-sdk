@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"encoding/json"
 	"path/filepath"
 	"testing"
 
@@ -18,7 +19,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	"github.com/babylonchain/babylon-sdk/demo/app"
 )
@@ -45,35 +45,6 @@ func NewIBCCoordinator(t *testing.T, opts ...[]wasmkeeper.Option) *ibctesting.Co
 	)
 }
 
-func submitGovProposal(t *testing.T, chain *ibctesting.TestChain, msgs ...sdk.Msg) uint64 {
-	chainApp := chain.App.(*app.ConsumerApp)
-	govParams := chainApp.GovKeeper.GetParams(chain.GetContext())
-	govMsg, err := govv1.NewMsgSubmitProposal(msgs, govParams.MinDeposit, chain.SenderAccount.GetAddress().String(), "", "my title", "my summary")
-	require.NoError(t, err)
-	rsp, err := chain.SendMsgs(govMsg)
-	require.NoError(t, err)
-	id := rsp.MsgResponses[0].GetCachedValue().(*govv1.MsgSubmitProposalResponse).ProposalId
-	require.NotEmpty(t, id)
-	return id
-}
-
-func voteAndPassGovProposal(t *testing.T, chain *ibctesting.TestChain, proposalID uint64) {
-	vote := govv1.NewMsgVote(chain.SenderAccount.GetAddress(), proposalID, govv1.OptionYes, "testing")
-	_, err := chain.SendMsgs(vote)
-	require.NoError(t, err)
-
-	chainApp := chain.App.(*app.ConsumerApp)
-	govParams := chainApp.GovKeeper.GetParams(chain.GetContext())
-
-	coord := chain.Coordinator
-	coord.IncrementTimeBy(*govParams.VotingPeriod)
-	coord.CommitBlock(chain)
-
-	rsp, err := chainApp.GovKeeper.Proposal(sdk.WrapSDKContext(chain.GetContext()), &govv1.QueryProposalRequest{ProposalId: proposalID})
-	require.NoError(t, err)
-	require.Equal(t, rsp.Proposal.Status, govv1.ProposalStatus_PROPOSAL_STATUS_PASSED)
-}
-
 func InstantiateContract(t *testing.T, chain *ibctesting.TestChain, codeID uint64, initMsg []byte, funds ...sdk.Coin) sdk.AccAddress {
 	instantiateMsg := &wasmtypes.MsgInstantiateContract{
 		Sender: chain.SenderAccount.GetAddress().String(),
@@ -86,9 +57,11 @@ func InstantiateContract(t *testing.T, chain *ibctesting.TestChain, codeID uint6
 
 	r, err := chain.SendMsgs(instantiateMsg)
 	require.NoError(t, err)
-	require.Len(t, r.MsgResponses, 1)
-	require.NotEmpty(t, r.MsgResponses[0].GetCachedValue())
-	pExecResp := r.MsgResponses[0].GetCachedValue().(*wasmtypes.MsgInstantiateContractResponse)
+	require.Zero(t, r.Code)
+	require.NotEmpty(t, r.Data)
+	var pExecResp wasmtypes.MsgInstantiateContractResponse
+	err = json.Unmarshal(r.Data, pExecResp)
+	require.NoError(t, err)
 	a, err := sdk.AccAddressFromBech32(pExecResp.Address)
 	require.NoError(t, err)
 	return a

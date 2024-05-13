@@ -3,11 +3,10 @@ package babylon
 import (
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/telemetry"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/babylonchain/babylon-sdk/x/babylon/keeper"
 	"github.com/babylonchain/babylon-sdk/x/babylon/types"
+	"github.com/cosmos/cosmos-sdk/telemetry"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // EndBlocker is called after every block
