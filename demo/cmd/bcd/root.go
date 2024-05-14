@@ -80,7 +80,7 @@ func NewRootCmd() (*cobra.Command, *params.EncodingConfig) {
 		},
 	}
 
-	initRootCmd(rootCmd, tempApp.TxConfig(), tempApp.BasicModuleManager)
+	initRootCmd(rootCmd, tempApp.BasicModuleManager)
 
 	return rootCmd, tempApp.EncodingConfig()
 }
@@ -137,7 +137,7 @@ func initAppConfig() (string, interface{}) {
 	return customAppTemplate, customAppConfig
 }
 
-func initRootCmd(rootCmd *cobra.Command, txConfig client.TxEncodingConfig, basicManager module.BasicManager) {
+func initRootCmd(rootCmd *cobra.Command, basicManager module.BasicManager) {
 	rootCmd.AddCommand(
 		genutilcli.InitCmd(basicManager, app.DefaultNodeHome),
 		// testnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),
@@ -162,6 +162,8 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 }
 
 // genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter
+//
+//nolint:unused // ignore unused code linting
 func genesisCommand(encodingConfig params.EncodingConfig, cmds ...*cobra.Command) *cobra.Command {
 	tempApp := app.NewTmpApp()
 

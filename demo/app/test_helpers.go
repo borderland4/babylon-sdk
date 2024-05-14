@@ -30,12 +30,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/server"
-	"github.com/cosmos/cosmos-sdk/server/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	simsutils "github.com/cosmos/cosmos-sdk/testutil/sims"
-	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -52,7 +50,7 @@ type SetupOptions struct {
 	DB                 *dbm.MemDB
 	InvCheckPeriod     uint
 	SkipUpgradeHeights map[int64]bool
-	AppOpts            types.AppOptions
+	AppOpts            servertypes.AppOptions
 }
 
 func setup(t testing.TB, chainID string, withGenesis bool, invCheckPeriod uint, opts ...wasmkeeper.Option) (*ConsumerApp, GenesisState) {
@@ -66,7 +64,7 @@ func setup(t testing.TB, chainID string, withGenesis bool, invCheckPeriod uint, 
 	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
 	require.NoError(t, err)
 
-	appOptions := make(simtestutil.AppOptionsMap, 0)
+	appOptions := make(simsutils.AppOptionsMap, 0)
 	appOptions[flags.FlagHome] = nodeHome // ensure unique folder
 	appOptions[server.FlagInvCheckPeriod] = invCheckPeriod
 	app := NewConsumerApp(log.NewNopLogger(), db, nil, true, appOptions, opts, bam.SetChainID(chainID), bam.SetSnapshot(snapshotStore, snapshottypes.SnapshotOptions{KeepRecent: 2}))
@@ -282,9 +280,9 @@ func NewTestNetworkFixture() network.TestFixture {
 	}
 	defer os.RemoveAll(dir)
 
-	app := NewConsumerApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simtestutil.NewAppOptionsWithFlagHome(dir), emptyWasmOptions)
+	app := NewConsumerApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simsutils.NewAppOptionsWithFlagHome(dir), emptyWasmOptions)
 	appCtr := func(val network.ValidatorI) servertypes.Application {
-		return NewConsumerApp(val.GetCtx().Logger, dbm.NewMemDB(), nil, true, simtestutil.NewAppOptionsWithFlagHome(val.GetCtx().Config.RootDir), emptyWasmOptions, bam.SetPruning(pruningtypes.NewPruningOptionsFromString(val.GetAppConfig().Pruning)), bam.SetMinGasPrices(val.GetAppConfig().MinGasPrices), bam.SetChainID(val.GetCtx().Viper.GetString(flags.FlagChainID)))
+		return NewConsumerApp(val.GetCtx().Logger, dbm.NewMemDB(), nil, true, simsutils.NewAppOptionsWithFlagHome(val.GetCtx().Config.RootDir), emptyWasmOptions, bam.SetPruning(pruningtypes.NewPruningOptionsFromString(val.GetAppConfig().Pruning)), bam.SetMinGasPrices(val.GetAppConfig().MinGasPrices), bam.SetChainID(val.GetCtx().Viper.GetString(flags.FlagChainID)))
 	}
 
 	return network.TestFixture{
@@ -304,12 +302,12 @@ func SignAndDeliverWithoutCommit(
 	t *testing.T, txCfg client.TxConfig, app *bam.BaseApp, msgs []sdk.Msg, fees sdk.Coins,
 	chainID string, accNums, accSeqs []uint64, priv ...cryptotypes.PrivKey,
 ) (sdk.GasInfo, *sdk.Result, error) {
-	tx, err := simtestutil.GenSignedMockTx(
+	tx, err := simsutils.GenSignedMockTx(
 		rand.New(rand.NewSource(time.Now().UnixNano())),
 		txCfg,
 		msgs,
 		fees,
-		simtestutil.DefaultGenTxGas,
+		simsutils.DefaultGenTxGas,
 		chainID,
 		accNums,
 		accSeqs,
@@ -345,7 +343,7 @@ func GenesisStateWithValSet(
 	bondAmt := sdk.DefaultPowerReduction
 
 	for _, val := range valSet.Validators {
-		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
+		pk, err := cryptocodec.FromCmtPubKeyInterface(val.PubKey)
 		if err != nil {
 			return nil, fmt.Errorf("failed to convert pubkey: %w", err)
 		}
