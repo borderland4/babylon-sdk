@@ -58,12 +58,17 @@ func InstantiateContract(t *testing.T, chain *ibctesting.TestChain, codeID uint6
 	require.NoError(t, err)
 	require.Zero(t, r.Code)
 	require.NotEmpty(t, r.Data)
-	var pExecResp wasmtypes.MsgInstantiateContractResponse
-	err = chain.Codec.Unmarshal(r.Data, &pExecResp)
-	require.NoError(t, err)
-	a, err := sdk.AccAddressFromBech32(pExecResp.Address)
-	require.NoError(t, err, pExecResp)
-	return a
+
+	// ensure there is only 1 contract under this code ID
+	ctx := chain.GetContext()
+	contractAddrs := []sdk.AccAddress{}
+	chain.App.GetWasmKeeper().IterateContractsByCode(ctx, codeID, func(address sdk.AccAddress) bool {
+		contractAddrs = append(contractAddrs, address)
+		return false // keep iterating
+	})
+	require.Len(t, contractAddrs, 1)
+
+	return contractAddrs[0]
 }
 
 type example struct {
@@ -94,7 +99,6 @@ func setupExampleChains(t *testing.T) example {
 }
 
 func setupBabylonIntegration(t *testing.T, x example) (*TestConsumerClient, ConsumerContract, *TestProviderClient) {
-	x.Coordinator.SetupConnections(x.IbcPath)
 
 	// setup contracts on consumer
 	consumerCli := NewConsumerClient(t, x.ConsumerChain)
@@ -102,6 +106,8 @@ func setupBabylonIntegration(t *testing.T, x example) (*TestConsumerClient, Cons
 	consumerPortID := wasmkeeper.PortIDForContract(consumerContracts.Babylon)
 	// add some fees so that we can distribute something
 	x.ConsumerChain.DefaultMsgFees = sdk.NewCoins(sdk.NewCoin(x.ConsumerDenom, math.NewInt(1_000_000)))
+
+	x.Coordinator.SetupConnections(x.IbcPath)
 
 	providerCli := NewProviderClient(t, x.ProviderChain)
 
