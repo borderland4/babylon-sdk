@@ -21,6 +21,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -79,7 +80,9 @@ func NewRootCmd() (*cobra.Command, *params.EncodingConfig) {
 		},
 	}
 
-	initRootCmd(rootCmd, encodingConfig)
+	tempApp := app.NewTmpApp()
+
+	initRootCmd(rootCmd, tempApp.TxConfig(), tempApp.BasicModuleManager)
 
 	return rootCmd, encodingConfig
 }
@@ -136,9 +139,9 @@ func initAppConfig() (string, interface{}) {
 	return customAppTemplate, customAppConfig
 }
 
-func initRootCmd(rootCmd *cobra.Command, encodingConfig *params.EncodingConfig) {
+func initRootCmd(rootCmd *cobra.Command, txConfig client.TxEncodingConfig, basicManager module.BasicManager) {
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(app.ModuleBasics, app.DefaultNodeHome),
+		genutilcli.InitCmd(basicManager, app.DefaultNodeHome),
 		// testnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
@@ -162,7 +165,9 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 
 // genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter
 func genesisCommand(encodingConfig params.EncodingConfig, cmds ...*cobra.Command) *cobra.Command {
-	cmd := genutilcli.GenesisCoreCommand(encodingConfig.TxConfig, app.ModuleBasics, app.DefaultNodeHome)
+	tempApp := app.NewTmpApp()
+
+	cmd := genutilcli.GenesisCoreCommand(encodingConfig.TxConfig, tempApp.BasicModuleManager, app.DefaultNodeHome)
 
 	for _, subCmd := range cmds {
 		cmd.AddCommand(subCmd)
@@ -190,7 +195,9 @@ func queryCommand() *cobra.Command {
 		server.QueryBlockResultsCmd(),
 	)
 
-	app.ModuleBasics.AddQueryCommands(cmd)
+	tempApp := app.NewTmpApp()
+
+	tempApp.BasicModuleManager.AddQueryCommands(cmd)
 
 	return cmd
 }
@@ -216,7 +223,9 @@ func txCommand() *cobra.Command {
 		authcmd.GetSimulateCmd(),
 	)
 
-	app.ModuleBasics.AddTxCommands(cmd)
+	tempApp := app.NewTmpApp()
+
+	tempApp.BasicModuleManager.AddTxCommands(cmd)
 
 	return cmd
 }

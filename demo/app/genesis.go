@@ -3,6 +3,8 @@ package app
 import (
 	"encoding/json"
 
+	"cosmossdk.io/log"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/codec"
 )
 
@@ -17,5 +19,13 @@ type GenesisState map[string]json.RawMessage
 
 // NewDefaultGenesisState generates the default state for the application.
 func NewDefaultGenesisState(cdc codec.JSONCodec) GenesisState {
-	return ModuleBasics.DefaultGenesis(cdc)
+	tempApp := NewConsumerApp(
+		log.NewNopLogger(),
+		dbm.NewMemDB(),
+		nil,
+		true,
+		nil,
+		emptyWasmOptions,
+	)
+	return tempApp.BasicModuleManager.DefaultGenesis(cdc)
 }
