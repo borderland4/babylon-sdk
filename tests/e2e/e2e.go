@@ -98,6 +98,7 @@ func setupExampleChains(t *testing.T) example {
 }
 
 func setupBabylonIntegration(t *testing.T, x example) (*TestConsumerClient, ConsumerContract, *TestProviderClient) {
+	x.Coordinator.SetupConnections(x.IbcPath)
 
 	// setup contracts on consumer
 	consumerCli := NewConsumerClient(t, x.ConsumerChain)
@@ -105,8 +106,6 @@ func setupBabylonIntegration(t *testing.T, x example) (*TestConsumerClient, Cons
 	consumerPortID := wasmkeeper.PortIDForContract(consumerContracts.Babylon)
 	// add some fees so that we can distribute something
 	x.ConsumerChain.DefaultMsgFees = sdk.NewCoins(sdk.NewCoin(x.ConsumerDenom, math.NewInt(1_000_000)))
-
-	x.Coordinator.SetupConnections(x.IbcPath)
 
 	providerCli := NewProviderClient(t, x.ProviderChain)
 
