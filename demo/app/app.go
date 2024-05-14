@@ -900,6 +900,15 @@ func (app *ConsumerApp) InterfaceRegistry() types.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
+func (app *ConsumerApp) EncodingConfig() *appparams.EncodingConfig {
+	return &appparams.EncodingConfig{
+		InterfaceRegistry: app.InterfaceRegistry(),
+		Codec:             app.AppCodec(),
+		TxConfig:          app.TxConfig(),
+		Amino:             app.LegacyAmino(),
+	}
+}
+
 // TxConfig returns ConsumerApp's TxConfig
 func (app *ConsumerApp) TxConfig() client.TxConfig {
 	return app.txConfig

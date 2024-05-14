@@ -39,13 +39,13 @@ import (
 // NewRootCmd creates a new root command for wasmd. It is called once in the
 // main function.
 func NewRootCmd() (*cobra.Command, *params.EncodingConfig) {
-	encodingConfig := params.DefaultEncodingConfig()
+	tempApp := app.NewTmpApp()
 
 	initClientCtx := client.Context{}.
-		WithCodec(encodingConfig.Codec).
-		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
-		WithTxConfig(encodingConfig.TxConfig).
-		WithLegacyAmino(encodingConfig.Amino).
+		WithCodec(tempApp.AppCodec()).
+		WithInterfaceRegistry(tempApp.InterfaceRegistry()).
+		WithTxConfig(tempApp.TxConfig()).
+		WithLegacyAmino(tempApp.LegacyAmino()).
 		WithInput(os.Stdin).
 		WithAccountRetriever(authtypes.AccountRetriever{}).
 		WithHomeDir(app.DefaultNodeHome).
@@ -80,11 +80,9 @@ func NewRootCmd() (*cobra.Command, *params.EncodingConfig) {
 		},
 	}
 
-	tempApp := app.NewTmpApp()
-
 	initRootCmd(rootCmd, tempApp.TxConfig(), tempApp.BasicModuleManager)
 
-	return rootCmd, encodingConfig
+	return rootCmd, tempApp.EncodingConfig()
 }
 
 // initTendermintConfig helps to override default Tendermint Config values.
