@@ -5,8 +5,7 @@ go 1.21
 toolchain go1.21.4
 
 require (
-	github.com/CosmWasm/wasmd v0.50.0
-	github.com/CosmWasm/wasmvm v1.5.0 // indirect
+	github.com/CosmWasm/wasmd v0.51.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5 // indirect
 	github.com/cosmos/cosmos-sdk v0.50.6
 	github.com/cosmos/gogogateway v1.2.0 // indirect
@@ -37,10 +36,10 @@ require (
 	cosmossdk.io/log v1.3.1
 	cosmossdk.io/math v1.3.0
 	cosmossdk.io/store v1.1.0
-	cosmossdk.io/tools/confix v0.1.0
+	cosmossdk.io/tools/confix v0.1.1
 	cosmossdk.io/x/evidence v0.1.1
 	cosmossdk.io/x/feegrant v0.1.1
-	cosmossdk.io/x/tx v0.13.2
+	cosmossdk.io/x/tx v0.13.3
 	cosmossdk.io/x/upgrade v0.1.2
 	github.com/babylonchain/babylon-sdk/x v0.0.0-00010101000000-000000000000
 	github.com/cometbft/cometbft v0.38.6
@@ -61,6 +60,7 @@ require (
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.1 // indirect
+	github.com/CosmWasm/wasmvm/v2 v2.0.0 // indirect
 	github.com/DataDog/datadog-go v3.2.0+incompatible // indirect
 	github.com/DataDog/zstd v1.5.5 // indirect
 	github.com/aws/aws-sdk-go v1.44.224 // indirect

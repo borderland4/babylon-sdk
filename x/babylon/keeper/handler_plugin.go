@@ -5,8 +5,8 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
-
+	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -47,28 +47,28 @@ func defaultMaxCapAuthorizator(k *Keeper) AuthSourceFn {
 }
 
 // DispatchMsg handle contract message of type Custom in the babylon namespace
-func (h CustomMsgHandler) DispatchMsg(ctx sdk.Context, contractAddr sdk.AccAddress, _ string, msg wasmvmtypes.CosmosMsg) ([]sdk.Event, [][]byte, error) {
+func (h CustomMsgHandler) DispatchMsg(ctx sdk.Context, contractAddr sdk.AccAddress, _ string, msg wasmvmtypes.CosmosMsg) ([]sdk.Event, [][]byte, [][]*codectypes.Any, error) {
 	if msg.Custom == nil {
-		return nil, nil, wasmtypes.ErrUnknownMsg
+		return nil, nil, nil, wasmtypes.ErrUnknownMsg
 	}
 	var customMsg contract.CustomMsg
 	if err := json.Unmarshal(msg.Custom, &customMsg); err != nil {
-		return nil, nil, sdkerrors.ErrJSONUnmarshal.Wrap("custom message")
+		return nil, nil, nil, sdkerrors.ErrJSONUnmarshal.Wrap("custom message")
 	}
 	if customMsg.Test == nil {
 		// not our message type
-		return nil, nil, wasmtypes.ErrUnknownMsg
+		return nil, nil, nil, wasmtypes.ErrUnknownMsg
 	}
 
 	if !h.auth.IsAuthorized(ctx, contractAddr) {
-		return nil, nil, sdkerrors.ErrUnauthorized.Wrapf("contract has no permission for Babylon operations")
+		return nil, nil, nil, sdkerrors.ErrUnauthorized.Wrapf("contract has no permission for Babylon operations")
 	}
 
 	return h.handleTestMsg(ctx, contractAddr, customMsg.Test)
 }
 
-func (h CustomMsgHandler) handleTestMsg(ctx sdk.Context, actor sdk.AccAddress, testMsg *contract.TestMsg) ([]sdk.Event, [][]byte, error) {
-	return []sdk.Event{}, nil, nil
+func (h CustomMsgHandler) handleTestMsg(ctx sdk.Context, actor sdk.AccAddress, testMsg *contract.TestMsg) ([]sdk.Event, [][]byte, [][]*codectypes.Any, error) {
+	return []sdk.Event{}, nil, nil, nil
 }
 
 // AuthSourceFn is helper for simple AuthSource types
@@ -90,17 +90,13 @@ type integrityHandlerSource interface {
 //
 // This handler should be chained before any other.
 func NewIntegrityHandler(k integrityHandlerSource) wasmkeeper.MessageHandlerFunc {
-	return func(ctx sdk.Context, contractAddr sdk.AccAddress, contractIBCPortID string, msg wasmvmtypes.CosmosMsg) (
-		events []sdk.Event,
-		data [][]byte,
-		err error,
-	) {
-		if msg.Stargate == nil && msg.Staking == nil ||
+	return func(ctx sdk.Context, contractAddr sdk.AccAddress, _ string, msg wasmvmtypes.CosmosMsg) (events []sdk.Event, data [][]byte, msgResponses [][]*codectypes.Any, err error) {
+		if msg.Staking == nil ||
 			!k.CanInvokeStakingMsg(ctx, contractAddr) {
-			return nil, nil, wasmtypes.ErrUnknownMsg // pass down the chain
+			return nil, nil, nil, wasmtypes.ErrUnknownMsg // pass down the chain
 		}
 		// reject
-		return nil, nil, types.ErrUnsupported.Wrap("message type for contracts with max cap set")
+		return nil, nil, nil, types.ErrUnsupported.Wrap("message type for contracts with max cap set")
 	}
 }
 

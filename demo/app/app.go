@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"cosmossdk.io/log"
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -571,7 +570,7 @@ func NewConsumerApp(
 	)
 	// The last arguments can contain custom message handlers, and custom query handlers,
 	// if we want to allow any custom callbacks
-	availableCapabilities := strings.Join(AllCapabilities(), ",")
+	availableCapabilities := AllCapabilities()
 	app.WasmKeeper = wasmkeeper.NewKeeper(
 		appCodec,
 		runtime.NewKVStoreService(keys[wasmtypes.StoreKey]),
