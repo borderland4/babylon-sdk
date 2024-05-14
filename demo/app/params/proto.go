@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 )
 
@@ -21,10 +22,10 @@ func DefaultEncodingConfig() *EncodingConfig {
 		ProtoFiles: proto.HybridResolver,
 		SigningOptions: signing.Options{
 			AddressCodec: address.Bech32Codec{
-				Bech32Prefix: Bech32PrefixAccAddr,
+				Bech32Prefix: sdk.GetConfig().GetBech32AccountAddrPrefix(),
 			},
 			ValidatorAddressCodec: address.Bech32Codec{
-				Bech32Prefix: Bech32PrefixValAddr,
+				Bech32Prefix: sdk.GetConfig().GetBech32ValidatorAddrPrefix(),
 			},
 		},
 	})

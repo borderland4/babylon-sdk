@@ -1032,13 +1032,23 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	return paramsKeeper
 }
 
+// EmptyAppOptions is a stub implementing AppOptions
+type EmptyAppOptions struct{}
+
+// Get implements AppOptions
+func (ao EmptyAppOptions) Get(o string) interface{} {
+	// some defaults required for app.toml config
+
+	return nil
+}
+
 func NewTmpApp() *ConsumerApp {
 	return NewConsumerApp(
 		log.NewNopLogger(),
 		dbm.NewMemDB(),
 		nil,
 		true,
-		nil,
+		EmptyAppOptions{},
 		emptyWasmOptions,
 	)
 }
