@@ -24,7 +24,7 @@ func NewDefaultGenesisState(cdc codec.JSONCodec) GenesisState {
 		dbm.NewMemDB(),
 		nil,
 		true,
-		nil,
+		EmptyAppOptions{},
 		emptyWasmOptions,
 	)
 	return tempApp.BasicModuleManager.DefaultGenesis(cdc)
