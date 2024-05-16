@@ -2,7 +2,7 @@ package app
 
 // AllCapabilities returns all capabilities available with the current wasmvm
 // See https://github.com/CosmWasm/cosmwasm/blob/main/docs/CAPABILITIES-BUILT-IN.md
-// This functionality is going to be moved upstream: https://github.com/CosmWasm/wasmvm/v2/issues/425
+// This functionality is going to be moved upstream: https://github.com/CosmWasm/wasmvm/issues/425
 func AllCapabilities() []string {
 	return []string{
 		"iterator",

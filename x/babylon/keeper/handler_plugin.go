@@ -30,6 +30,7 @@ type CustomMsgHandler struct {
 }
 
 // NewDefaultCustomMsgHandler constructor to set up the CustomMsgHandler with default max cap authorization
+// TODO: access control for messages sent from Babylon contracts
 func NewDefaultCustomMsgHandler(k *Keeper) *CustomMsgHandler {
 	return &CustomMsgHandler{k: k, auth: defaultMaxCapAuthorizator(k)}
 }
@@ -91,8 +92,7 @@ type integrityHandlerSource interface {
 // This handler should be chained before any other.
 func NewIntegrityHandler(k integrityHandlerSource) wasmkeeper.MessageHandlerFunc {
 	return func(ctx sdk.Context, contractAddr sdk.AccAddress, _ string, msg wasmvmtypes.CosmosMsg) (events []sdk.Event, data [][]byte, msgResponses [][]*codectypes.Any, err error) {
-		if msg.Staking == nil ||
-			!k.CanInvokeStakingMsg(ctx, contractAddr) {
+		if msg.Staking == nil || !k.CanInvokeStakingMsg(ctx, contractAddr) {
 			return nil, nil, nil, wasmtypes.ErrUnknownMsg // pass down the chain
 		}
 		// reject

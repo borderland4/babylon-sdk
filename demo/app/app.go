@@ -17,6 +17,7 @@ import (
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/std"
+	simsutils "github.com/cosmos/cosmos-sdk/testutil/sims"
 	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
 	ica "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts"
 	icacontroller "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller"
@@ -1032,14 +1033,16 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	return paramsKeeper
 }
 
-// EmptyAppOptions is a stub implementing AppOptions
-type EmptyAppOptions struct{}
-
-// Get implements AppOptions
-func (ao EmptyAppOptions) Get(o string) interface{} {
-	// some defaults required for app.toml config
-
-	return nil
+// TestAppOptions returns an app option with tmp dir and btc network
+func TestAppOptions() simsutils.AppOptionsMap {
+	dir, err := os.MkdirTemp("", "babylon")
+	if err != nil {
+		panic(err)
+	}
+	appOpts := simsutils.AppOptionsMap{
+		flags.FlagHome: dir,
+	}
+	return appOpts
 }
 
 func NewTmpApp() *ConsumerApp {
@@ -1048,7 +1051,7 @@ func NewTmpApp() *ConsumerApp {
 		dbm.NewMemDB(),
 		nil,
 		true,
-		EmptyAppOptions{},
+		TestAppOptions(),
 		emptyWasmOptions,
 	)
 }
