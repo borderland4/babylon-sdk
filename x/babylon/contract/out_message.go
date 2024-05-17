@@ -1,7 +1,7 @@
 package contract
 
 import (
-	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
+	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 )
 
 type (

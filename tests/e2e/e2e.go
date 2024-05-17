@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/CosmWasm/wasmd/x/wasm/ibctesting"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
@@ -12,13 +13,10 @@ import (
 	ibctesting2 "github.com/cosmos/ibc-go/v8/testing"
 	"github.com/stretchr/testify/require"
 
-	"cosmossdk.io/math"
-
+	"github.com/babylonchain/babylon-sdk/demo/app"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
-	"github.com/babylonchain/babylon-sdk/demo/app"
 )
 
 var (
@@ -36,7 +34,14 @@ func buildPathToWasm(fileName string) string {
 // NewIBCCoordinator initializes Coordinator with N bcd TestChain instances
 func NewIBCCoordinator(t *testing.T, opts ...[]wasmkeeper.Option) *ibctesting.Coordinator {
 	return ibctesting.NewCoordinatorX(t, 2,
-		func(t *testing.T, valSet *types.ValidatorSet, genAccs []authtypes.GenesisAccount, chainID string, opts []wasmkeeper.Option, balances ...banktypes.Balance) ibctesting.ChainApp {
+		func(
+			t *testing.T,
+			valSet *types.ValidatorSet,
+			genAccs []authtypes.GenesisAccount,
+			chainID string,
+			opts []wasmkeeper.Option,
+			balances ...banktypes.Balance,
+		) ibctesting.ChainApp {
 			return app.SetupWithGenesisValSet(t, valSet, genAccs, chainID, opts, balances...)
 		},
 		opts...,
