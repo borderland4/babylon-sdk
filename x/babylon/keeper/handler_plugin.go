@@ -88,14 +88,14 @@ type integrityHandlerSource interface {
 // the instant undelegate and burn mechanism provided by babylon.
 //
 // This handler should be chained before any other.
+// TODO: access control for msg call from contracts
 func NewIntegrityHandler(k integrityHandlerSource) wasmkeeper.MessageHandlerFunc {
 	return func(ctx sdk.Context, contractAddr sdk.AccAddress, _ string, msg wasmvmtypes.CosmosMsg) (events []sdk.Event, data [][]byte, err error) {
-		if msg.Staking == nil ||
-			!k.CanInvokeStakingMsg(ctx, contractAddr) {
+		if msg.Staking == nil || !k.CanInvokeStakingMsg(ctx, contractAddr) {
 			return nil, nil, wasmtypes.ErrUnknownMsg // pass down the chain
 		}
 		// reject
-		return nil, nil, types.ErrUnsupported.Wrap("message type for contracts with max cap set")
+		return nil, nil, types.ErrUnsupported
 	}
 }
 

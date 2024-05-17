@@ -16,6 +16,7 @@ import (
 
 var emptyWasmOpts []wasm.Option
 
+// adapted from https://github.com/cosmos/cosmos-sdk/blob/v0.50.6/simapp/app_test.go#L47-L48
 func TestSimAppExportAndBlockedAddrs(t *testing.T) {
 	db := dbm.NewMemDB()
 	logger := log.NewTestLogger(t)
