@@ -4,24 +4,15 @@ import (
 	"encoding/json"
 
 	errorsmod "cosmossdk.io/errors"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/babylonchain/babylon-sdk/x/babylon/contract"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// SendHandleEpoch send epoch handling message to virtual staking contract via sudo
-func (k Keeper) SendHandleEpoch(ctx sdk.Context, contractAddr sdk.AccAddress) error {
+// SendTestSudoMsg sends a test sudo message to the given contract via sudo
+// TODO: implement sudo messages
+func (k Keeper) SendTestSudoMsg(ctx sdk.Context, contractAddr sdk.AccAddress) error {
 	msg := contract.SudoMsg{
-		HandleEpoch: &struct{}{},
-	}
-	return k.doSudoCall(ctx, contractAddr, msg)
-}
-
-// SendValsetUpdate submit the valset update report to the virtual staking contract via sudo
-func (k Keeper) SendValsetUpdate(ctx sdk.Context, contractAddr sdk.AccAddress, v contract.ValsetUpdate) error {
-	msg := contract.SudoMsg{
-		ValsetUpdate: &v,
+		TestSudoMsg: &struct{}{},
 	}
 	return k.doSudoCall(ctx, contractAddr, msg)
 }
