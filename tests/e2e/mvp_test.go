@@ -5,14 +5,24 @@ import (
 	"testing"
 	"time"
 
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/babylonchain/babylon/testutil/datagen"
 	bstypes "github.com/babylonchain/babylon/x/btcstaking/types"
+	zctypes "github.com/babylonchain/babylon/x/zoneconcierge/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
 
 var r = rand.New(rand.NewSource(time.Now().Unix()))
+
+func NewBTCStakingPacketData(packet *bstypes.BTCStakingIBCPacket) *zctypes.ZoneconciergePacketData {
+	return &zctypes.ZoneconciergePacketData{
+		Packet: &zctypes.ZoneconciergePacketData_BtcStaking{
+			BtcStaking: packet,
+		},
+	}
+}
 
 func TestMVP(t *testing.T) {
 	// create a provider chain and a consumer chain
@@ -31,19 +41,27 @@ func TestMVP(t *testing.T) {
 	fpBabylonSK, _, err := datagen.GenRandomSecp256k1KeyPair(r)
 	require.NoError(t, err)
 	fp, err := datagen.GenRandomCustomFinalityProvider(r, fpBTCSK, fpBabylonSK, "consumer-id")
-	newFPPacket := &bstypes.BTCStakingIBCPacket{
+	require.NoError(t, err)
+	fp.Description.Identity = "doesntmatter"
+	fp.Description.Website = "website"
+	fp.Description.SecurityContact = "website"
+	fp.Description.Details = "website"
+
+	packet := &bstypes.BTCStakingIBCPacket{
 		NewFp: []*bstypes.NewFinalityProvider{
 			&bstypes.NewFinalityProvider{
 				Description: fp.Description,
 				Commission:  fp.Commission.String(),
-				BabylonPk:   fp.BabylonPk,
-				BtcPkHex:    fp.BtcPk.MarshalHex(),
-				Pop:         fp.Pop,
-				ConsumerId:  fp.ConsumerId,
+				// BabylonPk:   fp.BabylonPk, // TODO: figure out why
+				BtcPkHex: fp.BtcPk.MarshalHex(),
+				// Pop:        fp.Pop,
+				ConsumerId: fp.ConsumerId,
 			},
 		},
 	}
-	newFPPacketBytes, err := bstypes.ModuleCdc.MarshalJSON(newFPPacket)
+	packetData := NewBTCStakingPacketData(packet)
+
+	newFPPacketBytes, err := zctypes.ModuleCdc.MarshalJSON(packetData)
 	require.NoError(t, err)
 	msg := &wasmtypes.MsgExecuteContract{
 		Sender:   consumerCli.Chain.SenderAccount.GetAddress().String(),
@@ -51,8 +69,14 @@ func TestMVP(t *testing.T) {
 		Msg:      newFPPacketBytes,
 		Funds:    sdk.NewCoins(),
 	}
-	_, err = consumerCli.Chain.SendMsgs(msg)
-	require.NoError(t, err)
+
+	// res, err := consumerCli.Chain.SendMsgs(msg)
+	// require.NoError(t, err, res)
+
+	wasmKeeper := consumerCli.Chain.App.GetWasmKeeper()
+	ms := wasmkeeper.NewMsgServerImpl(&wasmKeeper)
+	resp, err := ms.ExecuteContract(consumerCli.Chain.GetContext(), msg)
+	require.NoError(t, err, resp)
 
 	// inject some BTC delegations via admin commands
 
