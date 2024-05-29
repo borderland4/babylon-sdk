@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"testing"
@@ -115,22 +116,25 @@ type ConsumerContract struct {
 }
 
 // TODO(babylon): deploy Babylon contracts
-func (p *TestConsumerClient) BootstrapContracts(adminAddr sdk.AccAddress) ConsumerContract {
+func (p *TestConsumerClient) BootstrapContracts(adminAddr sdk.AccAddress) (*ConsumerContract, error) {
 	babylonContractWasmId := p.chain.StoreCodeFile(buildPathToWasm("babylon_contract.wasm")).CodeID
 	btcStakingContractWasmId := p.chain.StoreCodeFile(buildPathToWasm("btc_staking.wasm")).CodeID
 
 	// Instantiate the contract
 	// TODO: parameterise
-	initMsg := fmt.Sprintf(`{ "network": %q, "babylon_tag": %q, "btc_confirmation_depth": %d, "checkpoint_finalization_timeout": %d, "notify_cosmos_zone": %s, "btc_staking_code_id": %d, "admin": %s }`,
-		"regtest",
-		"01020304",
-		1,
-		2,
-		"false",
-		btcStakingContractWasmId,
-		adminAddr.String(),
-	)
-	initMsgBytes := []byte(initMsg)
+	initMsg := map[string]interface{}{
+		"network":                         "regtest",
+		"babylon_tag":                     "01020304",
+		"btc_confirmation_depth":          1,
+		"checkpoint_finalization_timeout": 2,
+		"notify_cosmos_zone":              false,
+		"btc_staking_code_id":             btcStakingContractWasmId,
+		"admin":                           adminAddr.String(),
+	}
+	initMsgBytes, err := json.Marshal(initMsg)
+	if err != nil {
+		return nil, err
+	}
 
 	babylonContractAddr := InstantiateContract(p.t, p.chain, babylonContractWasmId, initMsgBytes)
 	btcStakingContractAddr := Querier(p.t, p.chain)(babylonContractAddr.String(), Query{"config": {}})["btc_staking"]
@@ -140,5 +144,5 @@ func (p *TestConsumerClient) BootstrapContracts(adminAddr sdk.AccAddress) Consum
 		BTCStaking: sdk.MustAccAddressFromBech32(btcStakingContractAddr.(string)),
 	}
 	p.contracts = r
-	return r
+	return &r, nil
 }

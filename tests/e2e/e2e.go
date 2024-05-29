@@ -102,13 +102,14 @@ func setupExampleChains(t *testing.T) example {
 	}
 }
 
-func setupBabylonIntegration(t *testing.T, x example) (*TestConsumerClient, ConsumerContract, *TestProviderClient) {
+func setupBabylonIntegration(t *testing.T, x example) (*TestConsumerClient, *ConsumerContract, *TestProviderClient) {
 	x.Coordinator.SetupConnections(x.IbcPath)
 
 	// setup contracts on consumer
 	consumerCli := NewConsumerClient(t, x.ConsumerChain)
 	consumerSenderAddr := x.ConsumerChain.SenderAccount.GetAddress()
-	consumerContracts := consumerCli.BootstrapContracts(consumerSenderAddr)
+	consumerContracts, err := consumerCli.BootstrapContracts(consumerSenderAddr)
+	require.NoError(t, err)
 	consumerPortID := wasmkeeper.PortIDForContract(consumerContracts.Babylon)
 
 	// add some fees so that we can distribute something
