@@ -115,19 +115,20 @@ type ConsumerContract struct {
 }
 
 // TODO(babylon): deploy Babylon contracts
-func (p *TestConsumerClient) BootstrapContracts() ConsumerContract {
+func (p *TestConsumerClient) BootstrapContracts(adminAddr sdk.AccAddress) ConsumerContract {
 	babylonContractWasmId := p.chain.StoreCodeFile(buildPathToWasm("babylon_contract.wasm")).CodeID
 	btcStakingContractWasmId := p.chain.StoreCodeFile(buildPathToWasm("btc_staking.wasm")).CodeID
 
 	// Instantiate the contract
 	// TODO: parameterise
-	initMsg := fmt.Sprintf(`{ "network": %q, "babylon_tag": %q, "btc_confirmation_depth": %d, "checkpoint_finalization_timeout": %d, "notify_cosmos_zone": %s, "btc_staking_code_id": %d }`,
+	initMsg := fmt.Sprintf(`{ "network": %q, "babylon_tag": %q, "btc_confirmation_depth": %d, "checkpoint_finalization_timeout": %d, "notify_cosmos_zone": %s, "btc_staking_code_id": %d, "admin": %s }`,
 		"regtest",
 		"01020304",
 		1,
 		2,
 		"false",
 		btcStakingContractWasmId,
+		adminAddr.String(),
 	)
 	initMsgBytes := []byte(initMsg)
 
