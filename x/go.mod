@@ -37,7 +37,7 @@ require (
 	cosmossdk.io/x/evidence v0.1.1
 	cosmossdk.io/x/feegrant v0.1.1
 	cosmossdk.io/x/upgrade v0.1.2
-	github.com/CosmWasm/wasmvm v1.5.0
+	github.com/CosmWasm/wasmvm/v2 v2.0.0
 	github.com/cometbft/cometbft v0.38.6
 	github.com/cosmos/cosmos-db v1.0.2
 	github.com/cosmos/ibc-go/modules/capability v1.0.0
@@ -213,7 +213,6 @@ require (
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
-	github.com/CosmWasm/wasmd => github.com/CosmWasm/wasmd v0.50.0
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// See: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2

@@ -59,11 +59,11 @@ func Querier(t *testing.T, chain *ibctesting.TestChain) func(contract string, qu
 
 type TestProviderClient struct {
 	t     *testing.T
-	chain *ibctesting.TestChain
+	Chain *ibctesting.TestChain
 }
 
 func NewProviderClient(t *testing.T, chain *ibctesting.TestChain) *TestProviderClient {
-	return &TestProviderClient{t: t, chain: chain}
+	return &TestProviderClient{t: t, Chain: chain}
 }
 
 func (p TestProviderClient) mustExec(contract sdk.AccAddress, payload string, funds []sdk.Coin) *abci.ExecTxResult {
@@ -73,8 +73,8 @@ func (p TestProviderClient) mustExec(contract sdk.AccAddress, payload string, fu
 }
 
 func (p TestProviderClient) Exec(contract sdk.AccAddress, payload string, funds ...sdk.Coin) (*abci.ExecTxResult, error) {
-	rsp, err := p.chain.SendMsgs(&wasmtypes.MsgExecuteContract{
-		Sender:   p.chain.SenderAccount.GetAddress().String(),
+	rsp, err := p.Chain.SendMsgs(&wasmtypes.MsgExecuteContract{
+		Sender:   p.Chain.SenderAccount.GetAddress().String(),
 		Contract: contract.String(),
 		Msg:      []byte(payload),
 		Funds:    funds,
@@ -101,13 +101,13 @@ func ParseHighLow(t *testing.T, a any) HighLowType {
 
 type TestConsumerClient struct {
 	t         *testing.T
-	chain     *ibctesting.TestChain
-	contracts ConsumerContract
-	app       *app.ConsumerApp
+	Chain     *ibctesting.TestChain
+	Contracts ConsumerContract
+	App       *app.ConsumerApp
 }
 
 func NewConsumerClient(t *testing.T, chain *ibctesting.TestChain) *TestConsumerClient {
-	return &TestConsumerClient{t: t, chain: chain, app: chain.App.(*app.ConsumerApp)}
+	return &TestConsumerClient{t: t, Chain: chain, App: chain.App.(*app.ConsumerApp)}
 }
 
 type ConsumerContract struct {
@@ -117,8 +117,8 @@ type ConsumerContract struct {
 
 // TODO(babylon): deploy Babylon contracts
 func (p *TestConsumerClient) BootstrapContracts(adminAddr sdk.AccAddress) (*ConsumerContract, error) {
-	babylonContractWasmId := p.chain.StoreCodeFile(buildPathToWasm("babylon_contract.wasm")).CodeID
-	btcStakingContractWasmId := p.chain.StoreCodeFile(buildPathToWasm("btc_staking.wasm")).CodeID
+	babylonContractWasmId := p.Chain.StoreCodeFile(buildPathToWasm("babylon_contract.wasm")).CodeID
+	btcStakingContractWasmId := p.Chain.StoreCodeFile(buildPathToWasm("btc_staking.wasm")).CodeID
 
 	// Instantiate the contract
 	// TODO: parameterise
@@ -136,13 +136,13 @@ func (p *TestConsumerClient) BootstrapContracts(adminAddr sdk.AccAddress) (*Cons
 		return nil, err
 	}
 
-	babylonContractAddr := InstantiateContract(p.t, p.chain, babylonContractWasmId, initMsgBytes)
-	btcStakingContractAddr := Querier(p.t, p.chain)(babylonContractAddr.String(), Query{"config": {}})["btc_staking"]
+	babylonContractAddr := InstantiateContract(p.t, p.Chain, babylonContractWasmId, initMsgBytes)
+	btcStakingContractAddr := Querier(p.t, p.Chain)(babylonContractAddr.String(), Query{"config": {}})["btc_staking"]
 
 	r := ConsumerContract{
 		Babylon:    babylonContractAddr,
 		BTCStaking: sdk.MustAccAddressFromBech32(btcStakingContractAddr.(string)),
 	}
-	p.contracts = r
+	p.Contracts = r
 	return &r, nil
 }
