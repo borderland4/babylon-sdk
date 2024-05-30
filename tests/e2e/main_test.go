@@ -6,31 +6,24 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
-	sdkmath "cosmossdk.io/math"
 	"github.com/CosmWasm/wasmd/x/wasm/ibctesting"
 	"github.com/babylonchain/babylon-sdk/demo/app"
 	appparams "github.com/babylonchain/babylon-sdk/demo/app/params"
-	"github.com/babylonchain/babylon/testutil/datagen"
-	bbn "github.com/babylonchain/babylon/types"
-	bstypes "github.com/babylonchain/babylon/x/btcstaking/types"
 	zctypes "github.com/babylonchain/babylon/x/zoneconcierge/types"
-	"github.com/btcsuite/btcd/chaincfg"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibctesting2 "github.com/cosmos/ibc-go/v8/testing"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
-var (
-	r = rand.New(rand.NewSource(time.Now().Unix()))
-)
+var r = rand.New(rand.NewSource(time.Now().Unix()))
 
 // In the Test function, we create and run the suite
 func TestMyTestSuite(t *testing.T) {
 	suite.Run(t, new(BabylonSDKTestSuite))
 }
 
-// Define the test suite and include the suite.Suite struct
+// Define the test suite and include the s.Suite struct
 type BabylonSDKTestSuite struct {
 	suite.Suite
 
@@ -49,24 +42,24 @@ type BabylonSDKTestSuite struct {
 }
 
 // SetupSuite runs once before the suite's tests are run
-func (suite *BabylonSDKTestSuite) SetupSuite() {
+func (s *BabylonSDKTestSuite) SetupSuite() {
 	// overwrite init messages in Babylon
 	appparams.SetAddressPrefixes()
 
 	// set up coordinator and chains
-	t := suite.T()
+	t := s.T()
 	coord := NewIBCCoordinator(t)
 	provChain := coord.GetChain(ibctesting2.GetChainID(1))
 	consChain := coord.GetChain(ibctesting2.GetChainID(2))
 
-	suite.Coordinator = coord
-	suite.ConsumerChain = consChain
-	suite.ProviderChain = provChain
-	suite.ConsumerApp = consChain.App.(*app.ConsumerApp)
-	suite.IbcPath = ibctesting.NewPath(consChain, provChain)
-	suite.ProviderDenom = sdk.DefaultBondDenom
-	suite.ConsumerDenom = sdk.DefaultBondDenom
-	suite.MyProvChainActor = provChain.SenderAccount.GetAddress().String()
+	s.Coordinator = coord
+	s.ConsumerChain = consChain
+	s.ProviderChain = provChain
+	s.ConsumerApp = consChain.App.(*app.ConsumerApp)
+	s.IbcPath = ibctesting.NewPath(consChain, provChain)
+	s.ProviderDenom = sdk.DefaultBondDenom
+	s.ConsumerDenom = sdk.DefaultBondDenom
+	s.MyProvChainActor = provChain.SenderAccount.GetAddress().String()
 }
 
 func (x *BabylonSDKTestSuite) SetupBabylonIntegration() (*TestConsumerClient, *ConsumerContract, *TestProviderClient) {
@@ -104,107 +97,37 @@ func (x *BabylonSDKTestSuite) SetupBabylonIntegration() (*TestConsumerClient, *C
 	// return consumerCli, consumerContracts, providerCli
 }
 
-func (suite *BabylonSDKTestSuite) Test1ContractDeployment() {
+func (s *BabylonSDKTestSuite) Test1ContractDeployment() {
 	// deploy Babylon contracts to the consumer chain
-	consumerCli, consumerContracts, providerCli := suite.SetupBabylonIntegration()
-	require.NotEmpty(suite.T(), consumerCli.Chain.ChainID)
-	require.NotEmpty(suite.T(), providerCli.Chain.ChainID)
-	require.NotEmpty(suite.T(), consumerContracts.Babylon)
-	require.NotEmpty(suite.T(), consumerContracts.BTCStaking)
+	consumerCli, consumerContracts, providerCli := s.SetupBabylonIntegration()
+	require.NotEmpty(s.T(), consumerCli.Chain.ChainID)
+	require.NotEmpty(s.T(), providerCli.Chain.ChainID)
+	require.NotEmpty(s.T(), consumerContracts.Babylon)
+	require.NotEmpty(s.T(), consumerContracts.BTCStaking)
 
-	suite.ProviderCli = providerCli
-	suite.ConsumerCli = consumerCli
-	suite.ConsumerContract = consumerContracts
+	s.ProviderCli = providerCli
+	s.ConsumerCli = consumerCli
+	s.ConsumerContract = consumerContracts
+
+	// query admin
+	adminResp, err := s.ConsumerCli.Query(s.ConsumerContract.BTCStaking, Query{"admin": {}})
+	s.NoError(err)
+	s.Equal(adminResp["admin"], s.ConsumerCli.GetSender().String())
 }
 
 // TestExample is an example test case
-func (suite *BabylonSDKTestSuite) Test2MockFPAndDelegation() {
-	t := suite.T()
+func (s *BabylonSDKTestSuite) Test2MockFPAndDelegation() {
+	t := s.T()
 
-	// query admin
-	adminResp, err := suite.ConsumerCli.Query(suite.ConsumerContract.BTCStaking, Query{"admin": {}})
-	require.NoError(t, err)
-	require.Equal(t, adminResp["admin"], suite.ConsumerCli.GetSender().String())
-
-	// generate a finality provider
-	fpBTCSK, _, err := datagen.GenRandomBTCKeyPair(r)
-	require.NoError(t, err)
-	fpBabylonSK, _, err := datagen.GenRandomSecp256k1KeyPair(r)
-	require.NoError(t, err)
-	fp, err := datagen.GenRandomCustomFinalityProvider(r, fpBTCSK, fpBabylonSK, "consumer-id")
+	packet := GenIBCPacket(t, r)
+	packetBytes, err := zctypes.ModuleCdc.MarshalJSON(packet)
 	require.NoError(t, err)
 
-	// generate a BTC delegation
-	delSK, _, err := datagen.GenRandomBTCKeyPair(r)
-	require.NoError(t, err)
-	covenantSKs, covenantPKs, covenantQuorum := datagen.GenCovenantCommittee(r)
-	slashingAddress, err := datagen.GenRandomBTCAddress(r, &chaincfg.RegressionNetParams)
-	require.NoError(t, err)
-	slashingRate := sdkmath.LegacyNewDecWithPrec(int64(datagen.RandomInt(r, 41)+10), 2)
-	slashingChangeLockTime := uint16(101)
-	del, err := datagen.GenRandomBTCDelegation(
-		r,
-		t,
-		&chaincfg.RegressionNetParams,
-		[]bbn.BIP340PubKey{*fp.BtcPk},
-		delSK,
-		covenantSKs,
-		covenantPKs,
-		covenantQuorum,
-		slashingAddress.EncodeAddress(),
-		1, 1000, 10000,
-		slashingRate,
-		slashingChangeLockTime,
-	)
-	require.NoError(t, err)
-
-	packet := &bstypes.BTCStakingIBCPacket{
-		NewFp: []*bstypes.NewFinalityProvider{
-			// TODO: fill empty data
-			&bstypes.NewFinalityProvider{
-				// Description: fp.Description,
-				Commission: fp.Commission.String(),
-				// BabylonPk:  fp.BabylonPk,
-				BtcPkHex: fp.BtcPk.MarshalHex(),
-				// Pop:        fp.Pop,
-				ConsumerId: fp.ConsumerId,
-			},
-		},
-		ActiveDel: []*bstypes.ActiveBTCDelegation{
-			&bstypes.ActiveBTCDelegation{
-				BtcPkHex:             del.BtcPk.MarshalHex(),
-				FpBtcPkList:          []string{del.FpBtcPkList[0].MarshalHex()},
-				StartHeight:          del.StartHeight,
-				EndHeight:            del.EndHeight,
-				TotalSat:             del.TotalSat,
-				StakingTx:            del.StakingTx,
-				SlashingTx:           *del.SlashingTx,
-				DelegatorSlashingSig: *del.DelegatorSig,
-				CovenantSigs:         del.CovenantSigs,
-				UnbondingTime:        del.UnbondingTime,
-				UndelegationInfo: &bstypes.BTCUndelegationInfo{
-					UnbondingTx:              del.BtcUndelegation.UnbondingTx,
-					CovenantUnbondingSigList: del.BtcUndelegation.CovenantUnbondingSigList,
-					SlashingTx:               *del.BtcUndelegation.SlashingTx,
-					DelegatorSlashingSig:     *del.BtcUndelegation.DelegatorSlashingSig,
-					CovenantSlashingSigs:     del.BtcUndelegation.CovenantSlashingSigs,
-				},
-				ParamsVersion: del.ParamsVersion,
-			},
-		},
-		SlashedDel:  []*bstypes.SlashedBTCDelegation{},
-		UnbondedDel: []*bstypes.UnbondedBTCDelegation{},
-	}
-	packetData := NewBTCStakingPacketData(packet)
-
-	packetDataBytes, err := zctypes.ModuleCdc.MarshalJSON(packetData)
-	require.NoError(t, err)
-
-	_, err = suite.ConsumerCli.Exec(suite.ConsumerContract.BTCStaking, packetDataBytes)
+	_, err = s.ConsumerCli.Exec(s.ConsumerContract.BTCStaking, packetBytes)
 	require.NoError(t, err)
 }
 
 // TearDownSuite runs once after all the suite's tests have been run
-func (suite *BabylonSDKTestSuite) TearDownSuite() {
+func (s *BabylonSDKTestSuite) TearDownSuite() {
 	// Cleanup code here
 }

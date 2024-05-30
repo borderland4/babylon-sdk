@@ -10,20 +10,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/babylonchain/babylon-sdk/demo/app"
-	bstypes "github.com/babylonchain/babylon/x/btcstaking/types"
-	zctypes "github.com/babylonchain/babylon/x/zoneconcierge/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
-
-func NewBTCStakingPacketData(packet *bstypes.BTCStakingIBCPacket) *zctypes.ZoneconciergePacketData {
-	return &zctypes.ZoneconciergePacketData{
-		Packet: &zctypes.ZoneconciergePacketData_BtcStaking{
-			BtcStaking: packet,
-		},
-	}
-}
 
 // NewIBCCoordinator initializes Coordinator with N bcd TestChain instances
 func NewIBCCoordinator(t *testing.T, opts ...[]wasmkeeper.Option) *ibctesting.Coordinator {
