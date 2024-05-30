@@ -31,6 +31,35 @@ func buildPathToWasm(fileName string) string {
 	return filepath.Join(wasmContractPath, fileName)
 }
 
+type Example struct {
+	t                *testing.T
+	Coordinator      *ibctesting.Coordinator
+	ConsumerChain    *ibctesting.TestChain
+	ProviderChain    *ibctesting.TestChain
+	ConsumerApp      *app.ConsumerApp
+	IbcPath          *ibctesting.Path
+	ProviderDenom    string
+	ConsumerDenom    string
+	MyProvChainActor string
+}
+
+func NewExample(t *testing.T) Example {
+	coord := NewIBCCoordinator(t)
+	provChain := coord.GetChain(ibctesting2.GetChainID(1))
+	consChain := coord.GetChain(ibctesting2.GetChainID(2))
+	return Example{
+		t:                t,
+		Coordinator:      coord,
+		ConsumerChain:    consChain,
+		ProviderChain:    provChain,
+		ConsumerApp:      consChain.App.(*app.ConsumerApp),
+		IbcPath:          ibctesting.NewPath(consChain, provChain),
+		ProviderDenom:    sdk.DefaultBondDenom,
+		ConsumerDenom:    sdk.DefaultBondDenom,
+		MyProvChainActor: provChain.SenderAccount.GetAddress().String(),
+	}
+}
+
 // NewIBCCoordinator initializes Coordinator with N bcd TestChain instances
 func NewIBCCoordinator(t *testing.T, opts ...[]wasmkeeper.Option) *ibctesting.Coordinator {
 	return ibctesting.NewCoordinatorX(t, 2,
@@ -75,46 +104,19 @@ func InstantiateContract(t *testing.T, chain *ibctesting.TestChain, codeID uint6
 	return contractAddrs[0]
 }
 
-type example struct {
-	Coordinator      *ibctesting.Coordinator
-	ConsumerChain    *ibctesting.TestChain
-	ProviderChain    *ibctesting.TestChain
-	ConsumerApp      *app.ConsumerApp
-	IbcPath          *ibctesting.Path
-	ProviderDenom    string
-	ConsumerDenom    string
-	MyProvChainActor string
-}
-
-func setupExampleChains(t *testing.T) example {
-	coord := NewIBCCoordinator(t)
-	provChain := coord.GetChain(ibctesting2.GetChainID(1))
-	consChain := coord.GetChain(ibctesting2.GetChainID(2))
-	return example{
-		Coordinator:      coord,
-		ConsumerChain:    consChain,
-		ProviderChain:    provChain,
-		ConsumerApp:      consChain.App.(*app.ConsumerApp),
-		IbcPath:          ibctesting.NewPath(consChain, provChain),
-		ProviderDenom:    sdk.DefaultBondDenom,
-		ConsumerDenom:    sdk.DefaultBondDenom,
-		MyProvChainActor: provChain.SenderAccount.GetAddress().String(),
-	}
-}
-
-func setupBabylonIntegration(t *testing.T, x example) (*TestConsumerClient, *ConsumerContract, *TestProviderClient) {
+func (x *Example) SetupBabylonIntegration() (*TestConsumerClient, *ConsumerContract, *TestProviderClient) {
 	x.Coordinator.SetupConnections(x.IbcPath)
 
 	// setup contracts on consumer
-	consumerCli := NewConsumerClient(t, x.ConsumerChain)
+	consumerCli := NewConsumerClient(x.t, x.ConsumerChain)
 	consumerContracts, err := consumerCli.BootstrapContracts()
-	require.NoError(t, err)
+	require.NoError(x.t, err)
 	consumerPortID := wasmkeeper.PortIDForContract(consumerContracts.Babylon)
 
 	// add some fees so that we can distribute something
 	x.ConsumerChain.DefaultMsgFees = sdk.NewCoins(sdk.NewCoin(x.ConsumerDenom, math.NewInt(1_000_000)))
 
-	providerCli := NewProviderClient(t, x.ProviderChain)
+	providerCli := NewProviderClient(x.t, x.ProviderChain)
 
 	return consumerCli, consumerContracts, providerCli
 
@@ -132,8 +134,8 @@ func setupBabylonIntegration(t *testing.T, x example) (*TestConsumerClient, *Con
 	x.Coordinator.CreateChannels(x.IbcPath)
 
 	// when ibc package is relayed
-	require.NotEmpty(t, x.ConsumerChain.PendingSendPackets)
-	require.NoError(t, x.Coordinator.RelayAndAckPendingPackets(x.IbcPath))
+	require.NotEmpty(x.t, x.ConsumerChain.PendingSendPackets)
+	require.NoError(x.t, x.Coordinator.RelayAndAckPendingPackets(x.IbcPath))
 
 	return consumerCli, consumerContracts, providerCli
 }

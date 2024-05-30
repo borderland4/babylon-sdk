@@ -16,5 +16,11 @@ func TestMain(m *testing.M) {
 	// overwrite init messages in Babylon
 	appparams.SetAddressPrefixes()
 
-	os.Exit(m.Run())
+	// Run the tests
+	exitCode := m.Run()
+
+	// Teardown code here (if needed)
+
+	// Exit with the appropriate code
+	os.Exit(exitCode)
 }
