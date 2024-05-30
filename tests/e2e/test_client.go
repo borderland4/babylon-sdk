@@ -3,13 +3,11 @@ package e2e
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"testing"
 
 	"github.com/CosmWasm/wasmd/x/wasm/ibctesting"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -48,12 +46,14 @@ func (q QueryResponse) Array(key string) []QueryResponse {
 	return result
 }
 
-func Querier(t *testing.T, chain *ibctesting.TestChain) func(contract string, query Query) QueryResponse {
-	return func(contract string, query Query) QueryResponse {
+func Querier(t *testing.T, chain *ibctesting.TestChain) func(contract string, query Query) (QueryResponse, error) {
+	return func(contract string, query Query) (QueryResponse, error) {
 		qRsp := make(map[string]any)
 		err := chain.SmartQuery(contract, query, &qRsp)
-		require.NoError(t, err)
-		return qRsp
+		if err != nil {
+			return nil, err
+		}
+		return qRsp, nil
 	}
 }
 
@@ -66,37 +66,14 @@ func NewProviderClient(t *testing.T, chain *ibctesting.TestChain) *TestProviderC
 	return &TestProviderClient{t: t, Chain: chain}
 }
 
-func (p TestProviderClient) mustExec(contract sdk.AccAddress, payload string, funds []sdk.Coin) *abci.ExecTxResult {
-	rsp, err := p.Exec(contract, payload, funds...)
-	require.NoError(p.t, err)
-	return rsp
-}
-
-func (p TestProviderClient) Exec(contract sdk.AccAddress, payload string, funds ...sdk.Coin) (*abci.ExecTxResult, error) {
+func (p *TestProviderClient) Exec(contract sdk.AccAddress, payload []byte, funds ...sdk.Coin) (*abci.ExecTxResult, error) {
 	rsp, err := p.Chain.SendMsgs(&wasmtypes.MsgExecuteContract{
 		Sender:   p.Chain.SenderAccount.GetAddress().String(),
 		Contract: contract.String(),
-		Msg:      []byte(payload),
+		Msg:      payload,
 		Funds:    funds,
 	})
 	return rsp, err
-}
-
-type HighLowType struct {
-	High, Low int
-}
-
-// ParseHighLow convert json source type into custom type
-func ParseHighLow(t *testing.T, a any) HighLowType {
-	m, ok := a.(map[string]any)
-	require.True(t, ok, "%T", a)
-	require.Contains(t, m, "h")
-	require.Contains(t, m, "l")
-	h, err := strconv.Atoi(m["h"].(string))
-	require.NoError(t, err)
-	l, err := strconv.Atoi(m["l"].(string))
-	require.NoError(t, err)
-	return HighLowType{High: h, Low: l}
 }
 
 type TestConsumerClient struct {
@@ -115,13 +92,24 @@ type ConsumerContract struct {
 	BTCStaking sdk.AccAddress
 }
 
+func (p *TestConsumerClient) GetSender() sdk.AccAddress {
+	return p.Chain.SenderAccount.GetAddress()
+}
+
 // TODO(babylon): deploy Babylon contracts
-func (p *TestConsumerClient) BootstrapContracts(adminAddr sdk.AccAddress) (*ConsumerContract, error) {
+func (p *TestConsumerClient) BootstrapContracts() (*ConsumerContract, error) {
 	babylonContractWasmId := p.Chain.StoreCodeFile(buildPathToWasm("babylon_contract.wasm")).CodeID
 	btcStakingContractWasmId := p.Chain.StoreCodeFile(buildPathToWasm("btc_staking.wasm")).CodeID
 
 	// Instantiate the contract
 	// TODO: parameterise
+	btcStakingInitMsg := map[string]interface{}{
+		"admin": p.GetSender().String(),
+	}
+	btcStakingInitMsgBytes, err := json.Marshal(btcStakingInitMsg)
+	if err != nil {
+		return nil, err
+	}
 	initMsg := map[string]interface{}{
 		"network":                         "regtest",
 		"babylon_tag":                     "01020304",
@@ -129,7 +117,8 @@ func (p *TestConsumerClient) BootstrapContracts(adminAddr sdk.AccAddress) (*Cons
 		"checkpoint_finalization_timeout": 2,
 		"notify_cosmos_zone":              false,
 		"btc_staking_code_id":             btcStakingContractWasmId,
-		"admin":                           adminAddr.String(),
+		"btc_staking_msg":                 btcStakingInitMsgBytes,
+		"admin":                           p.GetSender().String(),
 	}
 	initMsgBytes, err := json.Marshal(initMsg)
 	if err != nil {
@@ -137,7 +126,14 @@ func (p *TestConsumerClient) BootstrapContracts(adminAddr sdk.AccAddress) (*Cons
 	}
 
 	babylonContractAddr := InstantiateContract(p.t, p.Chain, babylonContractWasmId, initMsgBytes)
-	btcStakingContractAddr := Querier(p.t, p.Chain)(babylonContractAddr.String(), Query{"config": {}})["btc_staking"]
+	res, err := p.Query(babylonContractAddr, Query{"config": {}})
+	if err != nil {
+		return nil, err
+	}
+	btcStakingContractAddr, ok := res["btc_staking"]
+	if !ok {
+		return nil, fmt.Errorf("failed to instantiate BTC staking contract")
+	}
 
 	r := ConsumerContract{
 		Babylon:    babylonContractAddr,
@@ -145,4 +141,18 @@ func (p *TestConsumerClient) BootstrapContracts(adminAddr sdk.AccAddress) (*Cons
 	}
 	p.Contracts = r
 	return &r, nil
+}
+
+func (p *TestConsumerClient) Exec(contract sdk.AccAddress, payload []byte, funds ...sdk.Coin) (*abci.ExecTxResult, error) {
+	rsp, err := p.Chain.SendMsgs(&wasmtypes.MsgExecuteContract{
+		Sender:   p.GetSender().String(),
+		Contract: contract.String(),
+		Msg:      payload,
+		Funds:    funds,
+	})
+	return rsp, err
+}
+
+func (p *TestConsumerClient) Query(contractAddr sdk.AccAddress, query Query) (QueryResponse, error) {
+	return Querier(p.t, p.Chain)(contractAddr.String(), query)
 }

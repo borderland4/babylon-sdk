@@ -107,8 +107,7 @@ func setupBabylonIntegration(t *testing.T, x example) (*TestConsumerClient, *Con
 
 	// setup contracts on consumer
 	consumerCli := NewConsumerClient(t, x.ConsumerChain)
-	consumerSenderAddr := x.ConsumerChain.SenderAccount.GetAddress()
-	consumerContracts, err := consumerCli.BootstrapContracts(consumerSenderAddr)
+	consumerContracts, err := consumerCli.BootstrapContracts()
 	require.NoError(t, err)
 	consumerPortID := wasmkeeper.PortIDForContract(consumerContracts.Babylon)
 

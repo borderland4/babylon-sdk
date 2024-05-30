@@ -1,16 +1,14 @@
 package e2e
 
 import (
+	"fmt"
 	"math/rand"
 	"testing"
 	"time"
 
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/babylonchain/babylon/testutil/datagen"
 	bstypes "github.com/babylonchain/babylon/x/btcstaking/types"
 	zctypes "github.com/babylonchain/babylon/x/zoneconcierge/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -32,8 +30,14 @@ func TestMVP(t *testing.T) {
 	consumerCli, consumerContracts, providerCli := setupBabylonIntegration(t, x)
 	require.NotEmpty(t, consumerCli.Chain.ChainID)
 	require.NotEmpty(t, providerCli.Chain.ChainID)
-	require.False(t, consumerContracts.Babylon.Empty())
-	require.False(t, consumerContracts.BTCStaking.Empty())
+	require.NotEmpty(t, consumerContracts.Babylon)
+	require.NotEmpty(t, consumerContracts.BTCStaking)
+
+	// query admin
+	adminResp, err := consumerCli.Query(consumerContracts.BTCStaking, Query{"admin": {}})
+	require.NoError(t, err)
+	require.Equal(t, adminResp["admin"], consumerCli.GetSender().String())
+	fmt.Println(adminResp)
 
 	// inject some finality providers via admin commands
 	fpBTCSK, _, err := datagen.GenRandomBTCKeyPair(r)
@@ -63,20 +67,8 @@ func TestMVP(t *testing.T) {
 
 	newFPPacketBytes, err := zctypes.ModuleCdc.MarshalJSON(packetData)
 	require.NoError(t, err)
-	msg := &wasmtypes.MsgExecuteContract{
-		Sender:   consumerCli.Chain.SenderAccount.GetAddress().String(),
-		Contract: consumerContracts.BTCStaking.String(),
-		Msg:      newFPPacketBytes,
-		Funds:    sdk.NewCoins(),
-	}
-
-	// res, err := consumerCli.Chain.SendMsgs(msg)
-	// require.NoError(t, err, res)
-
-	wasmKeeper := consumerCli.Chain.App.GetWasmKeeper()
-	ms := wasmkeeper.NewMsgServerImpl(&wasmKeeper)
-	resp, err := ms.ExecuteContract(consumerCli.Chain.GetContext(), msg)
-	require.NoError(t, err, resp)
+	_, err = consumerCli.Exec(consumerContracts.BTCStaking, newFPPacketBytes)
+	require.NoError(t, err)
 
 	// inject some BTC delegations via admin commands
 
