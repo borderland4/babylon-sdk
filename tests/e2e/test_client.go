@@ -98,8 +98,8 @@ func (p *TestConsumerClient) GetSender() sdk.AccAddress {
 
 // TODO(babylon): deploy Babylon contracts
 func (p *TestConsumerClient) BootstrapContracts() (*ConsumerContract, error) {
-	babylonContractWasmId := p.Chain.StoreCodeFile(buildPathToWasm("babylon_contract.wasm")).CodeID
-	btcStakingContractWasmId := p.Chain.StoreCodeFile(buildPathToWasm("btc_staking.wasm")).CodeID
+	babylonContractWasmId := p.Chain.StoreCodeFile("../testdata/babylon_contract.wasm").CodeID
+	btcStakingContractWasmId := p.Chain.StoreCodeFile("../testdata/btc_staking.wasm").CodeID
 
 	// Instantiate the contract
 	// TODO: parameterise
