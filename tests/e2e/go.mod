@@ -31,7 +31,6 @@ require (
 )
 
 require (
-	cosmossdk.io/math v1.3.0
 	github.com/babylonchain/babylon v0.0.0-00010101000000-000000000000
 	github.com/babylonchain/babylon-sdk/demo v0.0.0-00010101000000-000000000000
 	github.com/cometbft/cometbft v0.38.6
@@ -49,6 +48,7 @@ require (
 	cosmossdk.io/depinject v1.0.0-alpha.4 // indirect
 	cosmossdk.io/errors v1.0.1 // indirect
 	cosmossdk.io/log v1.3.1 // indirect
+	cosmossdk.io/math v1.3.0 // indirect
 	cosmossdk.io/store v1.1.0 // indirect
 	cosmossdk.io/x/circuit v0.1.0 // indirect
 	cosmossdk.io/x/evidence v0.1.1 // indirect
@@ -222,7 +222,7 @@ require (
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
-	github.com/babylonchain/babylon => github.com/babylonchain/babylon-private v0.8.6-0.20240528110625-d4b7a7964663
+	github.com/babylonchain/babylon => github.com/babylonchain/babylon-private v0.8.6-0.20240529172716-44239d85c801
 
 	// local work dirs
 	github.com/babylonchain/babylon-sdk/demo => ../../demo
