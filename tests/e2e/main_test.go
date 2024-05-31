@@ -1,7 +1,6 @@
 package e2e
 
 import (
-	"fmt"
 	"math/rand"
 	"testing"
 	"time"
@@ -118,16 +117,22 @@ func (s *BabylonSDKTestSuite) Test1ContractDeployment() {
 }
 
 // TestExample is an example test case
-func (s *BabylonSDKTestSuite) Test2MockFPAndDelegation() {
+func (s *BabylonSDKTestSuite) Test2MockFinalityProvider() {
 	t := s.T()
 
-	packet := types.GenIBCPacket(t, r)
-	packetBytes, err := zctypes.ModuleCdc.MarshalJSON(packet)
+	// mock message
+	msg := types.GenIBCPacket(t, r)
+	msgBytes, err := zctypes.ModuleCdc.MarshalJSON(msg)
 	require.NoError(t, err)
-	fmt.Println(string(packetBytes))
 
-	_, err = s.ConsumerCli.Exec(s.ConsumerContract.BTCStaking, packetBytes)
+	// send msg to BTC staking contract via admin account
+	_, err = s.ConsumerCli.Exec(s.ConsumerContract.BTCStaking, msgBytes)
 	require.NoError(t, err)
+
+	// ensure the finality provider is on consumer chain
+	resp, err := s.ConsumerCli.Query(s.ConsumerContract.BTCStaking, Query{"finality_providers": {}})
+	s.NoError(err)
+	s.NotEmpty(resp)
 }
 
 // TearDownSuite runs once after all the suite's tests have been run
