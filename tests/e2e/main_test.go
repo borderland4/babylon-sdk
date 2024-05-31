@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"fmt"
 	"math/rand"
 	"testing"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm/ibctesting"
 	"github.com/babylonchain/babylon-sdk/demo/app"
 	appparams "github.com/babylonchain/babylon-sdk/demo/app/params"
+	"github.com/babylonchain/babylon-sdk/tests/e2e/types"
 	zctypes "github.com/babylonchain/babylon/x/zoneconcierge/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibctesting2 "github.com/cosmos/ibc-go/v8/testing"
@@ -119,9 +121,10 @@ func (s *BabylonSDKTestSuite) Test1ContractDeployment() {
 func (s *BabylonSDKTestSuite) Test2MockFPAndDelegation() {
 	t := s.T()
 
-	packet := GenIBCPacket(t, r)
+	packet := types.GenIBCPacket(t, r)
 	packetBytes, err := zctypes.ModuleCdc.MarshalJSON(packet)
 	require.NoError(t, err)
+	fmt.Println(string(packetBytes))
 
 	_, err = s.ConsumerCli.Exec(s.ConsumerContract.BTCStaking, packetBytes)
 	require.NoError(t, err)
