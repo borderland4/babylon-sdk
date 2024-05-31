@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/math"
 	"github.com/CosmWasm/wasmd/x/wasm/ibctesting"
 	"github.com/babylonchain/babylon-sdk/demo/app"
 	appparams "github.com/babylonchain/babylon-sdk/demo/app/params"
@@ -13,7 +12,6 @@ import (
 	zctypes "github.com/babylonchain/babylon/x/zoneconcierge/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibctesting2 "github.com/cosmos/ibc-go/v8/testing"
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -28,6 +26,7 @@ func TestMyTestSuite(t *testing.T) {
 type BabylonSDKTestSuite struct {
 	suite.Suite
 
+	// provider/consumer and their metadata
 	Coordinator      *ibctesting.Coordinator
 	ConsumerChain    *ibctesting.TestChain
 	ProviderChain    *ibctesting.TestChain
@@ -37,6 +36,7 @@ type BabylonSDKTestSuite struct {
 	ConsumerDenom    string
 	MyProvChainActor string
 
+	// clients side information
 	ProviderCli      *TestProviderClient
 	ConsumerCli      *TestConsumerClient
 	ConsumerContract *ConsumerContract
@@ -63,48 +63,27 @@ func (s *BabylonSDKTestSuite) SetupSuite() {
 	s.MyProvChainActor = provChain.SenderAccount.GetAddress().String()
 }
 
-func (x *BabylonSDKTestSuite) SetupBabylonIntegration() (*TestConsumerClient, *ConsumerContract, *TestProviderClient) {
+func (x *BabylonSDKTestSuite) setupBabylonIntegration() (*TestConsumerClient, *ConsumerContract, *TestProviderClient) {
 	x.Coordinator.SetupConnections(x.IbcPath)
 
-	// setup contracts on consumer
+	// consumer client
 	consumerCli := NewConsumerClient(x.T(), x.ConsumerChain)
+	// setup contracts on consumer
 	consumerContracts, err := consumerCli.BootstrapContracts()
-	require.NoError(x.T(), err)
-	// consumerPortID := wasmkeeper.PortIDForContract(consumerContracts.Babylon)
-
-	// add some fees so that we can distribute something
-	x.ConsumerChain.DefaultMsgFees = sdk.NewCoins(sdk.NewCoin(x.ConsumerDenom, math.NewInt(1_000_000)))
-
+	x.NoError(err)
+	// provider client
 	providerCli := NewProviderClient(x.T(), x.ProviderChain)
 
 	return consumerCli, consumerContracts, providerCli
-
-	// TODO: fix IBC channel below
-	// // setup ibc path
-	// x.IbcPath.EndpointB.ChannelConfig = &ibctesting2.ChannelConfig{
-	// 	PortID: "zoneconcierge", // TODO: replace this chain/port with Babylon
-	// 	Order:  types2.ORDERED,
-	// }
-	// x.IbcPath.EndpointA.ChannelConfig = &ibctesting2.ChannelConfig{
-	// 	PortID: consumerPortID,
-	// 	Order:  types2.ORDERED,
-	// }
-	// x.Coordinator.CreateChannels(x.IbcPath)
-
-	// // when ibc package is relayed
-	// require.NotEmpty(x.T(), x.ConsumerChain.PendingSendPackets)
-	// require.NoError(x.T(), x.Coordinator.RelayAndAckPendingPackets(x.IbcPath))
-
-	// return consumerCli, consumerContracts, providerCli
 }
 
 func (s *BabylonSDKTestSuite) Test1ContractDeployment() {
 	// deploy Babylon contracts to the consumer chain
-	consumerCli, consumerContracts, providerCli := s.SetupBabylonIntegration()
-	require.NotEmpty(s.T(), consumerCli.Chain.ChainID)
-	require.NotEmpty(s.T(), providerCli.Chain.ChainID)
-	require.NotEmpty(s.T(), consumerContracts.Babylon)
-	require.NotEmpty(s.T(), consumerContracts.BTCStaking)
+	consumerCli, consumerContracts, providerCli := s.setupBabylonIntegration()
+	s.NotEmpty(consumerCli.Chain.ChainID)
+	s.NotEmpty(providerCli.Chain.ChainID)
+	s.NotEmpty(consumerContracts.Babylon)
+	s.NotEmpty(consumerContracts.BTCStaking)
 
 	s.ProviderCli = providerCli
 	s.ConsumerCli = consumerCli
@@ -123,11 +102,11 @@ func (s *BabylonSDKTestSuite) Test2MockFinalityProvider() {
 	// mock message
 	msg := types.GenIBCPacket(t, r)
 	msgBytes, err := zctypes.ModuleCdc.MarshalJSON(msg)
-	require.NoError(t, err)
+	s.NoError(err)
 
 	// send msg to BTC staking contract via admin account
 	_, err = s.ConsumerCli.Exec(s.ConsumerContract.BTCStaking, msgBytes)
-	require.NoError(t, err)
+	s.NoError(err)
 
 	// ensure the finality provider is on consumer chain
 	resp, err := s.ConsumerCli.Query(s.ConsumerContract.BTCStaking, Query{"finality_providers": {}})
