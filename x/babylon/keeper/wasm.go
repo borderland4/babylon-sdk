@@ -8,11 +8,17 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// SendTestSudoMsg sends a test sudo message to the given contract via sudo
-// TODO: implement sudo messages
-func (k Keeper) SendTestSudoMsg(ctx sdk.Context, contractAddr sdk.AccAddress) error {
+// SendBeginBlockMsg sends a BeginBlock sudo message to the given contract via sudo
+func (k Keeper) SendBeginBlockMsg(ctx sdk.Context, contractAddr sdk.AccAddress) error {
+	headerInfo := ctx.HeaderInfo()
 	msg := contract.SudoMsg{
-		TestSudoMsg: &struct{}{},
+		BeginBlock: &contract.BeginBlockMsg{
+			Height:  headerInfo.Height,
+			Hash:    headerInfo.Hash,
+			Time:    headerInfo.Time,
+			ChainID: headerInfo.ChainID,
+			AppHash: headerInfo.AppHash,
+		},
 	}
 	return k.doSudoCall(ctx, contractAddr, msg)
 }

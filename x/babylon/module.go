@@ -137,7 +137,7 @@ func (AppModule) ConsensusVersion() uint64 {
 
 // BeginBlock executed before every block
 func (am AppModule) BeginBlock(ctx sdk.Context) error {
-	return nil
+	return BeginBlocker(ctx, am.k)
 }
 
 // EndBlock executed after every block. It returns no validator updates.
