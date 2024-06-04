@@ -38,7 +38,7 @@ Params defines the parameters for the x/babylon module.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `max_gas_end_blocker` | [uint32](#uint32) |  | MaxGasEndBlocker defines the maximum gas that can be spent in a contract sudo callback |
+| `max_gas_begin_blocker` | [uint32](#uint32) |  | max_gas_begin_blocker defines the maximum gas that can be spent in a contract sudo callback |
 
 
 

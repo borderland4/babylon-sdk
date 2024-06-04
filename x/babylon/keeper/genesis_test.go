@@ -19,7 +19,7 @@ func TestInitGenesis(t *testing.T) {
 		"custom param, should pass": {
 			state: types.GenesisState{
 				Params: types.Params{
-					MaxGasEndBlocker: 600_000,
+					MaxGasBeginBlocker: 600_000,
 				},
 			},
 			expErr: false,
@@ -27,7 +27,7 @@ func TestInitGenesis(t *testing.T) {
 		"custom small value param, should pass": {
 			state: types.GenesisState{
 				Params: types.Params{
-					MaxGasEndBlocker: 10_000,
+					MaxGasBeginBlocker: 10_000,
 				},
 			},
 			expErr: false,
@@ -42,7 +42,7 @@ func TestInitGenesis(t *testing.T) {
 			k.InitGenesis(pCtx, spec.state)
 
 			p := k.GetParams(pCtx)
-			assert.Equal(t, spec.state.Params.MaxGasEndBlocker, p.MaxGasEndBlocker)
+			assert.Equal(t, spec.state.Params.MaxGasBeginBlocker, p.MaxGasBeginBlocker)
 		})
 	}
 }
@@ -56,5 +56,5 @@ func TestExportGenesis(t *testing.T) {
 	require.NoError(t, err)
 
 	exported := k.ExportGenesis(pCtx)
-	assert.Equal(t, params.MaxGasEndBlocker, exported.Params.MaxGasEndBlocker)
+	assert.Equal(t, params.MaxGasBeginBlocker, exported.Params.MaxGasBeginBlocker)
 }

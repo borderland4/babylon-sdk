@@ -13,7 +13,7 @@ message Params {
   option (amino.name) = "babylon/Params";
   option (gogoproto.equal) = true;
 
-  // MaxGasEndBlocker defines the maximum gas that can be spent in a contract
-  // sudo callback
-  uint32 max_gas_end_blocker = 3;
+  // max_gas_begin_blocker defines the maximum gas that can be spent in a
+  // contract sudo callback
+  uint32 max_gas_begin_blocker = 3;
 }
