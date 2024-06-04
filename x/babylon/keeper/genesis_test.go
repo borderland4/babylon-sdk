@@ -1,4 +1,4 @@
-package keeper
+package keeper_test
 
 import (
 	"testing"
@@ -36,25 +36,25 @@ func TestInitGenesis(t *testing.T) {
 
 	for name, spec := range specs {
 		t.Run(name, func(t *testing.T) {
-			pCtx, keepers := NewTestKeepers(t)
+			keepers := NewTestKeepers(t)
 			k := keepers.BabylonKeeper
 
-			k.InitGenesis(pCtx, spec.state)
+			k.InitGenesis(keepers.Ctx, spec.state)
 
-			p := k.GetParams(pCtx)
+			p := k.GetParams(keepers.Ctx)
 			assert.Equal(t, spec.state.Params.MaxGasBeginBlocker, p.MaxGasBeginBlocker)
 		})
 	}
 }
 
 func TestExportGenesis(t *testing.T) {
-	pCtx, keepers := NewTestKeepers(t)
+	keepers := NewTestKeepers(t)
 	k := keepers.BabylonKeeper
 	params := types.DefaultParams(sdk.DefaultBondDenom)
 
-	err := k.SetParams(pCtx, params)
+	err := k.SetParams(keepers.Ctx, params)
 	require.NoError(t, err)
 
-	exported := k.ExportGenesis(pCtx)
+	exported := k.ExportGenesis(keepers.Ctx)
 	assert.Equal(t, params.MaxGasBeginBlocker, exported.Params.MaxGasBeginBlocker)
 }

@@ -1,15 +1,15 @@
-package babylon
+package keeper
 
 import (
 	"time"
 
-	"github.com/babylonchain/babylon-sdk/x/babylon/keeper"
 	"github.com/babylonchain/babylon-sdk/x/babylon/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func BeginBlocker(ctx sdk.Context, k *keeper.Keeper) error {
+func (k *Keeper) BeginBlocker(ctx sdk.Context) error {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
 
 	babylonContractAddr := sdk.MustAccAddressFromBech32(k.GetParams(ctx).BabylonContractAddress)
@@ -21,6 +21,7 @@ func BeginBlocker(ctx sdk.Context, k *keeper.Keeper) error {
 }
 
 // EndBlocker is called after every block
-func EndBlocker(ctx sdk.Context, k *keeper.Keeper) {
+func (k *Keeper) EndBlocker(ctx sdk.Context) ([]abci.ValidatorUpdate, error) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyEndBlocker)
+	return []abci.ValidatorUpdate{}, nil
 }

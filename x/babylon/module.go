@@ -137,13 +137,12 @@ func (AppModule) ConsensusVersion() uint64 {
 
 // BeginBlock executed before every block
 func (am AppModule) BeginBlock(ctx sdk.Context) error {
-	return BeginBlocker(ctx, am.k)
+	return am.k.BeginBlocker(ctx)
 }
 
 // EndBlock executed after every block. It returns no validator updates.
 func (am AppModule) EndBlock(ctx sdk.Context) ([]abci.ValidatorUpdate, error) {
-	EndBlocker(ctx, am.k)
-	return []abci.ValidatorUpdate{}, nil
+	return am.k.EndBlocker(ctx)
 }
 
 // IsOnePerModuleType implements the depinject.OnePerModuleType interface.
