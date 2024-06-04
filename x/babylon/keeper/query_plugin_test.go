@@ -13,7 +13,7 @@ import (
 
 func TestChainedCustomQuerier(t *testing.T) {
 	myContractAddr := sdk.AccAddress(rand.Bytes(32))
-	pCtx, keepers := CreateDefaultTestInput(t)
+	pCtx, keepers := NewTestKeepers(t)
 
 	specs := map[string]struct {
 		src           wasmvmtypes.QueryRequest

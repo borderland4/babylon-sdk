@@ -109,7 +109,7 @@ type TestKeepers struct {
 	Faucet         *wasmkeeper.TestFaucet
 }
 
-func CreateDefaultTestInput(t testing.TB, opts ...Option) (sdk.Context, TestKeepers) {
+func NewTestKeepers(t testing.TB, opts ...Option) (sdk.Context, TestKeepers) {
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db, log.NewTestLogger(t), storemetrics.NewNoOpMetrics())
 

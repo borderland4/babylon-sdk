@@ -93,6 +93,14 @@ func (s *BabylonSDKTestSuite) Test1ContractDeployment() {
 	adminResp, err := s.ConsumerCli.Query(s.ConsumerContract.BTCStaking, Query{"admin": {}})
 	s.NoError(err)
 	s.Equal(adminResp["admin"], s.ConsumerCli.GetSender().String())
+
+	// update the contract address in parameters (typically this has to be done via gov props)
+	ctx := s.ConsumerChain.GetContext()
+	params := s.ConsumerApp.BabylonKeeper.GetParams(ctx)
+	params.BabylonContractAddress = s.ConsumerContract.Babylon.String()
+	params.BtcStakingContractAddress = s.ConsumerContract.BTCStaking.String()
+	err = s.ConsumerApp.BabylonKeeper.SetParams(ctx, params)
+	s.NoError(err)
 }
 
 // TestExample is an example test case

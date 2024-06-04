@@ -1,16 +1,21 @@
 package types
 
 import (
-	"github.com/cometbft/cometbft/libs/rand"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/address"
 )
+
+var EmptyAddr = sdk.AccAddress([]byte{
+	0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0,
+}).String()
 
 // DefaultParams returns default babylon parameters
 func DefaultParams(denom string) Params {
 	return Params{
-		BabylonContractAddress:    sdk.AccAddress(rand.Bytes(address.Len)).String(),
-		BtcStakingContractAddress: sdk.AccAddress(rand.Bytes(address.Len)).String(),
+		BabylonContractAddress:    EmptyAddr,
+		BtcStakingContractAddress: EmptyAddr,
 		MaxGasBeginBlocker:        500_000,
 	}
 }
