@@ -18,7 +18,7 @@ import (
 var r = rand.New(rand.NewSource(time.Now().Unix()))
 
 // In the Test function, we create and run the suite
-func TestMyTestSuite(t *testing.T) {
+func TestBabylonConsumerSuite(t *testing.T) {
 	suite.Run(t, new(BabylonSDKTestSuite))
 }
 
@@ -120,6 +120,12 @@ func (s *BabylonSDKTestSuite) Test2MockFinalityProvider() {
 	resp, err := s.ConsumerCli.Query(s.ConsumerContract.BTCStaking, Query{"finality_providers": {}})
 	s.NoError(err)
 	s.NotEmpty(resp)
+}
+
+// TODO: trigger BeginBlock via s.ConsumerChain rather than ConsumerApp
+func (s *BabylonSDKTestSuite) Test3BeginBlock() {
+	err := s.ConsumerApp.BabylonKeeper.BeginBlocker(s.ConsumerChain.GetContext())
+	s.NoError(err)
 }
 
 // TearDownSuite runs once after all the suite's tests have been run
