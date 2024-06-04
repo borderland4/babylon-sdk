@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"encoding/hex"
 	"encoding/json"
 
 	errorsmod "cosmossdk.io/errors"
@@ -12,12 +13,12 @@ import (
 func (k Keeper) SendBeginBlockMsg(ctx sdk.Context, contractAddr sdk.AccAddress) error {
 	headerInfo := ctx.HeaderInfo()
 	msg := contract.SudoMsg{
-		BeginBlock: &contract.BeginBlockMsg{
-			Height:  headerInfo.Height,
-			Hash:    headerInfo.Hash,
-			Time:    headerInfo.Time,
-			ChainID: headerInfo.ChainID,
-			AppHash: headerInfo.AppHash,
+		BeginBlockMsg: &contract.BeginBlock{
+			Height:     headerInfo.Height,
+			HashHex:    hex.EncodeToString(headerInfo.Hash),
+			Time:       headerInfo.Time,
+			ChainID:    headerInfo.ChainID,
+			AppHashHex: hex.EncodeToString(headerInfo.AppHash),
 		},
 	}
 	return k.doSudoCall(ctx, contractAddr, msg)
