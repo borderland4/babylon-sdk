@@ -12,11 +12,12 @@ import (
 func (k *Keeper) BeginBlocker(ctx sdk.Context) error {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
 
-	babylonContractAddr := sdk.MustAccAddressFromBech32(k.GetParams(ctx).BabylonContractAddress)
-	if babylonContractAddr.String() == types.EmptyAddr {
+	addrStr := k.GetParams(ctx).BabylonContractAddress
+	if len(addrStr) == 0 {
 		// the Babylon contract address is not set yet, skip sending BeginBlockMsg
 		return nil
 	}
+	babylonContractAddr := sdk.MustAccAddressFromBech32(addrStr)
 	return k.SendBeginBlockMsg(ctx, babylonContractAddr)
 }
 
