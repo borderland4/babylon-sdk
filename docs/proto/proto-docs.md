@@ -17,6 +17,9 @@
     - [Query](#babylonchain.babylon.v1beta1.Query)
   
 - [babylonchain/babylon/v1beta1/tx.proto](#babylonchain/babylon/v1beta1/tx.proto)
+    - [MsgUpdateParams](#babylonchain.babylon.v1beta1.MsgUpdateParams)
+    - [MsgUpdateParamsResponse](#babylonchain.babylon.v1beta1.MsgUpdateParamsResponse)
+  
     - [Msg](#babylonchain.babylon.v1beta1.Msg)
   
 - [Scalar Value Types](#scalar-value-types)
@@ -38,6 +41,8 @@ Params defines the parameters for the x/babylon module.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
+| `babylon_contract_address` | [string](#string) |  | babylon_contract_address is the address of the Babylon contract |
+| `btc_staking_contract_address` | [string](#string) |  | btc_staking_contract_address is the address of the BTC staking contract |
 | `max_gas_begin_blocker` | [uint32](#uint32) |  | max_gas_begin_blocker defines the maximum gas that can be spent in a contract sudo callback |
 
 
@@ -144,6 +149,35 @@ Query provides defines the gRPC querier service
 ## babylonchain/babylon/v1beta1/tx.proto
 
 
+
+<a name="babylonchain.babylon.v1beta1.MsgUpdateParams"></a>
+
+### MsgUpdateParams
+MsgUpdateParams is the Msg/UpdateParams request type.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `authority` | [string](#string) |  | authority is the address that controls the module (defaults to x/gov unless overwritten). |
+| `params` | [Params](#babylonchain.babylon.v1beta1.Params) |  | params defines the x/auth parameters to update.
+
+NOTE: All parameters must be supplied. |
+
+
+
+
+
+
+<a name="babylonchain.babylon.v1beta1.MsgUpdateParamsResponse"></a>
+
+### MsgUpdateParamsResponse
+MsgUpdateParamsResponse defines the response structure for executing a
+MsgUpdateParams message.
+
+
+
+
+
  <!-- end messages -->
 
  <!-- end enums -->
@@ -158,6 +192,7 @@ Msg defines the wasm Msg service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
+| `UpdateParams` | [MsgUpdateParams](#babylonchain.babylon.v1beta1.MsgUpdateParams) | [MsgUpdateParamsResponse](#babylonchain.babylon.v1beta1.MsgUpdateParamsResponse) | UpdateParams defines a (governance) operation for updating the x/auth module parameters. The authority defaults to the x/gov module account. | |
 
  <!-- end services -->
 
