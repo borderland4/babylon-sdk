@@ -12,7 +12,8 @@ import (
 func BeginBlocker(ctx sdk.Context, k *keeper.Keeper) error {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
 
-	return nil
+	babylonContractAddr := sdk.MustAccAddressFromBech32(k.GetParams(ctx).BabylonContractAddress)
+	return k.SendBeginBlockMsg(ctx, babylonContractAddr)
 }
 
 // EndBlocker is called after every block
