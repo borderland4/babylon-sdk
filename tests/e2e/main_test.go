@@ -18,7 +18,7 @@ import (
 var r = rand.New(rand.NewSource(time.Now().Unix()))
 
 // In the Test function, we create and run the suite
-func TestBabylonConsumerSuite(t *testing.T) {
+func TestBabylonSDKTestSuite(t *testing.T) {
 	suite.Run(t, new(BabylonSDKTestSuite))
 }
 
