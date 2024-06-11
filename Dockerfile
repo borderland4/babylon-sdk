@@ -1,26 +1,25 @@
-FROM golang:1.20-alpine3.17 AS go-builder
+FROM golang:1.21.4-alpine AS go-builder
 
 RUN apk add --no-cache ca-certificates build-base git
 
 WORKDIR /code
 
-# Download dependencies and CosmWasm libwasmvm if found.
-ADD demo/go.mod demo/go.sum ./
+# Copy over code
+COPY . /code
 
 #ADD https://github.com/CosmWasm/wasmvm/releases/download/v$wasmvm/libwasmvm_muslc.$arch.a /lib/libwasmvm_muslc.$arch.a
 ## Download
-RUN set -eux; \
-    WASM_VERSION=v$(go list -m github.com/CosmWasm/wasmvm | cut -d" " -f2 | cut -d"v" -f2); \
-    echo $WASM_VERSION; \
-    wget -O /lib/libwasmvm_muslc.a https://github.com/CosmWasm/wasmvm/releases/download/${WASM_VERSION}/libwasmvm_muslc.$(uname -m).a
-
-# Copy over code
-COPY . /code
+RUN WASMVM_VERSION=$(grep github.com/CosmWasm/wasmvm demo/go.mod | cut -d' ' -f2) && \
+    wget https://github.com/CosmWasm/wasmvm/releases/download/$WASMVM_VERSION/libwasmvm_muslc.$(uname -m).a \
+        -O /lib/libwasmvm_muslc.$(uname -m).a && \
+    # verify checksum
+    wget https://github.com/CosmWasm/wasmvm/releases/download/$WASMVM_VERSION/checksums.txt -O /tmp/checksums.txt && \
+    sha256sum /lib/libwasmvm_muslc.$(uname -m).a | grep $(cat /tmp/checksums.txt | grep libwasmvm_muslc.$(uname -m) | cut -d ' ' -f 1)
 
 # force it to use static lib (from above) not standard libgo_cosmwasm.so file
 # then log output of file /code/bin/bcd
 # then ensure static linking
-RUN cd demo/ && LEDGER_ENABLED=false BUILD_TAGS=muslc LINK_STATICALLY=true make build \
+RUN LEDGER_ENABLED=false BUILD_TAGS=muslc LINK_STATICALLY=true make build \
   && file /code/demo/build/bcd \
   && echo "Ensuring binary is statically linked ..." \
   && (file /code/demo/build/bcd | grep "statically linked")
