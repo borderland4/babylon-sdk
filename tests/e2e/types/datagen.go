@@ -26,7 +26,7 @@ func NewBTCStakingPacketData(packet *bstypes.BTCStakingIBCPacket) *zctypes.Zonec
 	}
 }
 
-func GenIBCPacket(t *testing.T, r *rand.Rand) ExecuteMessage {
+func GenIBCPacketFp(t *testing.T, r *rand.Rand, btcPkHex string) ExecuteMessage {
 	// generate a finality provider
 	//fpBTCSK, _, err := datagen.GenRandomBTCKeyPair(r)
 	//require.NoError(t, err)
@@ -71,7 +71,7 @@ func GenIBCPacket(t *testing.T, r *rand.Rand) ExecuteMessage {
 		BabylonPK: &PubKey{
 			Key: base64.StdEncoding.EncodeToString([]byte("mock_pub_rand")),
 		}, // None equivalent in Go is nil
-		BTCPKHex: "f1",
+		BTCPKHex: btcPkHex,
 		Pop: &ProofOfPossession{
 			BTCSigType: 0,
 			BabylonSig: base64.StdEncoding.EncodeToString([]byte("mock_pub_rand")),
@@ -84,14 +84,14 @@ func GenIBCPacket(t *testing.T, r *rand.Rand) ExecuteMessage {
 	//ad, err := CreateActiveBTCDelegation(mockDel)
 	//require.NoError(t, err)
 
-	_, mockDel := GenBTCDelegation()
-	ad := ConvertBTCDelegationToActiveBtcDelegation(mockDel)
+	//_, mockDel := GenBTCDelegation()
+	//ad := ConvertBTCDelegationToActiveBtcDelegation(mockDel)
 
 	// Create the ExecuteMessage instance
 	executeMessage := ExecuteMessage{
 		BtcStaking: BtcStaking{
 			NewFP:       []NewFinalityProvider{newFp},
-			ActiveDel:   []ActiveBtcDelegation{ad},
+			ActiveDel:   []ActiveBtcDelegation{},
 			SlashedDel:  []SlashedBtcDelegation{},
 			UnbondedDel: []UnbondedBtcDelegation{},
 		},
@@ -111,6 +111,23 @@ func GenIBCPacket(t *testing.T, r *rand.Rand) ExecuteMessage {
 	//	UnbondedDel: []*bstypes.UnbondedBTCDelegation{},
 	//}
 	//return NewBTCStakingPacketData(packet)
+}
+
+func GenIBCPacketAd(t *testing.T, r *rand.Rand, ad ActiveBtcDelegation) ExecuteMessage {
+	//_, mockDel := GenBTCDelegation()
+	//ad := ConvertBTCDelegationToActiveBtcDelegation(mockDel)
+
+	// Create the ExecuteMessage instance
+	executeMessage := ExecuteMessage{
+		BtcStaking: BtcStaking{
+			NewFP:       []NewFinalityProvider{},
+			ActiveDel:   []ActiveBtcDelegation{ad},
+			SlashedDel:  []SlashedBtcDelegation{},
+			UnbondedDel: []UnbondedBtcDelegation{},
+		},
+	}
+
+	return executeMessage
 }
 
 var net = &chaincfg.RegressionNetParams

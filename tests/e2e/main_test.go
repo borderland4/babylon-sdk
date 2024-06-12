@@ -2,7 +2,6 @@ package e2e
 
 import (
 	"encoding/json"
-	"fmt"
 	"math/rand"
 	"testing"
 	"time"
@@ -100,15 +99,18 @@ func (s *BabylonSDKTestSuite) Test1ContractDeployment() {
 func (s *BabylonSDKTestSuite) Test2MockFinalityProvider() {
 	t := s.T()
 
+	_, mockDel := types.GenBTCDelegation()
+	ad := types.ConvertBTCDelegationToActiveBtcDelegation(mockDel)
 	// mock message
-	msg := types.GenIBCPacket(t, r)
+	msg := types.GenIBCPacketFp(t, r, ad.FpBtcPkList[0])
+
 	// marshal message using encoding/json
 	b, err := json.Marshal(msg)
 	s.NoError(err)
 
-	jsonPretty, err := json.MarshalIndent(msg, "", "    ")
-	s.NoError(err)
-	fmt.Println(string(jsonPretty))
+	//jsonPretty, err := json.MarshalIndent(msg, "", "    ")
+	//s.NoError(err)
+	//fmt.Println(string(jsonPretty))
 	//msgBytes, err := zctypes.ModuleCdc.MarshalJSON(msg)
 	//s.NoError(err)
 
@@ -118,6 +120,17 @@ func (s *BabylonSDKTestSuite) Test2MockFinalityProvider() {
 
 	// ensure the finality provider is on consumer chain
 	resp, err := s.ConsumerCli.Query(s.ConsumerContract.BTCStaking, Query{"finality_providers": {}})
+	s.NoError(err)
+	s.NotEmpty(resp)
+
+	msgAd := types.GenIBCPacketAd(t, r, ad)
+	// marshal message using encoding/json
+	b, err = json.Marshal(msgAd)
+	s.NoError(err)
+	_, err = s.ConsumerCli.Exec(s.ConsumerContract.BTCStaking, b)
+	s.NoError(err)
+
+	resp, err = s.ConsumerCli.Query(s.ConsumerContract.BTCStaking, Query{"delegations": {}})
 	s.NoError(err)
 	s.NotEmpty(resp)
 }
