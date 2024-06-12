@@ -96,7 +96,7 @@ func (s *BabylonSDKTestSuite) Test1ContractDeployment() {
 }
 
 // TestExample is an example test case
-func (s *BabylonSDKTestSuite) Test2MockFinalityProvider() {
+func (s *BabylonSDKTestSuite) Test2MockConsumerFpDelegation() {
 	msg := types.GenExecMessage()
 	msgBytes, err := json.Marshal(msg)
 	s.NoError(err)

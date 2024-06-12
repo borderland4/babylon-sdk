@@ -113,103 +113,6 @@ func GenBTCDelegation() (*types.Params, *bstypes.BTCDelegation) {
 	return bsParams, btcDel
 }
 
-type NewFinalityProvider struct {
-	// Description defines the description terms for the finality provider
-	Description *FinalityProviderDescription `json:"description,omitempty"`
-	// Commission defines the commission rate of the finality provider
-	Commission string `json:"commission"`
-	// BabylonPK is the Babylon secp256k1 PK of this finality provider
-	BabylonPK *PubKey `json:"babylon_pk,omitempty"`
-	// BTCPKHex is the Bitcoin secp256k1 PK of this finality provider
-	// the PK follows encoding in BIP-340 spec in hex format
-	BTCPKHex string `json:"btc_pk_hex"`
-	// PoP is the proof of possession of the babylon_pk and btc_pk
-	Pop *ProofOfPossession `json:"pop,omitempty"`
-	// ConsumerID is the ID of the consumer that the finality provider is operating on.
-	ConsumerID string `json:"consumer_id"`
-}
-
-type FinalityProviderDescription struct {
-	// Moniker is the name of the finality provider
-	Moniker string `json:"moniker"`
-	// Identity is the identity of the finality provider
-	Identity string `json:"identity"`
-	// Website is the website of the finality provider
-	Website string `json:"website"`
-	// SecurityContact is the security contact of the finality provider
-	SecurityContact string `json:"security_contact"`
-	// Details is the details of the finality provider
-	Details string `json:"details"`
-}
-
-type PubKey struct {
-	// Key is the compressed public key of the finality provider
-	Key string `json:"key"`
-}
-
-type ProofOfPossession struct {
-	BTCSigType int32  `json:"btc_sig_type"`
-	BabylonSig string `json:"babylon_sig"`
-	BTCSig     string `json:"btc_sig"`
-}
-
-type CovenantAdaptorSignatures struct {
-	CovPK       string   `json:"cov_pk"`       // Public key of the covenant emulator
-	AdaptorSigs []string `json:"adaptor_sigs"` // List of adaptor signatures
-}
-
-// SignatureInfo represents a signature and its public key
-type SignatureInfo struct {
-	PK  string `json:"pk"`  // Public key
-	Sig string `json:"sig"` // Signature
-}
-
-// BtcUndelegationInfo represents the undelegation information
-type BtcUndelegationInfo struct {
-	UnbondingTx           string                      `json:"unbonding_tx"`                // Unbonding transaction
-	DelegatorUnbondingSig string                      `json:"delegator_unbonding_sig"`     // Signature on the unbonding transaction by the delegator
-	CovenantUnbondingSigs []SignatureInfo             `json:"covenant_unbonding_sig_list"` // List of signatures on the unbonding transaction by covenant members
-	SlashingTx            string                      `json:"slashing_tx"`                 // Unbonding slashing transaction
-	DelegatorSlashingSig  string                      `json:"delegator_slashing_sig"`      // Signature on the slashing transaction by the delegator
-	CovenantSlashingSigs  []CovenantAdaptorSignatures `json:"covenant_slashing_sigs"`      // List of adaptor signatures on the unbonding slashing transaction by each covenant member
-}
-
-type ActiveBtcDelegation struct {
-	BTCPkHex             string                      `json:"btc_pk_hex"`             // Bitcoin secp256k1 PK of the BTC delegator in hex format
-	FpBtcPkList          []string                    `json:"fp_btc_pk_list"`         // List of BIP-340 PKs of the finality providers
-	StartHeight          uint64                      `json:"start_height"`           // Start BTC height of the BTC delegation
-	EndHeight            uint64                      `json:"end_height"`             // End BTC height of the BTC delegation
-	TotalSat             uint64                      `json:"total_sat"`              // Total BTC stakes in this delegation in satoshi
-	StakingTx            string                      `json:"staking_tx"`             // Staking transaction
-	SlashingTx           string                      `json:"slashing_tx"`            // Slashing transaction
-	DelegatorSlashingSig string                      `json:"delegator_slashing_sig"` // Signature on the slashing transaction by the delegator
-	CovenantSigs         []CovenantAdaptorSignatures `json:"covenant_sigs"`          // List of adaptor signatures by covenant members
-	StakingOutputIdx     uint32                      `json:"staking_output_idx"`     // Index of the staking output in the staking transaction
-	UnbondingTime        uint32                      `json:"unbonding_time"`         // Used in unbonding output time-lock path and slashing transactions change outputs
-	UndelegationInfo     *BtcUndelegationInfo        `json:"undelegation_info"`      // Undelegation info of this delegation
-	ParamsVersion        uint32                      `json:"params_version"`         // Params version used to validate the delegation
-}
-
-type SlashedBtcDelegation struct {
-	// Define fields as needed
-}
-
-type UnbondedBtcDelegation struct {
-	// Define fields as needed
-}
-
-// Define the ExecuteMessage struct
-type ExecuteMessage struct {
-	BtcStaking BtcStaking `json:"btc_staking"`
-}
-
-type BtcStaking struct {
-	NewFP       []NewFinalityProvider   `json:"new_fp"`
-	ActiveDel   []ActiveBtcDelegation   `json:"active_del"`
-	SlashedDel  []SlashedBtcDelegation  `json:"slashed_del"`
-	UnbondedDel []UnbondedBtcDelegation `json:"unbonded_del"`
-}
-
 func ConvertBTCDelegationToActiveBtcDelegation(mockDel *bstypes.BTCDelegation) ActiveBtcDelegation {
 	// Convert the FpBtcPkList from BIP340PubKey to string (assuming a ToHex method exists)
 	var fpBtcPkList []string
@@ -263,7 +166,7 @@ func ConvertBTCDelegationToActiveBtcDelegation(mockDel *bstypes.BTCDelegation) A
 		CovenantSigs:         covenantSigs,
 		StakingOutputIdx:     mockDel.StakingOutputIdx,
 		UnbondingTime:        mockDel.UnbondingTime,
-		UndelegationInfo: &BtcUndelegationInfo{
+		UndelegationInfo: BtcUndelegationInfo{
 			UnbondingTx:           base64.StdEncoding.EncodeToString(mockDel.BtcUndelegation.UnbondingTx),
 			SlashingTx:            base64.StdEncoding.EncodeToString(mockDel.BtcUndelegation.SlashingTx.MustMarshal()),
 			DelegatorSlashingSig:  base64.StdEncoding.EncodeToString(mockDel.BtcUndelegation.DelegatorSlashingSig.MustMarshal()),
@@ -272,4 +175,85 @@ func ConvertBTCDelegationToActiveBtcDelegation(mockDel *bstypes.BTCDelegation) A
 		},
 		ParamsVersion: mockDel.ParamsVersion,
 	}
+}
+
+type NewFinalityProvider struct {
+	Description *FinalityProviderDescription `json:"description,omitempty"`
+	Commission  string                       `json:"commission"`
+	BabylonPK   *PubKey                      `json:"babylon_pk,omitempty"`
+	BTCPKHex    string                       `json:"btc_pk_hex"`
+	Pop         *ProofOfPossession           `json:"pop,omitempty"`
+	ConsumerID  string                       `json:"consumer_id"`
+}
+
+type FinalityProviderDescription struct {
+	Moniker         string `json:"moniker"`
+	Identity        string `json:"identity"`
+	Website         string `json:"website"`
+	SecurityContact string `json:"security_contact"`
+	Details         string `json:"details"`
+}
+
+type PubKey struct {
+	Key string `json:"key"`
+}
+
+type ProofOfPossession struct {
+	BTCSigType int32  `json:"btc_sig_type"`
+	BabylonSig string `json:"babylon_sig"`
+	BTCSig     string `json:"btc_sig"`
+}
+
+type CovenantAdaptorSignatures struct {
+	CovPK       string   `json:"cov_pk"`
+	AdaptorSigs []string `json:"adaptor_sigs"`
+}
+
+type SignatureInfo struct {
+	PK  string `json:"pk"`
+	Sig string `json:"sig"`
+}
+
+type BtcUndelegationInfo struct {
+	UnbondingTx           string                      `json:"unbonding_tx"`
+	DelegatorUnbondingSig string                      `json:"delegator_unbonding_sig"`
+	CovenantUnbondingSigs []SignatureInfo             `json:"covenant_unbonding_sig_list"`
+	SlashingTx            string                      `json:"slashing_tx"`
+	DelegatorSlashingSig  string                      `json:"delegator_slashing_sig"`
+	CovenantSlashingSigs  []CovenantAdaptorSignatures `json:"covenant_slashing_sigs"`
+}
+
+type ActiveBtcDelegation struct {
+	BTCPkHex             string                      `json:"btc_pk_hex"`
+	FpBtcPkList          []string                    `json:"fp_btc_pk_list"`
+	StartHeight          uint64                      `json:"start_height"`
+	EndHeight            uint64                      `json:"end_height"`
+	TotalSat             uint64                      `json:"total_sat"`
+	StakingTx            string                      `json:"staking_tx"`
+	SlashingTx           string                      `json:"slashing_tx"`
+	DelegatorSlashingSig string                      `json:"delegator_slashing_sig"`
+	CovenantSigs         []CovenantAdaptorSignatures `json:"covenant_sigs"`
+	StakingOutputIdx     uint32                      `json:"staking_output_idx"`
+	UnbondingTime        uint32                      `json:"unbonding_time"`
+	UndelegationInfo     BtcUndelegationInfo         `json:"undelegation_info"`
+	ParamsVersion        uint32                      `json:"params_version"`
+}
+
+type SlashedBtcDelegation struct {
+	// Define fields as needed
+}
+
+type UnbondedBtcDelegation struct {
+	// Define fields as needed
+}
+
+type ExecuteMessage struct {
+	BtcStaking BtcStaking `json:"btc_staking"`
+}
+
+type BtcStaking struct {
+	NewFP       []NewFinalityProvider   `json:"new_fp"`
+	ActiveDel   []ActiveBtcDelegation   `json:"active_del"`
+	SlashedDel  []SlashedBtcDelegation  `json:"slashed_del"`
+	UnbondedDel []UnbondedBtcDelegation `json:"unbonded_del"`
 }
