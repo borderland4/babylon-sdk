@@ -80,31 +80,25 @@ func GenIBCPacket(t *testing.T, r *rand.Rand) ExecuteMessage {
 		ConsumerID: "osmosis-1",
 	}
 
-	activeDel := []ActiveBtcDelegation{
-		// Add ActiveBtcDelegation instances as needed
-	}
+	//_, mockDel := GenBTCDelegation()
+	//ad, err := CreateActiveBTCDelegation(mockDel)
+	//require.NoError(t, err)
 
-	slashedDel := []SlashedBtcDelegation{
-		// Add SlashedBtcDelegation instances as needed
-	}
-
-	unbondedDel := []UnbondedBtcDelegation{
-		// Add UnbondedBtcDelegation instances as needed
-	}
+	_, mockDel := GenBTCDelegation()
+	ad := ConvertBTCDelegationToActiveBtcDelegation(mockDel)
 
 	// Create the ExecuteMessage instance
 	executeMessage := ExecuteMessage{
 		BtcStaking: BtcStaking{
 			NewFP:       []NewFinalityProvider{newFp},
-			ActiveDel:   activeDel,
-			SlashedDel:  slashedDel,
-			UnbondedDel: unbondedDel,
+			ActiveDel:   []ActiveBtcDelegation{ad},
+			SlashedDel:  []SlashedBtcDelegation{},
+			UnbondedDel: []UnbondedBtcDelegation{},
 		},
 	}
 
 	return executeMessage
 
-	//_, mockDel := GenBTCDelegation()
 	//activDel, err := CreateActiveBTCDelegation(mockDel)
 	//require.NoError(t, err)
 
@@ -290,8 +284,45 @@ type ProofOfPossession struct {
 }
 
 // Define the other necessary structs
+//type ActiveBtcDelegation struct {
+//	// Define fields as needed
+//}
+
+type CovenantAdaptorSignatures struct {
+	CovPK       string   `json:"cov_pk"`       // Public key of the covenant emulator
+	AdaptorSigs []string `json:"adaptor_sigs"` // List of adaptor signatures
+}
+
+// SignatureInfo represents a signature and its public key
+type SignatureInfo struct {
+	PK  string `json:"pk"`  // Public key
+	Sig string `json:"sig"` // Signature
+}
+
+// BtcUndelegationInfo represents the undelegation information
+type BtcUndelegationInfo struct {
+	UnbondingTx           string                      `json:"unbonding_tx"`                // Unbonding transaction
+	DelegatorUnbondingSig string                      `json:"delegator_unbonding_sig"`     // Signature on the unbonding transaction by the delegator
+	CovenantUnbondingSigs []SignatureInfo             `json:"covenant_unbonding_sig_list"` // List of signatures on the unbonding transaction by covenant members
+	SlashingTx            string                      `json:"slashing_tx"`                 // Unbonding slashing transaction
+	DelegatorSlashingSig  string                      `json:"delegator_slashing_sig"`      // Signature on the slashing transaction by the delegator
+	CovenantSlashingSigs  []CovenantAdaptorSignatures `json:"covenant_slashing_sigs"`      // List of adaptor signatures on the unbonding slashing transaction by each covenant member
+}
+
 type ActiveBtcDelegation struct {
-	// Define fields as needed
+	BTCPkHex             string                      `json:"btc_pk_hex"`             // Bitcoin secp256k1 PK of the BTC delegator in hex format
+	FpBtcPkList          []string                    `json:"fp_btc_pk_list"`         // List of BIP-340 PKs of the finality providers
+	StartHeight          uint64                      `json:"start_height"`           // Start BTC height of the BTC delegation
+	EndHeight            uint64                      `json:"end_height"`             // End BTC height of the BTC delegation
+	TotalSat             uint64                      `json:"total_sat"`              // Total BTC stakes in this delegation in satoshi
+	StakingTx            string                      `json:"staking_tx"`             // Staking transaction
+	SlashingTx           string                      `json:"slashing_tx"`            // Slashing transaction
+	DelegatorSlashingSig string                      `json:"delegator_slashing_sig"` // Signature on the slashing transaction by the delegator
+	CovenantSigs         []CovenantAdaptorSignatures `json:"covenant_sigs"`          // List of adaptor signatures by covenant members
+	StakingOutputIdx     uint32                      `json:"staking_output_idx"`     // Index of the staking output in the staking transaction
+	UnbondingTime        uint32                      `json:"unbonding_time"`         // Used in unbonding output time-lock path and slashing transactions change outputs
+	UndelegationInfo     *BtcUndelegationInfo        `json:"undelegation_info"`      // Undelegation info of this delegation
+	ParamsVersion        uint32                      `json:"params_version"`         // Params version used to validate the delegation
 }
 
 type SlashedBtcDelegation struct {
@@ -312,4 +343,68 @@ type BtcStaking struct {
 	ActiveDel   []ActiveBtcDelegation   `json:"active_del"`
 	SlashedDel  []SlashedBtcDelegation  `json:"slashed_del"`
 	UnbondedDel []UnbondedBtcDelegation `json:"unbonded_del"`
+}
+
+func ConvertBTCDelegationToActiveBtcDelegation(mockDel *bstypes.BTCDelegation) ActiveBtcDelegation {
+	// Convert the FpBtcPkList from BIP340PubKey to string (assuming a ToHex method exists)
+	var fpBtcPkList []string
+	for _, pk := range mockDel.FpBtcPkList {
+		fpBtcPkList = append(fpBtcPkList, pk.MarshalHex()) // Implement ToHex method for BIP340PubKey
+	}
+
+	// Convert CovenantAdaptorSignatures
+	var covenantSigs []CovenantAdaptorSignatures
+	for _, cs := range mockDel.CovenantSigs {
+		var adaptorSigs []string
+		for _, sig := range cs.AdaptorSigs {
+			adaptorSigs = append(adaptorSigs, base64.StdEncoding.EncodeToString(sig))
+		}
+		covenantSigs = append(covenantSigs, CovenantAdaptorSignatures{
+			CovPK:       cs.CovPk.MarshalHex(),
+			AdaptorSigs: adaptorSigs,
+		})
+	}
+
+	var covenantUnbondingSigs []SignatureInfo
+	for _, sigInfo := range mockDel.BtcUndelegation.CovenantUnbondingSigList {
+		covenantUnbondingSigs = append(covenantUnbondingSigs, SignatureInfo{
+			PK:  sigInfo.Pk.MarshalHex(),
+			Sig: base64.StdEncoding.EncodeToString(sigInfo.Sig.MustMarshal()),
+		})
+	}
+
+	var covenantSlashingSigs []CovenantAdaptorSignatures
+	for _, cs := range mockDel.BtcUndelegation.CovenantSlashingSigs {
+		var adaptorSigs []string
+		for _, sig := range cs.AdaptorSigs {
+			adaptorSigs = append(adaptorSigs, base64.StdEncoding.EncodeToString(sig))
+		}
+		covenantSlashingSigs = append(covenantSlashingSigs, CovenantAdaptorSignatures{
+			CovPK:       cs.CovPk.MarshalHex(),
+			AdaptorSigs: adaptorSigs,
+		})
+	}
+
+	// Create and return the ActiveBtcDelegation struct
+	return ActiveBtcDelegation{
+		BTCPkHex:             mockDel.BtcPk.MarshalHex(), // Implement ToHex method for BIP340PubKey
+		FpBtcPkList:          fpBtcPkList,
+		StartHeight:          mockDel.StartHeight,
+		EndHeight:            mockDel.EndHeight,
+		TotalSat:             mockDel.TotalSat,
+		StakingTx:            base64.StdEncoding.EncodeToString(mockDel.StakingTx),
+		SlashingTx:           base64.StdEncoding.EncodeToString(mockDel.SlashingTx.MustMarshal()),   // Assuming SlashingTx has a TxData field
+		DelegatorSlashingSig: base64.StdEncoding.EncodeToString(mockDel.DelegatorSig.MustMarshal()), // Assuming DelegatorSig has a Sig field
+		CovenantSigs:         covenantSigs,
+		StakingOutputIdx:     mockDel.StakingOutputIdx,
+		UnbondingTime:        mockDel.UnbondingTime,
+		UndelegationInfo: &BtcUndelegationInfo{
+			UnbondingTx:           base64.StdEncoding.EncodeToString(mockDel.BtcUndelegation.UnbondingTx),
+			SlashingTx:            base64.StdEncoding.EncodeToString(mockDel.BtcUndelegation.SlashingTx.MustMarshal()),
+			DelegatorSlashingSig:  base64.StdEncoding.EncodeToString(mockDel.BtcUndelegation.DelegatorSlashingSig.MustMarshal()),
+			CovenantUnbondingSigs: covenantUnbondingSigs,
+			CovenantSlashingSigs:  covenantSlashingSigs,
+		},
+		ParamsVersion: mockDel.ParamsVersion,
+	}
 }
