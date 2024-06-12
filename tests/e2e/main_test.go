@@ -1,6 +1,8 @@
 package e2e
 
 import (
+	"encoding/json"
+	"fmt"
 	"math/rand"
 	"testing"
 	"time"
@@ -9,7 +11,6 @@ import (
 	"github.com/babylonchain/babylon-sdk/demo/app"
 	appparams "github.com/babylonchain/babylon-sdk/demo/app/params"
 	"github.com/babylonchain/babylon-sdk/tests/e2e/types"
-	zctypes "github.com/babylonchain/babylon/x/zoneconcierge/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibctesting2 "github.com/cosmos/ibc-go/v8/testing"
 	"github.com/stretchr/testify/suite"
@@ -101,11 +102,18 @@ func (s *BabylonSDKTestSuite) Test2MockFinalityProvider() {
 
 	// mock message
 	msg := types.GenIBCPacket(t, r)
-	msgBytes, err := zctypes.ModuleCdc.MarshalJSON(msg)
+	// marshal message using encoding/json
+	b, err := json.Marshal(msg)
 	s.NoError(err)
 
+	jsonPretty, err := json.MarshalIndent(msg, "", "    ")
+	s.NoError(err)
+	fmt.Println(string(jsonPretty))
+	//msgBytes, err := zctypes.ModuleCdc.MarshalJSON(msg)
+	//s.NoError(err)
+
 	// send msg to BTC staking contract via admin account
-	_, err = s.ConsumerCli.Exec(s.ConsumerContract.BTCStaking, msgBytes)
+	_, err = s.ConsumerCli.Exec(s.ConsumerContract.BTCStaking, b)
 	s.NoError(err)
 
 	// ensure the finality provider is on consumer chain
