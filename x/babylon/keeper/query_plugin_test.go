@@ -1,9 +1,10 @@
-package keeper
+package keeper_test
 
 import (
 	"testing"
 
 	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
+	"github.com/babylonchain/babylon-sdk/x/babylon/keeper"
 	"github.com/cometbft/cometbft/libs/rand"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -13,11 +14,11 @@ import (
 
 func TestChainedCustomQuerier(t *testing.T) {
 	myContractAddr := sdk.AccAddress(rand.Bytes(32))
-	pCtx, keepers := CreateDefaultTestInput(t)
+	keepers := NewTestKeepers(t)
 
 	specs := map[string]struct {
 		src           wasmvmtypes.QueryRequest
-		viewKeeper    viewKeeper
+		viewKeeper    keeper.ViewKeeper
 		expData       []byte
 		expErr        bool
 		expNextCalled bool
@@ -40,13 +41,13 @@ func TestChainedCustomQuerier(t *testing.T) {
 	for name, spec := range specs {
 		t.Run(name, func(t *testing.T) {
 			var nextCalled bool
-			next := QueryHandlerFn(func(ctx sdk.Context, caller sdk.AccAddress, request wasmvmtypes.QueryRequest) ([]byte, error) {
+			next := keeper.QueryHandlerFn(func(ctx sdk.Context, caller sdk.AccAddress, request wasmvmtypes.QueryRequest) ([]byte, error) {
 				nextCalled = true
 				return nil, nil
 			})
 
-			ctx, _ := pCtx.CacheContext()
-			gotData, gotErr := ChainedCustomQuerier(spec.viewKeeper, next).HandleQuery(ctx, myContractAddr, spec.src)
+			ctx, _ := keepers.Ctx.CacheContext()
+			gotData, gotErr := keeper.ChainedCustomQuerier(spec.viewKeeper, next).HandleQuery(ctx, myContractAddr, spec.src)
 			if spec.expErr {
 				require.Error(t, gotErr)
 				return
@@ -58,7 +59,7 @@ func TestChainedCustomQuerier(t *testing.T) {
 	}
 }
 
-var _ viewKeeper = &MockViewKeeper{}
+var _ keeper.ViewKeeper = &MockViewKeeper{}
 
 type MockViewKeeper struct {
 	GetTestFn func(ctx sdk.Context, actor sdk.AccAddress) string

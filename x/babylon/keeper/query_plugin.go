@@ -14,7 +14,7 @@ import (
 
 type (
 	// abstract query keeper
-	viewKeeper interface {
+	ViewKeeper interface {
 		GetTest(ctx sdk.Context, actor sdk.AccAddress) string
 	}
 )
@@ -25,7 +25,7 @@ type (
 // the babylon custom query namespace.
 //
 // To be used with `wasmkeeper.WithQueryHandlerDecorator(BabylonKeeper.NewQueryDecorator(app.BabylonKeeper)))`
-func NewQueryDecorator(k viewKeeper) func(wasmkeeper.WasmVMQueryHandler) wasmkeeper.WasmVMQueryHandler {
+func NewQueryDecorator(k ViewKeeper) func(wasmkeeper.WasmVMQueryHandler) wasmkeeper.WasmVMQueryHandler {
 	return func(next wasmkeeper.WasmVMQueryHandler) wasmkeeper.WasmVMQueryHandler {
 		return ChainedCustomQuerier(k, next)
 	}
@@ -37,7 +37,7 @@ func NewQueryDecorator(k viewKeeper) func(wasmkeeper.WasmVMQueryHandler) wasmkee
 //
 // This CustomQuerier is designed as an extension point. See the NewQueryDecorator impl how to
 // set this up for wasmd.
-func ChainedCustomQuerier(k viewKeeper, next wasmkeeper.WasmVMQueryHandler) wasmkeeper.WasmVMQueryHandler {
+func ChainedCustomQuerier(k ViewKeeper, next wasmkeeper.WasmVMQueryHandler) wasmkeeper.WasmVMQueryHandler {
 	if k == nil {
 		panic("ms keeper must not be nil")
 	}

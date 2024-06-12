@@ -1,4 +1,4 @@
-package keeper
+package keeper_test
 
 import (
 	"testing"
@@ -19,7 +19,7 @@ func TestInitGenesis(t *testing.T) {
 		"custom param, should pass": {
 			state: types.GenesisState{
 				Params: types.Params{
-					MaxGasEndBlocker: 600_000,
+					MaxGasBeginBlocker: 600_000,
 				},
 			},
 			expErr: false,
@@ -27,7 +27,7 @@ func TestInitGenesis(t *testing.T) {
 		"custom small value param, should pass": {
 			state: types.GenesisState{
 				Params: types.Params{
-					MaxGasEndBlocker: 10_000,
+					MaxGasBeginBlocker: 10_000,
 				},
 			},
 			expErr: false,
@@ -36,25 +36,25 @@ func TestInitGenesis(t *testing.T) {
 
 	for name, spec := range specs {
 		t.Run(name, func(t *testing.T) {
-			pCtx, keepers := CreateDefaultTestInput(t)
+			keepers := NewTestKeepers(t)
 			k := keepers.BabylonKeeper
 
-			k.InitGenesis(pCtx, spec.state)
+			k.InitGenesis(keepers.Ctx, spec.state)
 
-			p := k.GetParams(pCtx)
-			assert.Equal(t, spec.state.Params.MaxGasEndBlocker, p.MaxGasEndBlocker)
+			p := k.GetParams(keepers.Ctx)
+			assert.Equal(t, spec.state.Params.MaxGasBeginBlocker, p.MaxGasBeginBlocker)
 		})
 	}
 }
 
 func TestExportGenesis(t *testing.T) {
-	pCtx, keepers := CreateDefaultTestInput(t)
+	keepers := NewTestKeepers(t)
 	k := keepers.BabylonKeeper
 	params := types.DefaultParams(sdk.DefaultBondDenom)
 
-	err := k.SetParams(pCtx, params)
+	err := k.SetParams(keepers.Ctx, params)
 	require.NoError(t, err)
 
-	exported := k.ExportGenesis(pCtx)
-	assert.Equal(t, params.MaxGasEndBlocker, exported.Params.MaxGasEndBlocker)
+	exported := k.ExportGenesis(keepers.Ctx)
+	assert.Equal(t, params.MaxGasBeginBlocker, exported.Params.MaxGasBeginBlocker)
 }

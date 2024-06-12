@@ -1,4 +1,4 @@
-package keeper
+package keeper_test
 
 import (
 	"testing"
@@ -56,6 +56,7 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	"github.com/stretchr/testify/require"
 
+	"github.com/babylonchain/babylon-sdk/x/babylon/keeper"
 	"github.com/babylonchain/babylon-sdk/x/babylon/types"
 )
 
@@ -98,18 +99,20 @@ func makeEncodingConfig(_ testing.TB) encodingConfig {
 }
 
 type TestKeepers struct {
+	Ctx            sdk.Context
 	StakingKeeper  *stakingkeeper.Keeper
 	SlashingKeeper slashingkeeper.Keeper
 	BankKeeper     bankkeeper.Keeper
 	StoreKey       *storetypes.KVStoreKey
 	EncodingConfig encodingConfig
-	BabylonKeeper  *Keeper
+	BabylonKeeper  *keeper.Keeper
 	AccountKeeper  authkeeper.AccountKeeper
 	WasmKeeper     *wasmkeeper.Keeper
+	WasmMsgServer  wasmtypes.MsgServer
 	Faucet         *wasmkeeper.TestFaucet
 }
 
-func CreateDefaultTestInput(t testing.TB, opts ...Option) (sdk.Context, TestKeepers) {
+func NewTestKeepers(t testing.TB, opts ...keeper.Option) TestKeepers {
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db, log.NewTestLogger(t), storemetrics.NewNoOpMetrics())
 
@@ -268,8 +271,9 @@ func CreateDefaultTestInput(t testing.TB, opts ...Option) (sdk.Context, TestKeep
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	require.NoError(t, wasmKeeper.SetParams(ctx, wasmtypes.DefaultParams()))
+	wasmMsgServer := wasmkeeper.NewMsgServerImpl(&wasmKeeper)
 
-	msKeeper := NewKeeper(
+	babylonKeeper := keeper.NewKeeper(
 		appCodec,
 		keys[types.StoreKey],
 		memKeys[types.MemStoreKey],
@@ -279,18 +283,20 @@ func CreateDefaultTestInput(t testing.TB, opts ...Option) (sdk.Context, TestKeep
 		authority,
 		opts...,
 	)
-	require.NoError(t, msKeeper.SetParams(ctx, types.DefaultParams(sdk.DefaultBondDenom)))
+	require.NoError(t, babylonKeeper.SetParams(ctx, types.DefaultParams(sdk.DefaultBondDenom)))
 
 	faucet := wasmkeeper.NewTestFaucet(t, ctx, bankKeeper, minttypes.ModuleName, sdk.NewInt64Coin(sdk.DefaultBondDenom, 1_000_000_000_000))
-	return ctx, TestKeepers{
+	return TestKeepers{
+		Ctx:            ctx,
 		AccountKeeper:  accountKeeper,
 		StakingKeeper:  stakingKeeper,
 		SlashingKeeper: slashingKeeper,
 		BankKeeper:     bankKeeper,
 		StoreKey:       keys[types.StoreKey],
 		EncodingConfig: encConfig,
-		BabylonKeeper:  msKeeper,
+		BabylonKeeper:  babylonKeeper,
 		WasmKeeper:     &wasmKeeper,
+		WasmMsgServer:  wasmMsgServer,
 		Faucet:         faucet,
 	}
 }

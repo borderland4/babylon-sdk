@@ -31,5 +31,5 @@ func (k Keeper) GetParams(clientCtx sdk.Context) (params types.Params) {
 }
 
 func (k Keeper) GetMaxSudoGas(ctx sdk.Context) storetypes.Gas {
-	return storetypes.Gas(k.GetParams(ctx).MaxGasEndBlocker)
+	return storetypes.Gas(k.GetParams(ctx).MaxGasBeginBlocker)
 }

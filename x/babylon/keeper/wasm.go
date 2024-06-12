@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"encoding/hex"
 	"encoding/json"
 
 	errorsmod "cosmossdk.io/errors"
@@ -8,13 +9,30 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// SendTestSudoMsg sends a test sudo message to the given contract via sudo
-// TODO: implement sudo messages
-func (k Keeper) SendTestSudoMsg(ctx sdk.Context, contractAddr sdk.AccAddress) error {
-	msg := contract.SudoMsg{
-		TestSudoMsg: &struct{}{},
+// SendBeginBlockMsg sends a BeginBlock sudo message to the BTC staking contract via sudo
+func (k Keeper) SendBeginBlockMsg(ctx sdk.Context) error {
+	// get address of the BTC staking contract
+	addrStr := k.GetParams(ctx).BtcStakingContractAddress
+	if len(addrStr) == 0 {
+		// the BTC staking contract address is not set yet, skip sending BeginBlockMsg
+		return nil
 	}
-	return k.doSudoCall(ctx, contractAddr, msg)
+	addr := sdk.MustAccAddressFromBech32(addrStr)
+
+	// construct the sudo message
+	headerInfo := ctx.HeaderInfo()
+	msg := contract.SudoMsg{
+		BeginBlockMsg: &contract.BeginBlock{
+			Height:     headerInfo.Height,
+			HashHex:    hex.EncodeToString(headerInfo.Hash),
+			Time:       headerInfo.Time,
+			ChainID:    headerInfo.ChainID,
+			AppHashHex: hex.EncodeToString(headerInfo.AppHash),
+		},
+	}
+
+	// send the sudo call
+	return k.doSudoCall(ctx, addr, msg)
 }
 
 // caller must ensure gas limits are set proper and handle panics
