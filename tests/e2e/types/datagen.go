@@ -1,7 +1,6 @@
 package types
 
 import (
-	"fmt"
 	"math/rand"
 	"testing"
 	"time"
@@ -60,7 +59,7 @@ func GenIBCPacket(t *testing.T, r *rand.Rand) *zctypes.ZoneconciergePacketData {
 	}
 
 	_, mockDel := GenBTCDelegation()
-	activDel, err := CreateActiveBTCDelegationEvent(mockDel)
+	activDel, err := CreateActiveBTCDelegation(mockDel)
 	require.NoError(t, err)
 
 	packet := &bstypes.BTCStakingIBCPacket{
@@ -147,55 +146,55 @@ func GenBTCDelegation() (*types.Params, *bstypes.BTCDelegation) {
 	//require.NoError(t, err)
 }
 
-func CreateActiveBTCDelegationEvent(activeDel *bstypes.BTCDelegation) (*bstypes.ActiveBTCDelegation, error) {
+func CreateActiveBTCDelegation(activeDel *bstypes.BTCDelegation) (*bstypes.ActiveBTCDelegation, error) {
 	fpBtcPkHexList := make([]string, len(activeDel.FpBtcPkList))
 	for i, fpBtcPk := range activeDel.FpBtcPkList {
 		fpBtcPkHexList[i] = fpBtcPk.MarshalHex()
 	}
 
-	slashingTxBytes, err := activeDel.SlashingTx.Marshal()
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal SlashingTx: %w", err)
-	}
-
-	delegatorSlashingSigBytes, err := activeDel.DelegatorSig.Marshal()
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal DelegatorSig: %w", err)
-	}
-
-	if activeDel.BtcUndelegation.DelegatorUnbondingSig != nil {
-		return nil, fmt.Errorf("unexpected DelegatorUnbondingSig in active delegation")
-	}
-
-	unbondingSlashingTxBytes, err := activeDel.BtcUndelegation.SlashingTx.Marshal()
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal BtcUndelegation.SlashingTx: %w", err)
-	}
-
-	delegatorUnbondingSlashingSigBytes, err := activeDel.BtcUndelegation.DelegatorSlashingSig.Marshal()
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal BtcUndelegation.DelegatorSlashingSig: %w", err)
-	}
+	//slashingTxBytes, err := activeDel.SlashingTx.Marshal()
+	//if err != nil {
+	//	return nil, fmt.Errorf("failed to marshal SlashingTx: %w", err)
+	//}
+	//
+	//delegatorSlashingSigBytes, err := activeDel.DelegatorSig.Marshal()
+	//if err != nil {
+	//	return nil, fmt.Errorf("failed to marshal DelegatorSig: %w", err)
+	//}
+	//
+	//if activeDel.BtcUndelegation.DelegatorUnbondingSig != nil {
+	//	return nil, fmt.Errorf("unexpected DelegatorUnbondingSig in active delegation")
+	//}
+	//
+	//unbondingSlashingTxBytes, err := activeDel.BtcUndelegation.SlashingTx.Marshal()
+	//if err != nil {
+	//	return nil, fmt.Errorf("failed to marshal BtcUndelegation.SlashingTx: %w", err)
+	//}
+	//
+	//delegatorUnbondingSlashingSigBytes, err := activeDel.BtcUndelegation.DelegatorSlashingSig.Marshal()
+	//if err != nil {
+	//	return nil, fmt.Errorf("failed to marshal BtcUndelegation.DelegatorSlashingSig: %w", err)
+	//}
 
 	event := &bstypes.ActiveBTCDelegation{
-		BtcPkHex:             activeDel.BtcPk.MarshalHex(),
-		FpBtcPkList:          fpBtcPkHexList,
-		StartHeight:          activeDel.StartHeight,
-		EndHeight:            activeDel.EndHeight,
-		TotalSat:             activeDel.TotalSat,
-		StakingTx:            activeDel.StakingTx,
-		SlashingTx:           slashingTxBytes,
-		DelegatorSlashingSig: delegatorSlashingSigBytes,
-		CovenantSigs:         activeDel.CovenantSigs,
-		StakingOutputIdx:     activeDel.StakingOutputIdx,
-		UnbondingTime:        activeDel.UnbondingTime,
-		UndelegationInfo: &bstypes.BTCUndelegationInfo{
-			UnbondingTx:              activeDel.BtcUndelegation.UnbondingTx,
-			SlashingTx:               unbondingSlashingTxBytes,
-			DelegatorSlashingSig:     delegatorUnbondingSlashingSigBytes,
-			CovenantUnbondingSigList: activeDel.BtcUndelegation.CovenantUnbondingSigList,
-			CovenantSlashingSigs:     activeDel.BtcUndelegation.CovenantSlashingSigs,
-		},
+		BtcPkHex:    activeDel.BtcPk.MarshalHex(),
+		FpBtcPkList: fpBtcPkHexList,
+		StartHeight: activeDel.StartHeight,
+		EndHeight:   activeDel.EndHeight,
+		TotalSat:    activeDel.TotalSat,
+		//StakingTx:            activeDel.StakingTx,
+		//SlashingTx:           slashingTxBytes,
+		//DelegatorSlashingSig: delegatorSlashingSigBytes,
+		CovenantSigs:     activeDel.CovenantSigs,
+		StakingOutputIdx: activeDel.StakingOutputIdx,
+		UnbondingTime:    activeDel.UnbondingTime,
+		//UndelegationInfo: &bstypes.BTCUndelegationInfo{
+		//	UnbondingTx:              activeDel.BtcUndelegation.UnbondingTx,
+		//	SlashingTx:               unbondingSlashingTxBytes,
+		//	DelegatorSlashingSig:     delegatorUnbondingSlashingSigBytes,
+		//	CovenantUnbondingSigList: activeDel.BtcUndelegation.CovenantUnbondingSigList,
+		//	CovenantSlashingSigs:     activeDel.BtcUndelegation.CovenantSlashingSigs,
+		//},
 		ParamsVersion: activeDel.ParamsVersion,
 	}
 
