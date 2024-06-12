@@ -98,11 +98,11 @@ func (s *BabylonSDKTestSuite) Test1ContractDeployment() {
 // TestExample is an example test case
 func (s *BabylonSDKTestSuite) Test2MockFinalityProvider() {
 	msg := types.GenExecMessage()
-	msgBytes, err := json.Marshal(msg)
+	b, err := json.Marshal(msg)
 	s.NoError(err)
 
 	// send msg to BTC staking contract via admin account
-	_, err = s.ConsumerCli.Exec(s.ConsumerContract.BTCStaking, msgBytes)
+	_, err = s.ConsumerCli.Exec(s.ConsumerContract.BTCStaking, b)
 	s.NoError(err)
 
 	// ensure the finality provider is on consumer chain

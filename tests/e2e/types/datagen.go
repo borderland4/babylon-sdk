@@ -2,7 +2,6 @@ package types
 
 import (
 	"encoding/base64"
-	"fmt"
 	"math/rand"
 	"testing"
 	"time"
@@ -46,36 +45,6 @@ func GenExecMessage() ExecuteMessage {
 	executeMessage := ExecuteMessage{
 		BtcStaking: BtcStaking{
 			NewFP:       []NewFinalityProvider{newFp},
-			ActiveDel:   []ActiveBtcDelegation{ad},
-			SlashedDel:  []SlashedBtcDelegation{},
-			UnbondedDel: []UnbondedBtcDelegation{},
-		},
-	}
-
-	return executeMessage
-
-	//activDel, err := CreateActiveBTCDelegation(mockDel)
-	//require.NoError(t, err)
-
-	//packet := &bstypes.BTCStakingIBCPacket{
-	//	NewFp: []*bstypes.NewFinalityProvider{
-	//		newFp,
-	//	},
-	//	ActiveDel:   []*bstypes.ActiveBTCDelegation{},
-	//	SlashedDel:  []*bstypes.SlashedBTCDelegation{},
-	//	UnbondedDel: []*bstypes.UnbondedBTCDelegation{},
-	//}
-	//return NewBTCStakingPacketData(packet)
-}
-
-func GenIBCPacketAd(t *testing.T, r *rand.Rand, ad ActiveBtcDelegation) ExecuteMessage {
-	//_, mockDel := GenBTCDelegation()
-	//ad := ConvertBTCDelegationToActiveBtcDelegation(mockDel)
-
-	// Create the ExecuteMessage instance
-	executeMessage := ExecuteMessage{
-		BtcStaking: BtcStaking{
-			NewFP:       []NewFinalityProvider{},
 			ActiveDel:   []ActiveBtcDelegation{ad},
 			SlashedDel:  []SlashedBtcDelegation{},
 			UnbondedDel: []UnbondedBtcDelegation{},
@@ -142,73 +111,6 @@ func GenBTCDelegation() (*types.Params, *bstypes.BTCDelegation) {
 	)
 	require.NoError(t, err)
 	return bsParams, btcDel
-
-	//btcDelBytes, err := btcDel.Marshal()
-	//require.NoError(t, err)
-	//btcDelPath := filepath.Join(dir, BTC_DEL_FILENAME)
-	//err = os.WriteFile(btcDelPath, btcDelBytes, 0644)
-	//require.NoError(t, err)
-
-	//paramsBytes, err := bsParams.Marshal()
-	//require.NoError(t, err)
-	//paramsPath := filepath.Join(dir, BTCSTAKING_PARAMS_FILENAME)
-	//err = os.WriteFile(paramsPath, paramsBytes, 0644)
-	//require.NoError(t, err)
-}
-
-func CreateActiveBTCDelegation(activeDel *bstypes.BTCDelegation) (*bstypes.ActiveBTCDelegation, error) {
-	fpBtcPkHexList := make([]string, len(activeDel.FpBtcPkList))
-	for i, fpBtcPk := range activeDel.FpBtcPkList {
-		fpBtcPkHexList[i] = fpBtcPk.MarshalHex()
-	}
-
-	slashingTxBytes, err := activeDel.SlashingTx.Marshal()
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal SlashingTx: %w", err)
-	}
-
-	delegatorSlashingSigBytes, err := activeDel.DelegatorSig.Marshal()
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal DelegatorSig: %w", err)
-	}
-
-	if activeDel.BtcUndelegation.DelegatorUnbondingSig != nil {
-		return nil, fmt.Errorf("unexpected DelegatorUnbondingSig in active delegation")
-	}
-
-	unbondingSlashingTxBytes, err := activeDel.BtcUndelegation.SlashingTx.Marshal()
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal BtcUndelegation.SlashingTx: %w", err)
-	}
-
-	delegatorUnbondingSlashingSigBytes, err := activeDel.BtcUndelegation.DelegatorSlashingSig.Marshal()
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal BtcUndelegation.DelegatorSlashingSig: %w", err)
-	}
-
-	event := &bstypes.ActiveBTCDelegation{
-		BtcPkHex:             activeDel.BtcPk.MarshalHex(),
-		FpBtcPkList:          fpBtcPkHexList,
-		StartHeight:          activeDel.StartHeight,
-		EndHeight:            activeDel.EndHeight,
-		TotalSat:             activeDel.TotalSat,
-		StakingTx:            activeDel.StakingTx,
-		SlashingTx:           slashingTxBytes,
-		DelegatorSlashingSig: delegatorSlashingSigBytes,
-		CovenantSigs:         activeDel.CovenantSigs,
-		StakingOutputIdx:     activeDel.StakingOutputIdx,
-		UnbondingTime:        activeDel.UnbondingTime,
-		UndelegationInfo: &bstypes.BTCUndelegationInfo{
-			UnbondingTx:              activeDel.BtcUndelegation.UnbondingTx,
-			SlashingTx:               unbondingSlashingTxBytes,
-			DelegatorSlashingSig:     delegatorUnbondingSlashingSigBytes,
-			CovenantUnbondingSigList: activeDel.BtcUndelegation.CovenantUnbondingSigList,
-			CovenantSlashingSigs:     activeDel.BtcUndelegation.CovenantSlashingSigs,
-		},
-		ParamsVersion: activeDel.ParamsVersion,
-	}
-
-	return event, nil
 }
 
 type NewFinalityProvider struct {
@@ -246,19 +148,10 @@ type PubKey struct {
 }
 
 type ProofOfPossession struct {
-	// BTCSigType indicates the type of btc_sig in the pop
-	BTCSigType int32 `json:"btc_sig_type"`
-	// BabylonSig is the signature generated via sign(sk_babylon, pk_btc)
+	BTCSigType int32  `json:"btc_sig_type"`
 	BabylonSig string `json:"babylon_sig"`
-	// BTCSig is the signature generated via sign(sk_btc, babylon_sig)
-	// the signature follows encoding in either BIP-340 spec or BIP-322 spec
-	BTCSig string `json:"btc_sig"`
+	BTCSig     string `json:"btc_sig"`
 }
-
-// Define the other necessary structs
-//type ActiveBtcDelegation struct {
-//	// Define fields as needed
-//}
 
 type CovenantAdaptorSignatures struct {
 	CovPK       string   `json:"cov_pk"`       // Public key of the covenant emulator
