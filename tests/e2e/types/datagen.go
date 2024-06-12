@@ -1,6 +1,7 @@
 package types
 
 import (
+	"encoding/base64"
 	"fmt"
 	"math/rand"
 	"testing"
@@ -67,12 +68,14 @@ func GenIBCPacket(t *testing.T, r *rand.Rand) ExecuteMessage {
 			Details:         "details",
 		},
 		Commission: "0.05", // Assuming Decimal::percent(5) converts to "0.05"
-		BabylonPK:  nil,    // None equivalent in Go is nil
-		BTCPKHex:   "f1",
+		BabylonPK: &PubKey{
+			Key: base64.StdEncoding.EncodeToString([]byte("mock_pub_rand")),
+		}, // None equivalent in Go is nil
+		BTCPKHex: "f1",
 		Pop: &ProofOfPossession{
 			BTCSigType: 0,
-			BabylonSig: []byte("mock_pub_rand"),
-			BTCSig:     []byte("mock_pub_rand"),
+			BabylonSig: base64.StdEncoding.EncodeToString([]byte("mock_pub_rand")),
+			BTCSig:     base64.StdEncoding.EncodeToString([]byte("mock_pub_rand")),
 		},
 		ConsumerID: "osmosis-1",
 	}
@@ -273,17 +276,17 @@ type FinalityProviderDescription struct {
 
 type PubKey struct {
 	// Key is the compressed public key of the finality provider
-	Key []byte `json:"key"`
+	Key string `json:"key"`
 }
 
 type ProofOfPossession struct {
 	// BTCSigType indicates the type of btc_sig in the pop
 	BTCSigType int32 `json:"btc_sig_type"`
 	// BabylonSig is the signature generated via sign(sk_babylon, pk_btc)
-	BabylonSig []byte `json:"babylon_sig"`
+	BabylonSig string `json:"babylon_sig"`
 	// BTCSig is the signature generated via sign(sk_btc, babylon_sig)
 	// the signature follows encoding in either BIP-340 spec or BIP-322 spec
-	BTCSig []byte `json:"btc_sig"`
+	BTCSig string `json:"btc_sig"`
 }
 
 // Define the other necessary structs
