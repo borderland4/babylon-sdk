@@ -97,42 +97,23 @@ func (s *BabylonSDKTestSuite) Test1ContractDeployment() {
 
 // TestExample is an example test case
 func (s *BabylonSDKTestSuite) Test2MockFinalityProvider() {
-	t := s.T()
-
-	_, mockDel := types.GenBTCDelegation()
-	ad := types.ConvertBTCDelegationToActiveBtcDelegation(mockDel)
-	// mock message
-	msg := types.GenIBCPacketFp(t, r, ad.FpBtcPkList[0])
-
-	// marshal message using encoding/json
-	b, err := json.Marshal(msg)
+	msg := types.GenExecMessage()
+	msgBytes, err := json.Marshal(msg)
 	s.NoError(err)
 
-	//jsonPretty, err := json.MarshalIndent(msg, "", "    ")
-	//s.NoError(err)
-	//fmt.Println(string(jsonPretty))
-	//msgBytes, err := zctypes.ModuleCdc.MarshalJSON(msg)
-	//s.NoError(err)
-
 	// send msg to BTC staking contract via admin account
-	_, err = s.ConsumerCli.Exec(s.ConsumerContract.BTCStaking, b)
+	_, err = s.ConsumerCli.Exec(s.ConsumerContract.BTCStaking, msgBytes)
 	s.NoError(err)
 
 	// ensure the finality provider is on consumer chain
-	resp, err := s.ConsumerCli.Query(s.ConsumerContract.BTCStaking, Query{"finality_providers": {}})
+	consumerFps, err := s.ConsumerCli.Query(s.ConsumerContract.BTCStaking, Query{"finality_providers": {}})
 	s.NoError(err)
-	s.NotEmpty(resp)
+	s.NotEmpty(consumerFps)
 
-	msgAd := types.GenIBCPacketAd(t, r, ad)
-	// marshal message using encoding/json
-	b, err = json.Marshal(msgAd)
+	// ensure delegations are on consumer chain
+	consumerDels, err := s.ConsumerCli.Query(s.ConsumerContract.BTCStaking, Query{"delegations": {}})
 	s.NoError(err)
-	_, err = s.ConsumerCli.Exec(s.ConsumerContract.BTCStaking, b)
-	s.NoError(err)
-
-	resp, err = s.ConsumerCli.Query(s.ConsumerContract.BTCStaking, Query{"delegations": {}})
-	s.NoError(err)
-	s.NotEmpty(resp)
+	s.NotEmpty(consumerDels)
 }
 
 // TearDownSuite runs once after all the suite's tests have been run

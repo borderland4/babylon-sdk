@@ -15,49 +15,11 @@ import (
 	"github.com/stretchr/testify/require"
 
 	bstypes "github.com/babylonchain/babylon/x/btcstaking/types"
-	zctypes "github.com/babylonchain/babylon/x/zoneconcierge/types"
 )
 
-func NewBTCStakingPacketData(packet *bstypes.BTCStakingIBCPacket) *zctypes.ZoneconciergePacketData {
-	return &zctypes.ZoneconciergePacketData{
-		Packet: &zctypes.ZoneconciergePacketData_BtcStaking{
-			BtcStaking: packet,
-		},
-	}
-}
-
-func GenIBCPacketFp(t *testing.T, r *rand.Rand, btcPkHex string) ExecuteMessage {
-	// generate a finality provider
-	//fpBTCSK, _, err := datagen.GenRandomBTCKeyPair(r)
-	//require.NoError(t, err)
-	//fpBabylonSK, _, err := datagen.GenRandomSecp256k1KeyPair(r)
-	//require.NoError(t, err)
-	//fp, err := datagen.GenRandomCustomFinalityProvider(r, fpBTCSK, fpBabylonSK, "consumer-id")
-	//require.NoError(t, err)
-
-	//activeDel := &bstypes.ActiveBTCDelegation{
-	//	BtcPkHex: fp.BtcPk.MarshalHex(),
-	//}
-	//fmt.Print(activeDel)
-
-	//newFp := &bstypes.NewFinalityProvider{
-	//	Description: &ctypes.Description{
-	//		Moniker:         "fp1",
-	//		Identity:        "Finality Provider 1",
-	//		Website:         "https://fp1.com",
-	//		SecurityContact: "security_contact",
-	//		Details:         "details",
-	//	},
-	//	Commission: "0.05", // Assuming Decimal::percent(5) converts to "0.05"
-	//	BabylonPk:  nil,    // None equivalent in Go is nil
-	//	BtcPkHex:   "f1",
-	//	Pop: &types.ProofOfPossession{
-	//		BtcSigType: 0,
-	//		BabylonSig: []byte("mock_pub_rand"),
-	//		BtcSig:     []byte("mock_pub_rand"),
-	//	},
-	//	ConsumerId: "osmosis-1",
-	//}
+func GenExecMessage() ExecuteMessage {
+	_, mockDel := GenBTCDelegation()
+	ad := ConvertBTCDelegationToActiveBtcDelegation(mockDel)
 
 	newFp := NewFinalityProvider{
 		Description: &FinalityProviderDescription{
@@ -71,7 +33,7 @@ func GenIBCPacketFp(t *testing.T, r *rand.Rand, btcPkHex string) ExecuteMessage 
 		BabylonPK: &PubKey{
 			Key: base64.StdEncoding.EncodeToString([]byte("mock_pub_rand")),
 		}, // None equivalent in Go is nil
-		BTCPKHex: btcPkHex,
+		BTCPKHex: ad.FpBtcPkList[0],
 		Pop: &ProofOfPossession{
 			BTCSigType: 0,
 			BabylonSig: base64.StdEncoding.EncodeToString([]byte("mock_pub_rand")),
@@ -80,18 +42,11 @@ func GenIBCPacketFp(t *testing.T, r *rand.Rand, btcPkHex string) ExecuteMessage 
 		ConsumerID: "osmosis-1",
 	}
 
-	//_, mockDel := GenBTCDelegation()
-	//ad, err := CreateActiveBTCDelegation(mockDel)
-	//require.NoError(t, err)
-
-	//_, mockDel := GenBTCDelegation()
-	//ad := ConvertBTCDelegationToActiveBtcDelegation(mockDel)
-
 	// Create the ExecuteMessage instance
 	executeMessage := ExecuteMessage{
 		BtcStaking: BtcStaking{
 			NewFP:       []NewFinalityProvider{newFp},
-			ActiveDel:   []ActiveBtcDelegation{},
+			ActiveDel:   []ActiveBtcDelegation{ad},
 			SlashedDel:  []SlashedBtcDelegation{},
 			UnbondedDel: []UnbondedBtcDelegation{},
 		},
