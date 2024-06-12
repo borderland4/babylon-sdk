@@ -7,11 +7,12 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm/ibctesting"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	abci "github.com/cometbft/cometbft/abci/types"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/babylonchain/babylon-sdk/demo/app"
+	bbntypes "github.com/babylonchain/babylon-sdk/x/babylon/types"
+	abci "github.com/cometbft/cometbft/abci/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	"github.com/stretchr/testify/require"
 )
 
 // Query is a query type used in tests only
@@ -155,4 +156,53 @@ func (p *TestConsumerClient) Exec(contract sdk.AccAddress, payload []byte, funds
 
 func (p *TestConsumerClient) Query(contractAddr sdk.AccAddress, query Query) (QueryResponse, error) {
 	return Querier(p.t, p.Chain)(contractAddr.String(), query)
+}
+
+// MustExecGovProposal submit and vote yes on proposal
+func (p *TestConsumerClient) MustExecGovProposal(msg *bbntypes.MsgUpdateParams) {
+	proposalID := submitGovProposal(p.t, p.Chain, msg)
+	voteAndPassGovProposal(p.t, p.Chain, proposalID)
+}
+
+func submitGovProposal(t *testing.T, chain *ibctesting.TestChain, msgs ...sdk.Msg) uint64 {
+	// get gov module parameters
+	chainApp := chain.App.(*app.ConsumerApp)
+	govParams, err := chainApp.GovKeeper.Params.Get(chain.GetContext())
+	require.NoError(t, err)
+
+	// construct proposal
+	govMsg, err := govv1.NewMsgSubmitProposal(msgs, govParams.MinDeposit, chain.SenderAccount.GetAddress().String(), "", "my title", "my summary", false)
+	require.NoError(t, err)
+
+	// submit proposal
+	_, err = chain.SendMsgs(govMsg)
+	require.NoError(t, err)
+
+	// get next proposal ID
+	proposalID, err := chainApp.GovKeeper.ProposalID.Peek(chain.GetContext())
+	require.NoError(t, err)
+
+	return proposalID - 1
+}
+
+func voteAndPassGovProposal(t *testing.T, chain *ibctesting.TestChain, proposalID uint64) {
+	// get gov module parameters
+	chainApp := chain.App.(*app.ConsumerApp)
+	govParams, err := chainApp.GovKeeper.Params.Get(chain.GetContext())
+	require.NoError(t, err)
+
+	// construct and submit vote
+	vote := govv1.NewMsgVote(chain.SenderAccount.GetAddress(), proposalID, govv1.OptionYes, "testing")
+	_, err = chain.SendMsgs(vote)
+	require.NoError(t, err)
+
+	// pass voting period
+	coord := chain.Coordinator
+	coord.IncrementTimeBy(*govParams.VotingPeriod)
+	coord.CommitBlock(chain)
+
+	// ensure proposal is passed
+	proposal, err := chainApp.GovKeeper.Proposals.Get(chain.GetContext(), proposalID)
+	require.NoError(t, err)
+	require.Equal(t, proposal.Status, govv1.ProposalStatus_PROPOSAL_STATUS_PASSED)
 }

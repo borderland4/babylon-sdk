@@ -10,6 +10,7 @@ import (
 	"github.com/babylonchain/babylon-sdk/demo/app"
 	appparams "github.com/babylonchain/babylon-sdk/demo/app/params"
 	"github.com/babylonchain/babylon-sdk/tests/e2e/types"
+	bbntypes "github.com/babylonchain/babylon-sdk/x/babylon/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibctesting2 "github.com/cosmos/ibc-go/v8/testing"
 	"github.com/stretchr/testify/suite"
@@ -94,13 +95,16 @@ func (s *BabylonSDKTestSuite) Test1ContractDeployment() {
 	s.NoError(err)
 	s.Equal(adminResp["admin"], s.ConsumerCli.GetSender().String())
 
-	// update the contract address in parameters (typically this has to be done via gov props)
-	ctx := s.ConsumerChain.GetContext()
-	params := s.ConsumerApp.BabylonKeeper.GetParams(ctx)
-	params.BabylonContractAddress = s.ConsumerContract.Babylon.String()
-	params.BtcStakingContractAddress = s.ConsumerContract.BTCStaking.String()
-	err = s.ConsumerApp.BabylonKeeper.SetParams(ctx, params)
-	s.NoError(err)
+	// update the contract address in parameters
+	msgUpdateParams := &bbntypes.MsgUpdateParams{
+		Authority: s.ConsumerApp.BabylonKeeper.GetAuthority(),
+		Params: bbntypes.Params{
+			MaxGasBeginBlocker:        500_000,
+			BabylonContractAddress:    s.ConsumerContract.Babylon.String(),
+			BtcStakingContractAddress: s.ConsumerContract.BTCStaking.String(),
+		},
+	}
+	s.ConsumerCli.MustExecGovProposal(msgUpdateParams)
 }
 
 // TestExample is an example test case
