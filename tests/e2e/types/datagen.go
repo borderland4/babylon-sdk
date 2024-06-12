@@ -17,8 +17,7 @@ import (
 )
 
 func GenExecMessage() ExecuteMessage {
-	_, mockDel := GenBTCDelegation()
-	ad := ConvertBTCDelegationToActiveBtcDelegation(mockDel)
+	_, newDel := genBTCDelegation()
 
 	newFp := NewFinalityProvider{
 		Description: &FinalityProviderDescription{
@@ -28,11 +27,11 @@ func GenExecMessage() ExecuteMessage {
 			SecurityContact: "security_contact",
 			Details:         "details",
 		},
-		Commission: "0.05", // Assuming Decimal::percent(5) converts to "0.05"
+		Commission: "0.05",
 		BabylonPK: &PubKey{
 			Key: base64.StdEncoding.EncodeToString([]byte("mock_pub_rand")),
-		}, // None equivalent in Go is nil
-		BTCPKHex: ad.FpBtcPkList[0],
+		},
+		BTCPKHex: newDel.FpBtcPkList[0],
 		Pop: &ProofOfPossession{
 			BTCSigType: 0,
 			BabylonSig: base64.StdEncoding.EncodeToString([]byte("mock_pub_rand")),
@@ -45,7 +44,7 @@ func GenExecMessage() ExecuteMessage {
 	executeMessage := ExecuteMessage{
 		BtcStaking: BtcStaking{
 			NewFP:       []NewFinalityProvider{newFp},
-			ActiveDel:   []ActiveBtcDelegation{ad},
+			ActiveDel:   []ActiveBtcDelegation{newDel},
 			SlashedDel:  []SlashedBtcDelegation{},
 			UnbondedDel: []UnbondedBtcDelegation{},
 		},
@@ -54,9 +53,8 @@ func GenExecMessage() ExecuteMessage {
 	return executeMessage
 }
 
-var net = &chaincfg.RegressionNetParams
-
-func GenBTCDelegation() (*types.Params, *bstypes.BTCDelegation) {
+func genBTCDelegation() (*types.Params, ActiveBtcDelegation) {
+	var net = &chaincfg.RegressionNetParams
 	r := rand.New(rand.NewSource(time.Now().Unix()))
 	t := &testing.T{}
 
@@ -110,17 +108,17 @@ func GenBTCDelegation() (*types.Params, *bstypes.BTCDelegation) {
 		slashingChangeLockTime,
 	)
 	require.NoError(t, err)
-	return bsParams, btcDel
+
+	activeDel := convertBTCDelegationToActiveBtcDelegation(btcDel)
+	return bsParams, activeDel
 }
 
-func ConvertBTCDelegationToActiveBtcDelegation(mockDel *bstypes.BTCDelegation) ActiveBtcDelegation {
-	// Convert the FpBtcPkList from BIP340PubKey to string (assuming a ToHex method exists)
+func convertBTCDelegationToActiveBtcDelegation(mockDel *bstypes.BTCDelegation) ActiveBtcDelegation {
 	var fpBtcPkList []string
 	for _, pk := range mockDel.FpBtcPkList {
-		fpBtcPkList = append(fpBtcPkList, pk.MarshalHex()) // Implement ToHex method for BIP340PubKey
+		fpBtcPkList = append(fpBtcPkList, pk.MarshalHex())
 	}
 
-	// Convert CovenantAdaptorSignatures
 	var covenantSigs []CovenantAdaptorSignatures
 	for _, cs := range mockDel.CovenantSigs {
 		var adaptorSigs []string
@@ -153,27 +151,28 @@ func ConvertBTCDelegationToActiveBtcDelegation(mockDel *bstypes.BTCDelegation) A
 		})
 	}
 
-	// Create and return the ActiveBtcDelegation struct
+	undelegationInfo := BtcUndelegationInfo{
+		UnbondingTx:           base64.StdEncoding.EncodeToString(mockDel.BtcUndelegation.UnbondingTx),
+		SlashingTx:            base64.StdEncoding.EncodeToString(mockDel.BtcUndelegation.SlashingTx.MustMarshal()),
+		DelegatorSlashingSig:  base64.StdEncoding.EncodeToString(mockDel.BtcUndelegation.DelegatorSlashingSig.MustMarshal()),
+		CovenantUnbondingSigs: covenantUnbondingSigs,
+		CovenantSlashingSigs:  covenantSlashingSigs,
+	}
+
 	return ActiveBtcDelegation{
-		BTCPkHex:             mockDel.BtcPk.MarshalHex(), // Implement ToHex method for BIP340PubKey
+		BTCPkHex:             mockDel.BtcPk.MarshalHex(),
 		FpBtcPkList:          fpBtcPkList,
 		StartHeight:          mockDel.StartHeight,
 		EndHeight:            mockDel.EndHeight,
 		TotalSat:             mockDel.TotalSat,
 		StakingTx:            base64.StdEncoding.EncodeToString(mockDel.StakingTx),
-		SlashingTx:           base64.StdEncoding.EncodeToString(mockDel.SlashingTx.MustMarshal()),   // Assuming SlashingTx has a TxData field
-		DelegatorSlashingSig: base64.StdEncoding.EncodeToString(mockDel.DelegatorSig.MustMarshal()), // Assuming DelegatorSig has a Sig field
+		SlashingTx:           base64.StdEncoding.EncodeToString(mockDel.SlashingTx.MustMarshal()),
+		DelegatorSlashingSig: base64.StdEncoding.EncodeToString(mockDel.DelegatorSig.MustMarshal()),
 		CovenantSigs:         covenantSigs,
 		StakingOutputIdx:     mockDel.StakingOutputIdx,
 		UnbondingTime:        mockDel.UnbondingTime,
-		UndelegationInfo: BtcUndelegationInfo{
-			UnbondingTx:           base64.StdEncoding.EncodeToString(mockDel.BtcUndelegation.UnbondingTx),
-			SlashingTx:            base64.StdEncoding.EncodeToString(mockDel.BtcUndelegation.SlashingTx.MustMarshal()),
-			DelegatorSlashingSig:  base64.StdEncoding.EncodeToString(mockDel.BtcUndelegation.DelegatorSlashingSig.MustMarshal()),
-			CovenantUnbondingSigs: covenantUnbondingSigs,
-			CovenantSlashingSigs:  covenantSlashingSigs,
-		},
-		ParamsVersion: mockDel.ParamsVersion,
+		UndelegationInfo:     undelegationInfo,
+		ParamsVersion:        mockDel.ParamsVersion,
 	}
 }
 
