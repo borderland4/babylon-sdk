@@ -10,6 +10,8 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/babylonchain/babylon-sdk/demo/app"
+	"github.com/babylonchain/babylon-sdk/demo/app/params"
 	tmcfg "github.com/cometbft/cometbft/config"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -31,9 +33,6 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	"github.com/babylonchain/babylon-sdk/demo/app"
-	"github.com/babylonchain/babylon-sdk/demo/app/params"
 )
 
 // NewRootCmd creates a new root command for wasmd. It is called once in the
@@ -150,6 +149,7 @@ func initRootCmd(rootCmd *cobra.Command, basicManager module.BasicManager) {
 	// add keybase, auxiliary RPC, query, and tx child commands
 	rootCmd.AddCommand(
 		server.StatusCommand(),
+		genesisCommand(),
 		queryCommand(),
 		txCommand(),
 		keys.Commands(),
@@ -164,10 +164,10 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 // genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter
 //
 //nolint:unused // ignore unused code linting
-func genesisCommand(encodingConfig params.EncodingConfig, cmds ...*cobra.Command) *cobra.Command {
+func genesisCommand(cmds ...*cobra.Command) *cobra.Command {
 	tempApp := app.NewTmpApp()
 
-	cmd := genutilcli.GenesisCoreCommand(encodingConfig.TxConfig, tempApp.BasicModuleManager, app.DefaultNodeHome)
+	cmd := genutilcli.GenesisCoreCommand(tempApp.TxConfig(), tempApp.BasicModuleManager, app.DefaultNodeHome)
 
 	for _, subCmd := range cmds {
 		cmd.AddCommand(subCmd)
