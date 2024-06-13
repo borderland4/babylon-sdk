@@ -35,6 +35,32 @@ func (k Keeper) SendBeginBlockMsg(ctx sdk.Context) error {
 	return k.doSudoCall(ctx, addr, msg)
 }
 
+// SendEndBlockMsg sends a EndBlock sudo message to the BTC staking contract via sudo
+func (k Keeper) SendEndBlockMsg(ctx sdk.Context) error {
+	// get address of the BTC staking contract
+	addrStr := k.GetParams(ctx).BtcStakingContractAddress
+	if len(addrStr) == 0 {
+		// the BTC staking contract address is not set yet, skip sending EndBlockMsg
+		return nil
+	}
+	addr := sdk.MustAccAddressFromBech32(addrStr)
+
+	// construct the sudo message
+	headerInfo := ctx.HeaderInfo()
+	msg := contract.SudoMsg{
+		EndBlockMsg: &contract.EndBlock{
+			Height:     headerInfo.Height,
+			HashHex:    hex.EncodeToString(headerInfo.Hash),
+			Time:       headerInfo.Time,
+			ChainID:    headerInfo.ChainID,
+			AppHashHex: hex.EncodeToString(headerInfo.AppHash),
+		},
+	}
+
+	// send the sudo call
+	return k.doSudoCall(ctx, addr, msg)
+}
+
 // caller must ensure gas limits are set proper and handle panics
 func (k Keeper) doSudoCall(ctx sdk.Context, contractAddr sdk.AccAddress, msg contract.SudoMsg) error {
 	bz, err := json.Marshal(msg)

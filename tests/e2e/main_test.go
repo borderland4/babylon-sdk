@@ -134,6 +134,12 @@ func (s *BabylonSDKTestSuite) Test3BeginBlock() {
 	s.NoError(err)
 }
 
+// TODO: trigger EndBlock via s.ConsumerChain rather than ConsumerApp
+func (s *BabylonSDKTestSuite) Test4EndBlock() {
+	_, err := s.ConsumerApp.BabylonKeeper.EndBlocker(s.ConsumerChain.GetContext())
+	s.NoError(err)
+}
+
 // TearDownSuite runs once after all the suite's tests have been run
 func (s *BabylonSDKTestSuite) TearDownSuite() {
 	// Cleanup code here
