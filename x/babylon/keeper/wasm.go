@@ -23,10 +23,7 @@ func (k Keeper) SendBeginBlockMsg(ctx sdk.Context) error {
 	headerInfo := ctx.HeaderInfo()
 	msg := contract.SudoMsg{
 		BeginBlockMsg: &contract.BeginBlock{
-			Height:     headerInfo.Height,
 			HashHex:    hex.EncodeToString(headerInfo.Hash),
-			Time:       headerInfo.Time,
-			ChainID:    headerInfo.ChainID,
 			AppHashHex: hex.EncodeToString(headerInfo.AppHash),
 		},
 	}
@@ -49,10 +46,7 @@ func (k Keeper) SendEndBlockMsg(ctx sdk.Context) error {
 	headerInfo := ctx.HeaderInfo()
 	msg := contract.SudoMsg{
 		EndBlockMsg: &contract.EndBlock{
-			Height:     headerInfo.Height,
 			HashHex:    hex.EncodeToString(headerInfo.Hash),
-			Time:       headerInfo.Time,
-			ChainID:    headerInfo.ChainID,
 			AppHashHex: hex.EncodeToString(headerInfo.AppHash),
 		},
 	}
