@@ -7,14 +7,9 @@ OUTPUT_FOLDER="$(dirname "$0")/../testdata"
 
 echo "DEV-only: copy from local built instead of downloading"
 
-M=$(uname -m)
-S=${M#x86_64}
-S=${S/arm64/aarch64}
-S=${S:+-$S}
-
 for CONTRACT in $CONTRACTS
 do
-  cp -f  ../../babylon-contract/artifacts/"${CONTRACT}${S}".wasm "$OUTPUT_FOLDER/${CONTRACT}.wasm"
+  cp -f  ../../babylon-contract/artifacts/"${CONTRACT}".wasm "$OUTPUT_FOLDER/"
 done
 
 cd ../../babylon-contract
