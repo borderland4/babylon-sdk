@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"encoding/hex"
 	"encoding/json"
 
 	errorsmod "cosmossdk.io/errors"
@@ -21,12 +20,7 @@ func (k Keeper) SendBeginBlockMsg(ctx sdk.Context) error {
 
 	// construct the sudo message
 	headerInfo := ctx.HeaderInfo()
-	msg := contract.SudoMsg{
-		BeginBlockMsg: &contract.BeginBlock{
-			HashHex:    hex.EncodeToString(headerInfo.Hash),
-			AppHashHex: hex.EncodeToString(headerInfo.AppHash),
-		},
-	}
+	msg := contract.NewBeginBlockSudoMsg(headerInfo.Hash, headerInfo.AppHash)
 
 	// send the sudo call
 	return k.doSudoCall(ctx, addr, msg)
@@ -44,19 +38,14 @@ func (k Keeper) SendEndBlockMsg(ctx sdk.Context) error {
 
 	// construct the sudo message
 	headerInfo := ctx.HeaderInfo()
-	msg := contract.SudoMsg{
-		EndBlockMsg: &contract.EndBlock{
-			HashHex:    hex.EncodeToString(headerInfo.Hash),
-			AppHashHex: hex.EncodeToString(headerInfo.AppHash),
-		},
-	}
+	msg := contract.NewEndBlockSudoMsg(headerInfo.Hash, headerInfo.AppHash)
 
 	// send the sudo call
 	return k.doSudoCall(ctx, addr, msg)
 }
 
 // caller must ensure gas limits are set proper and handle panics
-func (k Keeper) doSudoCall(ctx sdk.Context, contractAddr sdk.AccAddress, msg contract.SudoMsg) error {
+func (k Keeper) doSudoCall(ctx sdk.Context, contractAddr sdk.AccAddress, msg *contract.SudoMsg) error {
 	bz, err := json.Marshal(msg)
 	if err != nil {
 		return errorsmod.Wrap(err, "marshal sudo msg")
