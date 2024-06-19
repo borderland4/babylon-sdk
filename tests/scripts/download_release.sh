@@ -5,7 +5,7 @@ command -v shellcheck >/dev/null && shellcheck "$0"
 OWNER="babylonchain"
 REPO="babylon-contract"
 CONTRACTS="babylon_contract btc_staking"
-OUTPUT_FOLDER="$(dirname "$0")"
+OUTPUT_FOLDER="$(dirname "$0")/../testdata"
 
 [ -z "$GITHUB_API_TOKEN" ] && echo "Error: Please define GITHUB_API_TOKEN variable." >&2 && exit 1
 
