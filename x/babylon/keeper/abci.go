@@ -19,6 +19,7 @@ func (k *Keeper) BeginBlocker(ctx sdk.Context) error {
 func (k *Keeper) EndBlocker(ctx sdk.Context) ([]abci.ValidatorUpdate, error) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyEndBlocker)
 
+	k.Logger(ctx).Info("Debug: EndBlocker called", "height", ctx.BlockHeight())
 	if err := k.SendEndBlockMsg(ctx); err != nil {
 		return []abci.ValidatorUpdate{}, err
 	}

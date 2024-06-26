@@ -51,7 +51,7 @@ func (k Keeper) SendEndBlockMsg(ctx sdk.Context) error {
 		},
 	}
 
-	k.Logger(ctx).Info("Sending BeginBlockMsg to BTC staking contract", "height", headerInfo.Height, "address", addrStr)
+	k.Logger(ctx).Info("Debug: Sending BeginBlockMsg to BTC staking contract", "height", headerInfo.Height, "address", addrStr)
 
 	// send the sudo call
 	return k.doSudoCall(ctx, addr, msg)
