@@ -9,11 +9,9 @@ import (
 	sdkmath "cosmossdk.io/math"
 	"github.com/babylonchain/babylon/testutil/datagen"
 	bbn "github.com/babylonchain/babylon/types"
-	"github.com/babylonchain/babylon/x/btcstaking/types"
+	bstypes "github.com/babylonchain/babylon/x/btcstaking/types"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/stretchr/testify/require"
-
-	bstypes "github.com/babylonchain/babylon/x/btcstaking/types"
 )
 
 func GenExecMessage() ExecuteMessage {
@@ -53,8 +51,8 @@ func GenExecMessage() ExecuteMessage {
 	return executeMessage
 }
 
-func genBTCDelegation() (*types.Params, ActiveBtcDelegation) {
-	var net = &chaincfg.RegressionNetParams
+func genBTCDelegation() (*bstypes.Params, ActiveBtcDelegation) {
+	net := &chaincfg.RegressionNetParams
 	r := rand.New(rand.NewSource(time.Now().Unix()))
 	t := &testing.T{}
 
@@ -81,7 +79,7 @@ func genBTCDelegation() (*types.Params, ActiveBtcDelegation) {
 	unbondingTime := uint16(100) + 1
 	slashingChangeLockTime := unbondingTime
 
-	bsParams := &types.Params{
+	bsParams := &bstypes.Params{
 		CovenantPks:     bbn.NewBIP340PKsFromBTCPKs(covenantPKs),
 		CovenantQuorum:  covenantQuorum,
 		SlashingAddress: slashingAddress.EncodeAddress(),
