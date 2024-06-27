@@ -24,7 +24,7 @@ func (k Keeper) getBTCStakingContractAddr(ctx sdk.Context) sdk.AccAddress {
 		k.Logger(ctx).Warn("the BTC staking contract address is malformed", "contract", addrStr, "error", err)
 		return nil
 	}
-	if k.wasm.HasContractInfo(ctx, addr) {
+	if !k.wasm.HasContractInfo(ctx, addr) {
 		// NOTE: it's possible that the default contract address does not correspond to
 		// any contract. We emit a warning message rather than panic to minimise the
 		// impact on the consumer chain's operation
