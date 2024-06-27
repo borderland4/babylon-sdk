@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	rt "runtime"
+	"strings"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -142,9 +144,27 @@ func (am AppModule) BeginBlock(ctx sdk.Context) error {
 
 // EndBlock executed after every block. It returns no validator updates.
 func (am AppModule) EndBlock(ctx sdk.Context) ([]abci.ValidatorUpdate, error) {
+	fmt.Println("AppModule EndBlock is called") // Basic print statement
+	printStackTrace()                           // Print the stack trace
 	return am.k.EndBlocker(ctx)
 }
 
 // IsOnePerModuleType implements the depinject.OnePerModuleType interface.
 func (am AppModule) IsOnePerModuleType() { // marker
+}
+
+func printStackTrace() {
+	var pcs [32]uintptr
+	n := rt.Callers(2, pcs[:])
+	frames := rt.CallersFrames(pcs[:n])
+
+	var sb strings.Builder
+	for {
+		frame, more := frames.Next()
+		sb.WriteString(fmt.Sprintf("%s\n\t%s:%d\n", frame.Function, frame.File, frame.Line))
+		if !more {
+			break
+		}
+	}
+	fmt.Println(sb.String())
 }

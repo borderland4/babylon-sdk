@@ -6,6 +6,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	rt "runtime"
+	"strings"
 
 	"cosmossdk.io/log"
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -214,6 +216,22 @@ type ConsumerApp struct {
 	configurator module.Configurator
 }
 
+func printStackTrace() {
+	var pcs [32]uintptr
+	n := rt.Callers(2, pcs[:])
+	frames := rt.CallersFrames(pcs[:n])
+
+	var sb strings.Builder
+	for {
+		frame, more := frames.Next()
+		sb.WriteString(fmt.Sprintf("%s\n\t%s:%d\n", frame.Function, frame.File, frame.Line))
+		if !more {
+			break
+		}
+	}
+	fmt.Println(sb.String())
+}
+
 // NewConsumerApp returns a reference to an initialized ConsumerApp.
 func NewConsumerApp(
 	logger log.Logger,
@@ -231,6 +249,9 @@ func NewConsumerApp(
 	txConfig := encCfg.TxConfig
 	std.RegisterLegacyAminoCodec(legacyAmino)
 	std.RegisterInterfaces(interfaceRegistry)
+
+	fmt.Println("Initializing NewConsumerApp")
+	printStackTrace()
 
 	keys := storetypes.NewKVStoreKeys(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey, crisistypes.StoreKey,
