@@ -156,6 +156,14 @@ func (s *BabylonSDKTestSuite) Test5NextBlock() {
 
 	// this triggers BeginBlock and EndBlock
 	s.ConsumerChain.NextBlock()
+
+	// ensure the current block is indexed
+	_, err = s.ConsumerCli.Query(s.ConsumerContract.BTCStaking, Query{
+		"block": {
+			"height": uint64(height),
+		},
+	})
+	s.NoError(err)
 }
 
 // TearDownSuite runs once after all the suite's tests have been run
