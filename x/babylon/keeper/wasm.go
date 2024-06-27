@@ -87,6 +87,7 @@ func (k Keeper) doSudoCall(ctx sdk.Context, contractAddr sdk.AccAddress, msg con
 	if err != nil {
 		return errorsmod.Wrap(err, "marshal sudo msg")
 	}
-	_, err = k.wasm.Sudo(ctx, contractAddr, bz)
+	resp, err := k.wasm.Sudo(ctx, contractAddr, bz)
+	k.Logger(ctx).Debug("response of sudo call %v to contract %s: %v", bz, contractAddr.String(), resp)
 	return err
 }

@@ -14,6 +14,8 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+var testMsg types.ExecuteMessage
+
 // In the Test function, we create and run the suite
 func TestBabylonSDKTestSuite(t *testing.T) {
 	suite.Run(t, new(BabylonSDKTestSuite))
@@ -105,8 +107,8 @@ func (s *BabylonSDKTestSuite) Test1ContractDeployment() {
 
 // TestExample is an example test case
 func (s *BabylonSDKTestSuite) Test2MockConsumerFpDelegation() {
-	msg := types.GenExecMessage()
-	msgBytes, err := json.Marshal(msg)
+	testMsg = types.GenExecMessage()
+	msgBytes, err := json.Marshal(testMsg)
 	s.NoError(err)
 
 	// send msg to BTC staking contract via admin account
@@ -122,9 +124,36 @@ func (s *BabylonSDKTestSuite) Test2MockConsumerFpDelegation() {
 	consumerDels, err := s.ConsumerCli.Query(s.ConsumerContract.BTCStaking, Query{"delegations": {}})
 	s.NoError(err)
 	s.NotEmpty(consumerDels)
+
+	// ensure the BTC staking is activated
+	resp, err := s.ConsumerCli.Query(s.ConsumerContract.BTCStaking, Query{"activated_height": {}})
+	s.NoError(err)
+	parsedActivatedHeight := resp["height"].(float64)
+	currentHeight := s.ConsumerChain.GetContext().BlockHeight()
+	s.Equal(uint64(parsedActivatedHeight), uint64(currentHeight))
 }
 
-func (s *BabylonSDKTestSuite) Test3NextBlock() {
+func (s *BabylonSDKTestSuite) Test3BeginBlock() {
+	err := s.ConsumerApp.BabylonKeeper.BeginBlocker(s.ConsumerChain.GetContext())
+	s.NoError(err)
+}
+
+func (s *BabylonSDKTestSuite) Test4EndBlock() {
+	_, err := s.ConsumerApp.BabylonKeeper.EndBlocker(s.ConsumerChain.GetContext())
+	s.NoError(err)
+}
+
+func (s *BabylonSDKTestSuite) Test5NextBlock() {
+	// get current height
+	height := s.ConsumerChain.GetContext().BlockHeight()
+	// ensure the current block is not indexed yet
+	_, err := s.ConsumerCli.Query(s.ConsumerContract.BTCStaking, Query{
+		"block": {
+			"height": uint64(height),
+		},
+	})
+	s.Error(err)
+
 	// this triggers BeginBlock and EndBlock
 	s.ConsumerChain.NextBlock()
 }
