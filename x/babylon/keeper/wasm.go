@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"context"
 	"encoding/hex"
 	"encoding/json"
 
@@ -10,7 +11,9 @@ import (
 )
 
 // SendBeginBlockMsg sends a BeginBlock sudo message to the BTC staking contract via sudo
-func (k Keeper) SendBeginBlockMsg(ctx sdk.Context) error {
+func (k Keeper) SendBeginBlockMsg(c context.Context) error {
+	ctx := sdk.UnwrapSDKContext(c)
+
 	// get address of the BTC staking contract
 	addrStr := k.GetParams(ctx).BtcStakingContractAddress
 	if len(addrStr) == 0 {
@@ -33,7 +36,9 @@ func (k Keeper) SendBeginBlockMsg(ctx sdk.Context) error {
 }
 
 // SendEndBlockMsg sends a EndBlock sudo message to the BTC staking contract via sudo
-func (k Keeper) SendEndBlockMsg(ctx sdk.Context) error {
+func (k Keeper) SendEndBlockMsg(c context.Context) error {
+	ctx := sdk.UnwrapSDKContext(c)
+
 	// get address of the BTC staking contract
 	addrStr := k.GetParams(ctx).BtcStakingContractAddress
 	if len(addrStr) == 0 {

@@ -2,9 +2,7 @@ package e2e
 
 import (
 	"encoding/json"
-	"math/rand"
 	"testing"
-	"time"
 
 	"github.com/CosmWasm/wasmd/x/wasm/ibctesting"
 	"github.com/babylonchain/babylon-sdk/demo/app"
@@ -15,8 +13,6 @@ import (
 	ibctesting2 "github.com/cosmos/ibc-go/v8/testing"
 	"github.com/stretchr/testify/suite"
 )
-
-var r = rand.New(rand.NewSource(time.Now().Unix()))
 
 // In the Test function, we create and run the suite
 func TestBabylonSDKTestSuite(t *testing.T) {
@@ -128,16 +124,9 @@ func (s *BabylonSDKTestSuite) Test2MockConsumerFpDelegation() {
 	s.NotEmpty(consumerDels)
 }
 
-// TODO: trigger BeginBlock via s.ConsumerChain rather than ConsumerApp
-func (s *BabylonSDKTestSuite) Test3BeginBlock() {
-	err := s.ConsumerApp.BabylonKeeper.BeginBlocker(s.ConsumerChain.GetContext())
-	s.NoError(err)
-}
-
-// TODO: trigger EndBlock via s.ConsumerChain rather than ConsumerApp
-func (s *BabylonSDKTestSuite) Test4EndBlock() {
-	_, err := s.ConsumerApp.BabylonKeeper.EndBlocker(s.ConsumerChain.GetContext())
-	s.NoError(err)
+func (s *BabylonSDKTestSuite) Test3NextBlock() {
+	// this triggers BeginBlock and EndBlock
+	s.ConsumerChain.NextBlock()
 }
 
 // TearDownSuite runs once after all the suite's tests have been run

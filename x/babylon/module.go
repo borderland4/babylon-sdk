@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"cosmossdk.io/core/appmodule"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
@@ -24,8 +25,10 @@ import (
 const ConsensusVersion = 1
 
 var (
-	_ module.AppModuleBasic = AppModuleBasic{}
-	_ module.AppModule      = AppModule{}
+	_ appmodule.AppModule       = AppModule{}
+	_ appmodule.HasBeginBlocker = AppModule{}
+	_ module.HasABCIEndBlock    = AppModule{}
+	_ module.AppModuleBasic     = AppModuleBasic{}
 )
 
 // AppModuleBasic defines the basic application module used by the babylon module.
@@ -136,12 +139,12 @@ func (AppModule) ConsensusVersion() uint64 {
 }
 
 // BeginBlock executed before every block
-func (am AppModule) BeginBlock(ctx sdk.Context) error {
+func (am AppModule) BeginBlock(ctx context.Context) error {
 	return am.k.BeginBlocker(ctx)
 }
 
 // EndBlock executed after every block. It returns no validator updates.
-func (am AppModule) EndBlock(ctx sdk.Context) ([]abci.ValidatorUpdate, error) {
+func (am AppModule) EndBlock(ctx context.Context) ([]abci.ValidatorUpdate, error) {
 	return am.k.EndBlocker(ctx)
 }
 
