@@ -21,10 +21,3 @@ updates:
       time: "01:35"
     labels:
       - dependencies
-  - package-ecosystem: gomod
-    directory: "/tests/starship"
-    schedule:
-      interval: daily
-      time: "01:55"
-    labels:
-      - dependencies
