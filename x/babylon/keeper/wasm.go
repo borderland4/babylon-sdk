@@ -11,8 +11,11 @@ import (
 )
 
 func (k Keeper) getBTCStakingContractAddr(ctx sdk.Context) sdk.AccAddress {
+	params := k.GetParams(ctx)
+	k.Logger(ctx).Info("Debug: getBTCStakingContractAddr", "btc_staking_addr", params.BtcStakingContractAddress, "babylon_contract_addr", params.BabylonContractAddress)
+
 	// get address of the BTC staking contract
-	addrStr := k.GetParams(ctx).BtcStakingContractAddress
+	addrStr := params.BtcStakingContractAddress
 	if len(addrStr) == 0 {
 		// the BTC staking contract address is not set yet, skip sending BeginBlockMsg
 		return nil
