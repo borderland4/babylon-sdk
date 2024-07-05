@@ -54,6 +54,8 @@ func (k Keeper) SendBeginBlockMsg(c context.Context) error {
 		},
 	}
 
+	k.Logger(ctx).Info("Debug: SendBeginBlockMsg to BTC staking contract", "height", headerInfo.Height, "address", addr.String())
+
 	// send the sudo call
 	return k.doSudoCall(ctx, addr, msg)
 }
@@ -76,6 +78,8 @@ func (k Keeper) SendEndBlockMsg(c context.Context) error {
 			AppHashHex: hex.EncodeToString(headerInfo.AppHash),
 		},
 	}
+
+	k.Logger(ctx).Info("Debug: SendEndBlockMsg to BTC staking contract", "height", headerInfo.Height, "address", addr.String())
 
 	// send the sudo call
 	return k.doSudoCall(ctx, addr, msg)

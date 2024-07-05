@@ -7,11 +7,15 @@ import (
 	"github.com/babylonchain/babylon-sdk/x/babylon/types"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (k *Keeper) BeginBlocker(ctx context.Context) error {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
 
+	sctx := sdk.UnwrapSDKContext(ctx)
+	headerInfo := sctx.HeaderInfo()
+	k.Logger(sctx).Info("Debug: BeginBlocker to BTC staking contract", "height", headerInfo.Height)
 	return k.SendBeginBlockMsg(ctx)
 }
 
@@ -19,6 +23,9 @@ func (k *Keeper) BeginBlocker(ctx context.Context) error {
 func (k *Keeper) EndBlocker(ctx context.Context) ([]abci.ValidatorUpdate, error) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyEndBlocker)
 
+	sctx := sdk.UnwrapSDKContext(ctx)
+	headerInfo := sctx.HeaderInfo()
+	k.Logger(sctx).Info("Debug: EndBlocker to BTC staking contract", "height", headerInfo.Height)
 	if err := k.SendEndBlockMsg(ctx); err != nil {
 		return []abci.ValidatorUpdate{}, err
 	}
