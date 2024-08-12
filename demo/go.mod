@@ -39,7 +39,7 @@ require (
 	cosmossdk.io/tools/confix v0.1.1
 	cosmossdk.io/x/evidence v0.1.1
 	cosmossdk.io/x/feegrant v0.1.1
-	cosmossdk.io/x/tx v0.13.3
+	cosmossdk.io/x/tx v0.13.4
 	cosmossdk.io/x/upgrade v0.1.2
 	github.com/babylonchain/babylon-sdk/x v0.0.0-00010101000000-000000000000
 	github.com/cometbft/cometbft v0.38.6
